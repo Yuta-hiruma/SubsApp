@@ -1,0 +1,205 @@
+Timer unit: 1e-06 s
+
+Total time: 29.4989 s
+File: main.py
+Function: equations at line 226
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   226                                           @profile
+   227                                           def equations(simulation_time, in_in, sigma_tracker):
+   228                                               #global time_step
+   229                                               #global Soil_calc
+   230                                               #global Results_states
+   231                                               global gamma_vector
+   232                                               global Compression_vector
+   233                                               global Shrinkage_curve_vector
+   234                                               global Water_retention_curve_vector
+   235                                               global Permeability_cruve_Perm_vector
+   236                                               global Emission_vector
+   237                                               global Soil_dimension
+   238                                               global Bctop
+   239                                               global Bcbottom
+   240                                               
+   241                                               #print("~~~~~~~~~~~~~~~~~~")
+   242     23918      74840.1      3.1      0.3      print ("time", "%.2f" % simulation_time)
+   243     23918       3670.7      0.2      0.0      "~~~~~~~setup_local_parameters~~~~~~"    
+   244                                               
+   245     23918       4544.6      0.2      0.0      Shrinkage_curve_node = Shrinkage_curve_vector
+   246                                           
+   247     23918       3801.0      0.2      0.0      Water_retention_curve_node = Water_retention_curve_vector
+   248     23918       3544.7      0.1      0.0      "~~~~ retreive parameters from loop~~~~~~~"
+   249                                               
+   250     23918       2918.7      0.1      0.0      " here the / 4 means that there are three sets of parameters changing in dx/dt"
+   251                                               
+   252     23918      29676.9      1.2      0.1      nr_elements = int(np.size(in_in)/6)  
+   253                                           
+   254                                           
+   255     23918     149931.1      6.3      0.5      Pressure,theta,e,T,emm = untangle_parameters(in_in.copy(),5)
+   256     23918       6127.1      0.3      0.0      Soil_states.theta = theta
+   257     23918       6096.5      0.3      0.0      Soil_states.e = e
+   258     23918      35508.5      1.5      0.1      n = e/(1+e)
+   259                                               #S_e                   = theta/n #update_S_e(Water_retention_curve_node,theta)
+   260                                               #S_e                   = update_S_e(Water_retention_curve_node,theta) 
+   261     23918     131874.1      5.5      0.4      S_e = np.clip(update_S_e(Water_retention_curve_node, theta), 0.0, 1.0)
+   262     23918      38742.5      1.6      0.1      saturated = (S_e >= 1).astype(int)
+   263     23918      34612.9      1.4      0.1      unsaturated = (S_e < 1).astype(int)
+   264                                               #print(saturated)
+   265                                               #print("Se","%.1f" % S_e[3])    
+   266                                                 
+   267     23918       3615.2      0.2      0.0      "~~~~ Set boundary ~~~~~"
+   268                                               
+   269     23918       9031.5      0.4      0.0      t_interval = len(Bctop.time)-1
+   270  21932806    2696913.4      0.1      9.1      for i in range(len(Bctop.time)):
+   271  21908888    3717480.9      0.2     12.6          if simulation_time < Bctop.time[i]:
+   272  20681810    2613892.7      0.1      8.9              t_interval = t_interval-1   
+   273                                           
+   274                                           
+   275     23918      13939.1      0.6      0.0      Bctop_in = Bc_top()
+   276     23918       6231.7      0.3      0.0      Bctop_in.pressure =  Bctop.pressure[t_interval]
+   277     23918       6846.1      0.3      0.0      Bctop_in.Temp = Bctop.Temp[t_interval]
+   278                                           
+   279     23918       7688.0      0.3      0.0      if t_interval == len(Bctop.time)-1 :
+   280                                                   t_next = Bctop.time[t_interval]
+   281                                                   P_next = Bctop.pressure[t_interval]
+   282                                                   trans_next = Bctop.trans[t_interval]
+   283                                               else: 
+   284     23918       5820.9      0.2      0.0          t_next = Bctop.time[t_interval+1]
+   285     23918       4236.4      0.2      0.0          P_next = Bctop.pressure[t_interval+1]
+   286     23918       5751.1      0.2      0.0          trans_next = Bctop.trans[t_interval+1]
+   287     23918       6987.7      0.3      0.0          P_average = 0.5*(Bctop.pressure[t_interval] + P_next)
+   288     23918       5586.9      0.2      0.0          P_range = P_next - Bctop.pressure[t_interval]
+   289     23918      32411.2      1.4      0.1          Bctop_in.pressure = P_average+0.5*P_range*special.erf((simulation_time-t_next+trans_next)*(3/trans_next))
+   290                                               
+   291                                               #print(Bctop_in.pressure)
+   292                                                                                      # kPa
+   293     23918       6853.6      0.3      0.0      Bctop_in.devaporation = Bctop.devaporation[t_interval]
+   294     23918       5293.3      0.2      0.0      Bctop_in.trans = Bctop.trans[t_interval]
+   295                                           
+   296     23918       7491.3      0.3      0.0      t_interval = len(Bcbottom.time)-1
+   297  21908888    2683945.3      0.1      9.1      for i in range(len(Bcbottom.time)):
+   298  21884970    3862894.1      0.2     13.1          if simulation_time < Bcbottom.time[i]:
+   299  20657892    2852710.8      0.1      9.7              t_interval = t_interval-1  
+   300                                           
+   301                                           
+   302     23918      13256.3      0.6      0.0      Bcbottom_in = Bc_bottom()
+   303     23918       5591.5      0.2      0.0      Bcbottom_in.pressure = Bcbottom.pressure[t_interval] 
+   304     23918       6516.9      0.3      0.0      Bcbottom_in.Temp = Bcbottom.Temp[t_interval]                                                         # kPa
+   305     23918       5771.9      0.2      0.0      Bcbottom_in.dflow = Bcbottom.dflow[t_interval]
+   306     23918       5387.0      0.2      0.0      Bcbottom_in.trans = Bcbottom.trans[t_interval]
+   307                                               
+   308                                               #Bctop_in.pressure,Bctop_in.Temp = Boundary_equation(simulation_time)
+   309                                               
+   310     23918       3034.3      0.1      0.0      "~~~~~~~Update soil_dimension~~~~~~"
+   311     23918     842506.2     35.2      2.9      Soil_dimension.node_vector = get_node_coordinates(Soil_dimension)
+   312     23918     753633.6     31.5      2.6      Soil_dimension.node_distance = get_node_distance(Soil_dimension)  
+   313     23918      76914.4      3.2      0.3      Soil_dimension.node_distance = (1-((Soil_states.e_ini-e)/(1+Soil_states.e_ini)))*Soil_dimension.node_initial
+   314                                                    
+   315     23918       3590.7      0.2      0.0      "~~~~~~Update_soil_stresses~~~~~~~"
+   316     23918       9698.2      0.4      0.0      sigma_total = np.zeros(len(e))
+   317     23918    1537301.6     64.3      5.2      sigma_total = update_sigma_total (Soil_dimension.node_distance,gamma_vector,Soil_states,Water_retention_curve_vector,Bctop_in)
+   318     23918      28702.4      1.2      0.1      sigma_eff = np.abs(sigma_total - Pressure*S_e)
+   319                                               #compute_dsigma_eff_dt------------------------------------------------
+   320     23918      54363.4      2.3      0.2      dsigma_eff_dt = sigma_tracker.compute_dsigma_eff_dt(sigma_eff, simulation_time) 
+   321                                               #---------------------------------------------------------------------
+   322                                               #print(Pressure[0])
+   323                                               #print(sigma_total[0])
+   324                                               #print(sigma_eff[0])
+   325                                           
+   326     23918       3377.7      0.1      0.0      "Matrix potential "
+   327     23918      66449.2      2.8      0.2      psi_m = np.where(Pressure <= 0, Pressure, 0)
+   328                                               
+   329     23918       3503.9      0.1      0.0      "~~~~ Calculate permeability ~~~~~"
+   330     23918     848192.7     35.5      2.9      Soil_calc.K                     = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
+   331     23918      14427.5      0.6      0.0      K= Soil_calc.K/Soil_dimension.node_distance
+   332                                               
+   333     23918       3105.5      0.1      0.0      "set differentials"
+   334                                               # First set is pressure 
+   335     23918    1233577.9     51.6      4.2      d2psi_dz2 = d2f_dz2_non_uniform_h(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
+   336     23918      13060.3      0.5      0.0      dpsi_dt = K*d2psi_dz2
+   337                                               
+   338                                               #print("Pressure", Pressure[0:4])
+   339                                               #dS_e_dpsi = derrivative_van_genuchten_S_e (Water_retention_curve_node, theta,e, psi_m)
+   340                                               #dtheta_dpsi = dS_e_dpsi*n
+   341                                           
+   342     23918    1614255.8     67.5      5.5      dS_e_dpsi,dtheta_dpsi  = derrivative_van_genuchten_S_e_h (Water_retention_curve_node, theta,e, psi_m)
+   343                                           
+   344                                               # third set is void ratio
+   345     23918     316876.7     13.2      1.1      de_dt,dn_dt = deSSc_dt_h(Compression_vector, Soil_states, S_e, sigma_eff, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector, Soil_states.Preconsolidation_pressure)
+   346                                               
+   347                                               
+   348     23918     798982.8     33.4      2.7      d2T_dz2 = d2f_dz2_non_uniform_h(T,Bctop_in.Temp,Bcbottom_in.Temp,Soil_dimension)   
+   349     23918      20549.3      0.9      0.1      dT_dt = 0.044064*d2T_dz2     
+   350                                           
+   351                                               # second set is theta
+   352                                           
+   353     23918      12487.6      0.5      0.0      dtheta_dt = dpsi_dt*dtheta_dpsi  
+   354                                                 
+   355                                               
+   356     23918      33874.9      1.4      0.1      compression = (de_dt < 0).astype(int)    
+   357     23918      31811.5      1.3      0.1      extension = (de_dt > 0).astype(int)  
+   358                                               
+   359     23918      29114.7      1.2      0.1      positive_pressure = (dpsi_dt > 0).astype(int)
+   360     23918      29735.2      1.2      0.1      negative_pressure = (dpsi_dt < 0).astype(int)
+   361                                               
+   362                                             
+   363                                               #dpsi_dt = dpsi_dt + (-1/K)*compression*saturated*dn_dt
+   364                                               #dpsi_dt = np.where(np.isfinite(dpsi_dt), dpsi_dt, 0.0)
+   365     23918     166140.0      6.9      0.6      dpsi_dt = update_dpsi_dt(dpsi_dt, K, compression, saturated, dn_dt)
+   366                                                   
+   367                                             
+   368                                           
+   369                                               #dtheta_dt = -(dtheta_dt - positive_pressure*extension*saturated*(dn_dt) )
+   370     23918     162944.2      6.8      0.6      dtheta_dt, dSat_dt = update_dtheta_and_dSat(dtheta_dt,positive_pressure, extension, saturated, dn_dt,n, theta, unsaturated)
+   371                                           
+   372                                           
+   373                                               
+   374   1602506     207021.8      0.1      0.7      for i in range(len(S_e)):
+   375   1578588     306025.5      0.2      1.0          if S_e[i] >= 1:
+   376       950        226.3      0.2      0.0              if dtheta_dt[i] > dn_dt[i] :  
+   377       607        133.8      0.2      0.0                  dtheta_dt[i] = dn_dt[i]    
+   378                                           
+   379                                               #dSat_dt = dtheta_dt/n - unsaturated*dn_dt/n
+   380                                               
+   381                                               #dSat_dt = dtheta_dt/e - de_dt/e
+   382                                           
+   383                                               # emission
+   384                                               
+   385                                               #(Emission,dEmission) = respiration_rate_curve (S_e,e, theta,dSat_dt, dT_dt, T, Water_retention_curve_vector,Emission_vector)
+   386                                           
+   387     23918      24287.6      1.0      0.1      demm_dt = 0*dSat_dt
+   388                                               
+   389   1602506     193745.1      0.1      0.7      for i in range(len(emm)):
+   390   1578588     305368.8      0.2      1.0          if emm[i] <= 0 : 
+   391   1578588     297310.7      0.2      1.0              if demm_dt[i] <= 0:
+   392   1578588     286349.5      0.2      1.0                  demm_dt[i] = 0
+   393                                                           
+   394     23918      43968.0      1.8      0.1      out_out = np.concatenate([dpsi_dt,dtheta_dt,de_dt,dT_dt,demm_dt],axis=0)
+   395                                               #------------------------------------------------------------------------
+   396                                               #if not np.all(np.isfinite(dSat_dt)):
+   397                                               #    print("NaN or Inf in dSat_dt!", dSat_dt)
+   398                                               #    raise ValueError("Non-finite derivative encountered!")
+   399                                           #
+   400                                               #if not np.all(np.isfinite(S_e)):
+   401                                               #    print("NaN or Inf in S_e!", S_e)
+   402                                               #    raise ValueError("Non-finite derivative encountered!")
+   403                                           #
+   404                                               #if not np.all(np.isfinite(K)):
+   405                                               #    print("NaN or Inf in K!", K)
+   406                                               #    raise ValueError("Non-finite derivative encountered!")
+   407                                           #
+   408                                               #if not np.all(np.isfinite(dpsi_dt)):
+   409                                               #    print("NaN or Inf in dpsi_dt!", dpsi_dt)
+   410                                               #    raise ValueError("Non-finite derivative encountered!")
+   411                                           #
+   412                                               #if not np.all(np.isfinite(dtheta_dt)):
+   413                                               #    print("NaN or Inf in dtheta_dt!", dtheta_dt)
+   414                                               #    raise ValueError("Non-finite derivative encountered!")
+   415                                           #
+   416                                               #if not np.all(np.isfinite(de_dt)):
+   417                                               #    print("NaN or Inf in de_dt!", de_dt)
+   418                                               #    raise ValueError("Non-finite derivative encountered!")
+   419                                           
+   420                                               #------------------------------------------------------------------------
+   421     23918       4256.4      0.2      0.0      return [out_out]
+
