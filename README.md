@@ -8,7 +8,7 @@
 * Layered soil profile representation
 * Subsidence simulation using the Soft Soil Creep (SSC) model
 * Simulate pore pressure using defusion equation.
-* Hydraulic conductivity in unsaturated zone is updated by Mualem--van Genuchten formulation
+* Hydraulic conductivity in unsaturated zone is updated by Mualem-van Genuchten formulation
 * Matric suction is calcurated
 * Pore pressure boundary conditions is to be derived from SWAP simulations
 * Surface displacement output
