@@ -6,7 +6,6 @@ Created on Fri Jul 23 14:27:28 2021
 
 This model links the change in effective stress due to transient flow to a consitutitve modelincluding creep (Modelled after Soft Soil creep). 
 The permeability is changed based on watercontent and void ratio. 
-Additionally this model can be used to calculate GHG-production rated based on saturation, temperature and available source material
 
 
 """
@@ -25,8 +24,6 @@ from NSDWLs_states import *
 from NSDWLs_equations import *
 from NSDWLs_potential import *
 
-#from NSDWLs_calc import *
-#from NSDWLs_flux import *
 
 "The following function libraries are used in the programme and are global"
 
@@ -76,15 +73,14 @@ tic = timeit.default_timer()
 " Initiation of he soil domain, give top, bottom and precision"
 " precision directly influences calculation time. If the precision is small, the relative error required for accuracy will increase calulation time"
 Soil_dimension = Soil_domain()
-Soil_dimension.Depth_top = 0.00                                                    # m size
-Soil_dimension.Depth_bottom = depths[-1]                                               # m size
-Soil_dimension.precision = 0.1                                               # m node size
+Soil_dimension.Depth_top = 0.00                     # m size
+Soil_dimension.Depth_bottom = depths[-1]            # m size
+Soil_dimension.precision = 0.1                      # m node size
 
 " Layers are added to the domain."
 " Soil properties are collected in the library Input_parameters_definitiions "
 
-Soil_dimension.Depth_o_soils = depths                # bottom of soil layer
-#Soil_dimension.soils = ["Test_soil", "Test_soil", "Test_soil"]                                      # soil types used
+Soil_dimension.Depth_o_soils = depths                # bottom of soil layer      
 Soil_dimension.soils = types                                      # soil types used
 
 ""
@@ -92,17 +88,7 @@ Soil_dimension.soils = types                                      # soil types u
 Soil_dimension.Number_o_soils = len(Soil_dimension.Depth_o_soils)                                                 # number of soils 
 Soil_dimension.domainsize = Soil_dimension.Depth_top-Soil_dimension.Depth_bottom
 
-
-#TEST MATERIALS BELOW
-#Clay
-#Peat
-
-#Soil_parameters = Soil_parameters()
-
-#Soil_states = Soil_states()
 Soil_states = Soil_states()
-
-#Soil_stresses = Soil_stresses()
 Soil_stresses = Soil_stresses()
 
 Soil_calc = Soil_calc()
@@ -127,15 +113,11 @@ simulation_time =  np.linspace (0,end_time,simssteps+1)
 
 "Top boundary conditions"
 Bctop = Bc_top()
-#Bctop.time =     [0, 10, 200, 300, 400, 500, 600, 700, 800,1500,2000]
-#Bctop.pressure = [0,-10, -100, -300,-200,-100, 100,-100, 100, -100,   0]
 #Initial conditoin from SWAP----------
 Bctop.time = df_tp["date"].tolist()
 Bctop.pressure = df_tp["pressure"].tolist()   
 #-------------------------------------
-#Bctop.trans =    [1,  10,   1,   1,   1,  1,   1, 1 ,  1,   1,   1]
 Bctop.trans = np.ones(len(Bctop.pressure))
-Bctop.Temp = np.ones(len(Bctop.pressure))*10
 Bctop.load_increments = [0]
 Bctop.load = np.cumsum(Bctop.load_increments)
 Bctop.time_incr = [0]
@@ -157,10 +139,7 @@ Bcbottom = Bc_bottom()
 #Bcbottom.time = [0]
 #Bcbottom.pressure = [49]
 Bcbottom.time = df_bp["date"].tolist()
-Bcbottom.pressure = df_bp["pressure"].tolist()  
-Bcbottom.Temp = np.ones(len(Bcbottom.pressure))*10                                                       # kPa
-Bcbottom.dflow = np.zeros(len(Bcbottom.pressure))
-Bcbottom.trans = np.ones(len(Bcbottom.pressure))
+Bcbottom.pressure = df_bp["pressure"].tolist()       # kPa
 
 "## check for errors ##"
 
@@ -179,7 +158,6 @@ Soil_states.theta = Soil_states.theta_ini
 Soil_dimension.internode_vector = modeldomain (Soil_dimension,Soil_parameters)
 (material_vector,gamma_vector,Permeability_curve_Perm_vector,Shrinkage_curve_vector,Water_retention_curve_vector, Compression_vector,Emission_vector) = soilbuilder(Soil_dimension,Soil_parameters,Soil_dimension.node_vector,Soil_dimension.internode_vector)
 
-Temperature = np.full_like(Soil_states.theta, 10)
 
 S_e_ini = Soil_states.theta_ini/Soil_states.n_ini
 
@@ -188,7 +166,6 @@ Soil_dimension.node_initial=get_node_distance(Soil_dimension)
 
 " ### RUN PROGRAM ###" 
 
-#(Soil_stresses) = calc_stress (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_vector,Soil_stresses)
 (Soil_stresses) = calc_stress_ini_h (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_vector,Soil_stresses)
 
 Soil_stresses.sigma_effective_node_ini = np.array(Soil_stresses.sigma_effective_node)
@@ -197,20 +174,18 @@ Soil_states.Preconsolidation_pressure =  Soil_stresses.sigma_effective_node_ini*
 #Define a wrapper function to store previous values------
 class SigmaTracker:
     def __init__(self):
-        self.prev_sigma_eff = None  # Store previous sigma value
-        self.prev_t = None      # Store previous time
+        self.prev_sigma_eff = None 
+        self.prev_t = None     
     
     def compute_dsigma_eff_dt(self, sigma_eff, t):
-        if self.prev_sigma_eff is None:  # First time step, no derivative yet
-            dsigma_eff_dt = 0  # Assume initial derivative is 0
+        if self.prev_sigma_eff is None:  
+            dsigma_eff_dt = 0  
         else:
-            dt = t - self.prev_t  # Compute time step
+            dt = t - self.prev_t 
             if dt == 0:
-                dsigma_eff_dt = 0  # Avoid division by zero
+                dsigma_eff_dt = 0 
             else:
-                dsigma_eff_dt = (sigma_eff - self.prev_sigma_eff) / dt  # Finite difference
-
-        # Update stored values for next step
+                dsigma_eff_dt = (sigma_eff - self.prev_sigma_eff) / dt 
         self.prev_sigma_eff = sigma_eff
         self.prev_t = t
         return dsigma_eff_dt
@@ -223,9 +198,6 @@ sigma_tracker = SigmaTracker()
 
 #@profile
 def equations(simulation_time, in_in, sigma_tracker):
-    #global time_step
-    #global Soil_calc
-    #global Results_states
     global gamma_vector
     global Compression_vector
     global Shrinkage_curve_vector
@@ -254,13 +226,9 @@ def equations(simulation_time, in_in, sigma_tracker):
     Soil_states.theta = theta
     Soil_states.e = e
     n = e/(1+e)
-    #S_e                   = theta/n #update_S_e(Water_retention_curve_node,theta)
-    #S_e                   = update_S_e(Water_retention_curve_node,theta) 
     S_e = np.clip(update_S_e(Water_retention_curve_node, theta), 0.0, 1.0)
     saturated = (S_e >= 1).astype(int)
-    unsaturated = (S_e < 1).astype(int)
-    #print(saturated)
-    #print("Se","%.1f" % S_e[3])    
+    unsaturated = (S_e < 1).astype(int)  
       
     "~~~~ Set boundary ~~~~~"
     
@@ -272,7 +240,6 @@ def equations(simulation_time, in_in, sigma_tracker):
 
     Bctop_in = Bc_top()
     Bctop_in.pressure =  Bctop.pressure[t_interval]
-    Bctop_in.Temp = Bctop.Temp[t_interval]
 
     if t_interval == len(Bctop.time)-1 :
         t_next = Bctop.time[t_interval]
@@ -298,12 +265,8 @@ def equations(simulation_time, in_in, sigma_tracker):
 
 
     Bcbottom_in = Bc_bottom()
-    Bcbottom_in.pressure = Bcbottom.pressure[t_interval] 
-    Bcbottom_in.Temp = Bcbottom.Temp[t_interval]                                                         # kPa
-    Bcbottom_in.dflow = Bcbottom.dflow[t_interval]
-    Bcbottom_in.trans = Bcbottom.trans[t_interval]
+    Bcbottom_in.pressure = Bcbottom.pressure[t_interval]                                                         # kPa
     
-    #Bctop_in.pressure,Bctop_in.Temp = Boundary_equation(simulation_time)
     
     "~~~~~~~Update soil_dimension~~~~~~"
     Soil_dimension.node_vector = get_node_coordinates(Soil_dimension)
@@ -326,23 +289,18 @@ def equations(simulation_time, in_in, sigma_tracker):
     K= Soil_calc.K/Soil_dimension.node_distance
     
     "set differentials"
-    # First set is pressure 
+    # First set: pressure 
     d2psi_dz2 = d2f_dz2_non_uniform_h(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
     dpsi_dt = K*d2psi_dz2
     
-    #print("Pressure", Pressure[0:4])
-    #dS_e_dpsi = derrivative_van_genuchten_S_e (Water_retention_curve_node, theta,e, psi_m)
-    #dtheta_dpsi = dS_e_dpsi*n
 
     dS_e_dpsi,dtheta_dpsi  = derrivative_van_genuchten_S_e_h (Water_retention_curve_node, theta,e, psi_m)
 
-    # third set is void ratio
+    # third set: void ratio
     de_dt,dn_dt = deSSc_dt_h(Compression_vector, Soil_states, S_e, sigma_eff, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector, Soil_states.Preconsolidation_pressure)
     
-       
 
-    # second set is theta
-
+    # second set: theta
     dtheta_dt = dpsi_dt*dtheta_dpsi  
       
     
@@ -352,14 +310,9 @@ def equations(simulation_time, in_in, sigma_tracker):
     positive_pressure = (dpsi_dt > 0).astype(int)
     negative_pressure = (dpsi_dt < 0).astype(int)
     
-  
-    #dpsi_dt = dpsi_dt + (-1/K)*compression*saturated*dn_dt
-    #dpsi_dt = np.where(np.isfinite(dpsi_dt), dpsi_dt, 0.0)
+
     dpsi_dt = update_dpsi_dt(dpsi_dt, K, compression, saturated, dn_dt)
         
-  
-
-    #dtheta_dt = -(dtheta_dt - positive_pressure*extension*saturated*(dn_dt) )
     dtheta_dt, dSat_dt = update_dtheta_and_dSat(dtheta_dt,positive_pressure, extension, saturated, dn_dt,n, theta, unsaturated)
 
 
@@ -369,36 +322,9 @@ def equations(simulation_time, in_in, sigma_tracker):
             if dtheta_dt[i] > dn_dt[i] :  
                 dtheta_dt[i] = dn_dt[i]    
 
-
-                
-    #out_out = np.concatenate([dpsi_dt,dtheta_dt,de_dt,dT_dt,demm_dt],axis=0)
     out_out = np.concatenate([dpsi_dt,dtheta_dt,de_dt],axis=0)
     #------------------------------------------------------------------------
-    #if not np.all(np.isfinite(dSat_dt)):
-    #    print("NaN or Inf in dSat_dt!", dSat_dt)
-    #    raise ValueError("Non-finite derivative encountered!")
-#
-    #if not np.all(np.isfinite(S_e)):
-    #    print("NaN or Inf in S_e!", S_e)
-    #    raise ValueError("Non-finite derivative encountered!")
-#
-    #if not np.all(np.isfinite(K)):
-    #    print("NaN or Inf in K!", K)
-    #    raise ValueError("Non-finite derivative encountered!")
-#
-    #if not np.all(np.isfinite(dpsi_dt)):
-    #    print("NaN or Inf in dpsi_dt!", dpsi_dt)
-    #    raise ValueError("Non-finite derivative encountered!")
-#
-    #if not np.all(np.isfinite(dtheta_dt)):
-    #    print("NaN or Inf in dtheta_dt!", dtheta_dt)
-    #    raise ValueError("Non-finite derivative encountered!")
-#
-    #if not np.all(np.isfinite(de_dt)):
-    #    print("NaN or Inf in de_dt!", de_dt)
-    #    raise ValueError("Non-finite derivative encountered!")
 
-    #------------------------------------------------------------------------
     return [out_out]
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
@@ -418,9 +344,6 @@ sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,me
 
 end = time.perf_counter()# measure the performance
 print("Elapsed  = {}s".format((end - start)))
-#sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,method='RK45',t_eval=simulation_time,max_step = max_time_step, rtol = rtol)#, atol = atol)
-#sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,method='LSODA',t_eval=simulation_time)
-#sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,method='DOP853',t_eval=simulation_time)
 print("Success:", sol.success)
 print("Message:", sol.message)
 print("Final time reached:", sol.t[-1])
