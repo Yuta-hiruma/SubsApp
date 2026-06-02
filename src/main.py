@@ -47,7 +47,7 @@ from datetime import datetime, timedelta
 import sys
 import os
 current_dir = os.getcwd()
-parent_dir = os.path.abspath("..")
+parent_dir = os.path.abspath("../data")
 sys.path.insert(0, parent_dir)
 from Input_soil_material_parameters import *
 from input import *
@@ -499,10 +499,30 @@ Se_results = theta_results/e_results
 #----------------
 #output
 ##----------------
-with open('output/result/displacement.dat', 'w') as dis:
+with open('../results/displacement.dat', 'w') as dis:
     dis.write(f"{'':<2}{'time[days]':<15}  {'displacement [mm]':<15}\n")
     for i in range(len(date_list)):
         dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15}  {(colum_heigth[i]+Soil_dimension.Depth_bottom)*1000:<15}\n")
+
+with open('../results/Pressure_top.dat', 'w') as dis:
+    dis.write(f"{'':<2}{'time[days]':<15} {'Pressure top':<15} \n")
+    for i in range(len(date_list)):
+        dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {Pressure_results[0,i]:<15} \n")
+
+with open('../results/Se.dat', 'w') as dis:
+    dis.write(f"{'':<2}{'time[days]':<15} {'depth':<15} {'Se':<15}\n")
+    for i in range(len(date_list)):
+        dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {colum_node_heigth[1,i]+Soil_dimension.Depth_bottom:<15} {theta_results[1,i]*(1+e_results[1,i])/e_results[1,i]:<15}\n")
+
+with open('../results/theta.dat', 'w') as dis:
+    dis.write(f"{'':<2}{'time[days]':<15} {'depth':<15}  {'theta':<15}\n")
+    for i in range(len(date_list)):
+        dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {colum_node_heigth[1,i]+Soil_dimension.Depth_bottom:<15} {theta_results[1,i]:<15}\n")
+
+with open('../results/n.dat', 'w') as dis:
+    dis.write(f"{'':<2}{'time[days]':<15}  {'depth':<15} {'n':<15}\n")
+    for i in range(len(date_list)):
+        dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {colum_node_heigth[1,i]+Soil_dimension.Depth_bottom:<15} {e_results[1,i]/(1+e_results[1,i]):<15}\n")
 
 #--------
 " ~~~~~~~~~~~~ "
@@ -515,4 +535,76 @@ plt.ylabel('displacement [mm]')
 plt.title('displacement')
 plt.xticks(rotation=45)
 plt.subplots_adjust(left=0.2, bottom=0.2)
-plt.savefig('output/displacement.png')
+plt.savefig('../results/figure/displacement.png')
+
+#------------
+abs_max = np.max(np.abs(Pressure_results))
+
+plt.figure()
+plt.pcolormesh(date_list, Soil_dimension.node_vector, Pressure_results,
+               cmap='bwr', vmin=-abs_max, vmax=abs_max)
+
+for i in range(len(Soil_dimension.Depth_o_soils) - 1):
+    plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
+
+plt.title("Pressure")
+plt.xlabel("Time [days]")
+plt.ylabel("Depth [m]")
+plt.xticks(rotation=45)
+plt.subplots_adjust(left=0.2, right=0.8, bottom=0.2)
+cax = plt.axes((0.85, 0.1, 0.075, 0.8))
+plt.colorbar(cax=cax)
+plt.title("kPa")
+plt.savefig('../results/figure/pressure.png')
+#--------------
+plt.figure()
+#plt.pcolormesh(sol.t,Soil_dimension.node_vector,theta_results, cmap='RdBu', vmin=np.min(theta_results), vmax=np.max(theta_results))
+plt.pcolormesh(date_list,Soil_dimension.node_vector,theta_results, cmap='Blues', vmin=np.min(theta_results), vmax=np.max(theta_results))
+for i in range(len(Soil_dimension.Depth_o_soils)-1):
+    plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
+plt.title("theta")
+plt.xticks(rotation=45)
+plt.subplots_adjust(left=0.2, bottom=0.2) 
+plt.xlabel("time [days]")
+plt.ylabel("depth [m]")
+plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+cax = plt.axes((0.85,0.1,0.075,0.8))
+plt.colorbar(cax=cax)
+plt.title("[-]")
+plt.savefig('../results/figure/theta.png')
+
+
+plt.figure()
+vG_WCR = Water_retention_curve_vector.vG_WCR[:, np.newaxis]  
+vG_WCS = Water_retention_curve_vector.vG_WCS[:, np.newaxis]
+norm = mcolors.Normalize(vmin=np.min((theta_results-vG_WCR)/(vG_WCS-vG_WCR)), vmax=np.max((theta_results-vG_WCR)/(vG_WCS-vG_WCR)))
+plt.pcolormesh(date_list,Soil_dimension.node_vector,(theta_results-vG_WCR)/(vG_WCS-vG_WCR), cmap='Blues', norm=norm)
+for i in range(len(Soil_dimension.Depth_o_soils)-1):
+    plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
+plt.title("Se")
+plt.xlabel("time [days]")
+plt.ylabel("depth [m]")
+plt.xticks(rotation=45)
+plt.subplots_adjust(left=0.2, bottom=0.5) 
+plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+cax = plt.axes((0.85,0.1,0.075,0.8))
+plt.colorbar(cax=cax)
+plt.title("[-]")
+plt.savefig('../results/figure/Se_vG.png')
+
+
+plt.figure()
+norm = mcolors.Normalize(vmin=np.min(e_results/(1+e_results)), vmax=np.max(e_results/(1+e_results)))
+plt.pcolormesh(date_list, Soil_dimension.node_vector, e_results/(1+e_results), cmap='Blues', norm=norm)
+for i in range(len(Soil_dimension.Depth_o_soils)-1):
+    plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
+plt.title("Porosity")
+plt.xlabel("time [days]")
+plt.ylabel("depth [m]")
+plt.xticks(rotation=45)
+plt.subplots_adjust(left=0.2, bottom=0.2) 
+plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+cax = plt.axes((0.85,0.1,0.075,0.8))
+plt.colorbar(cax=cax)
+plt.title("[-]")
+plt.savefig('../results/figure/porosity.png')
