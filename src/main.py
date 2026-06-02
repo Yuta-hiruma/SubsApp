@@ -99,8 +99,8 @@ start_date = datetime.strptime(TSTART, "%Y-%m-%d")
 end_date = datetime.strptime(TEND, "%Y-%m-%d")
 minimum_accuracy_time_step = 1               #days  
 max_time_step = 1.0  
-rtol =1e-4 #relative tolerance
-atol =1e-4 #relative tolerance
+rtol =1e-7 #relative tolerance
+#atol =1e-4 #absolute tolerance
 
 end_time = (end_date - start_date).days
 simssteps = (end_date - start_date).days
@@ -340,7 +340,7 @@ input_in = np.append(input_in,Soil_states.e_ini)
 "This is the code to get the numerical differential equation"
 
 start = time.perf_counter() # measure the performance
-sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,method='DOP853',t_eval=simulation_time,max_step = max_time_step, rtol = rtol ,args=(sigma_tracker,), atol = atol)
+sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,method='RK23',t_eval=simulation_time,max_step = max_time_step, rtol = rtol ,args=(sigma_tracker,))#, atol = atol)
 
 end = time.perf_counter()# measure the performance
 print("Elapsed  = {}s".format((end - start)))
