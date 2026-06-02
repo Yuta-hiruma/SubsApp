@@ -54,7 +54,7 @@ os.chdir(current_dir)
 
 #input file-----------------------------
 infile_tp = "input/top_pressure/top_pressure_swp.dat"
-infile_bp = "input/bottom_pressure/bottom_pressure.dat"
+infile_bp = "input/bottom_pressure/bottom_pressure_swp.dat"
 infile_wc_ini = "input/wc_ini/wc_ini_swp.dat"
 infile_p_ini = "input/pressure_ini/pressure_ini_swp.dat"
 df_tp = pd.read_csv(infile_tp, sep=r"\s+", skiprows=1, names=["date", "pressure"])
