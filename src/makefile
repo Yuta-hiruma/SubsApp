@@ -3,8 +3,7 @@ all:
 
 clean:
 	rm -f job.*
-	rm -f nsdwl/output/*.png
-	rm -f ._*
-	rm -f nsdwl/output/result/*
+	rm -f ../results/*
+	rm -f ../results/figure/*
 
 
