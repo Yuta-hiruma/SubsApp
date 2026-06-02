@@ -75,17 +75,15 @@ def collect_results():
     BENCH_OUTPUT_DIR.mkdir(exist_ok=True)
 
     displacement_file = RESULTS_DIR / "displacement.dat"
+    displacement_fig = RESULTS_DIR /  "figure/displacement.png"
 
     if not displacement_file.exists():
         raise FileNotFoundError(
             f"Expected output was not created: {displacement_file}"
         )
 
-    shutil.copy2(
-        displacement_file,
-        BENCH_OUTPUT_DIR / "displacement.dat",
-    )
-
+    shutil.copy2(displacement_file, BENCH_OUTPUT_DIR / "displacement.dat",)
+    shutil.copy2(displacement_fig, BENCH_OUTPUT_DIR / "displacement.png",)
 
 def main():
     BACKUP_DIR.mkdir(exist_ok=True)
