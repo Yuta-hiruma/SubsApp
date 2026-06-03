@@ -105,16 +105,14 @@ Soil_parameters ={
         },
 
         'Compression':{
-        'kappa' : 0.0008696,   
+        'kappa' : 0.00173718,   
         'lambda'  : 0.001736,
-        #'mu'  : 0,
-        'mu'  : 0.001,
-        'Tau_ref'  : 9000,
+        'mu'  : 0.0001,
+        'Tau_ref'  : 1,
         'Pg' : 200,
         'OCR' : 1.5,
         'c' : 10,
         'phi' : 20,
-        'ccott' : 50,
         },
         
         'Water_retention_curve':{
@@ -141,17 +139,10 @@ Soil_parameters ={
         'epsilon' : 0.05,       
         'eta' : 5,           
         'desslength' : 110,
-        'K_tot' : 0.01,
+        'K_tot' : 0.0001,
         'K_min' : 0.0001,
         'tau' : 0.5
-        },
-
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.00,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        } 
+        }
         
         }
     }
@@ -183,14 +174,12 @@ Soil_parameters['confining_layer'] = {
         'Compression':{
         'kappa' : 0.0868,   
         'lambda'  : 0.1302,
-        #'mu'  : 0.01,
         'mu'  : 0.0028229,
         'Tau_ref'  : 1,
         'Pg' : 200,
-        'OCR' : 1.7,
-        'c' : 10,
-        'phi' : 15,
-        'ccott' : 20,
+        'OCR' : 1.5,
+        'c' : 0,
+        'phi' : 30,
         },
         
         'Water_retention_curve':{
@@ -217,17 +206,10 @@ Soil_parameters['confining_layer'] = {
         'epsilon' : 1,       
         'eta' : 1,           
         'desslength' : 1,
-        'K_tot' : 0.1,
+        'K_tot' : 0.001,
         'K_min' : 0.0001,
         'tau' : 0.5
-        },
- 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.05,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        }        
+        }       
         
         }
 

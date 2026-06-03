@@ -76,6 +76,12 @@ def collect_results():
 
     displacement_file = RESULTS_DIR / "displacement.dat"
     displacement_fig = RESULTS_DIR /  "figure/displacement.png"
+    Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
+    Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
+    Pressure_fig = RESULTS_DIR /  "figure/pressure.png"
+    theta_file = RESULTS_DIR / "theta.dat"
+    theta_fig = RESULTS_DIR /  "figure/theta.png"
+
 
     if not displacement_file.exists():
         raise FileNotFoundError(
@@ -84,6 +90,12 @@ def collect_results():
 
     shutil.copy2(displacement_file, BENCH_OUTPUT_DIR / "displacement.dat",)
     shutil.copy2(displacement_fig, BENCH_OUTPUT_DIR / "displacement.png",)
+    shutil.copy2(Pressure_top_file, BENCH_OUTPUT_DIR / "Pressure_top.dat",)
+    shutil.copy2(Pressure_bottom_file, BENCH_OUTPUT_DIR / "Pressure_bottom.dat",)
+    shutil.copy2(Pressure_fig, BENCH_OUTPUT_DIR / "pressure.png",)
+    shutil.copy2(theta_file, BENCH_OUTPUT_DIR / "theta.dat",)
+    shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
+
 
 def main():
     BACKUP_DIR.mkdir(exist_ok=True)

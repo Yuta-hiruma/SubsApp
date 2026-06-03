@@ -9,7 +9,7 @@ tend = "2025-01-01"
 # -------------------------------------------
 # Groundwater
 # -------------------------------------------
-gwli = -156.5 		#initial groundwater level
+gwli = 0 		#initial groundwater level
 Ref_Time = "10:00" 	#Reference Time
 GL_to_NAP = -1.48	#[m]
 
