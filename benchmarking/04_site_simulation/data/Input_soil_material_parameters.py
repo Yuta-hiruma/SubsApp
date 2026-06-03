@@ -25,9 +25,9 @@ Soil_parameters ={
 
 
         'Compression': {
-        'kappa': 0.087,
-        'lambda': 0.13,
-        'mu': 0.0028,
+        'kappa': 0.2,
+        'lambda': 0.40,
+        'mu': 0.025,
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.5,
@@ -97,9 +97,9 @@ Soil_parameters['Peat2_SWP'] = {
 
 
         'Compression': {
-        'kappa': 0.087,
-        'lambda': 0.13,
-        'mu': 0.0028,
+        'kappa': 0.2,
+        'lambda': 0.40,
+        'mu': 0.025,
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.5,
@@ -169,9 +169,9 @@ Soil_parameters ['Clay_top_SWP']= {
         },
 
         'Compression': {
-        'kappa': 0.087,
-        'lambda': 0.13,
-        'mu': 0.0028,
+        'kappa' : 0.0868,   
+        'lambda'  : 0.1302,
+        'mu'  : 0.0028229,
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.5,
@@ -238,9 +238,9 @@ Soil_parameters ['Clay2_SWP']= {
         },
 
         'Compression': {
-        'kappa': 0.087,
-        'lambda': 0.13,
-        'mu': 0.0028,
+        'kappa' : 0.0868,   
+        'lambda'  : 0.1302,
+        'mu'  : 0.0028229,
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.5,
