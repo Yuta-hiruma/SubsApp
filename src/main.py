@@ -65,7 +65,6 @@ df_pressure_ini = pd.read_csv(infile_p_ini, sep=r"\s+", skiprows=1, names=["dept
 #simulaiton period----------------------
 TSTART = tstart
 TEND = tend
-            
 
 " #### input parameters "
 tic = timeit.default_timer()
@@ -139,7 +138,7 @@ Bcbottom = Bc_bottom()
 #Bcbottom.time = [0]
 #Bcbottom.pressure = [49]
 Bcbottom.time = df_bp["date"].tolist()
-Bcbottom.pressure = df_bp["pressure"].tolist()       # kPa
+Bcbottom.pressure = df_bp["pressure"].tolist()     # kPa
 
 "## check for errors ##"
 
@@ -153,13 +152,13 @@ swp.pressure = df_pressure_ini ["pressure"].tolist() #kPa
 #-------------------------------------
 (Soil_states,Soil_states.theta_ini,Soil_stresses.psi_ini) = set_ini(Soil_dimension,Soil_parameters,Soil_states,Bctop,swp)
 Soil_states.e_ini = Soil_states.e
-Soil_states.n_ini = Soil_states.e_ini/(1+Soil_states.e_ini)
+Soil_states.n_ini = Soil_states.n
 Soil_states.theta = Soil_states.theta_ini
 Soil_dimension.internode_vector = modeldomain (Soil_dimension,Soil_parameters)
 (material_vector,gamma_vector,Permeability_curve_Perm_vector,Shrinkage_curve_vector,Water_retention_curve_vector, Compression_vector,Emission_vector) = soilbuilder(Soil_dimension,Soil_parameters,Soil_dimension.node_vector,Soil_dimension.internode_vector)
 
 
-S_e_ini = Soil_states.theta_ini/Soil_states.n_ini
+S_e_ini = Soil_states.theta/Soil_states.n_ini
 
 
 Soil_dimension.node_initial=get_node_distance(Soil_dimension)
@@ -283,7 +282,6 @@ def equations(simulation_time, in_in, sigma_tracker):
 
     "Matrix potential "
     psi_m = np.where(Pressure <= 0, Pressure, 0)
-    
     "~~~~ Calculate permeability ~~~~~"
     Soil_calc.K                     = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
     K= Soil_calc.K/Soil_dimension.node_distance
@@ -292,7 +290,6 @@ def equations(simulation_time, in_in, sigma_tracker):
     # First set: pressure 
     d2psi_dz2 = d2f_dz2_non_uniform_h(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
     dpsi_dt = K*d2psi_dz2
-    
 
     dS_e_dpsi,dtheta_dpsi  = derrivative_van_genuchten_S_e_h (Water_retention_curve_node, theta,e, psi_m)
 
@@ -362,20 +359,10 @@ Pressure_results = sol.y[0:nr_elements]
 theta_results = sol.y[nr_elements:2*nr_elements]
     # Third set is void ratio #
 e_results = sol.y[2*nr_elements:3*nr_elements]
-
 " Extra "
 
 
-#diffrence in pressure
-dPressure_results = 0*Pressure_results
-dtheta_results = 0*theta_results
-de_results = 0*e_results
 
-
-for i in range(len(Pressure_results[0,:])):
-    dPressure_results[:,i] = Pressure_results[:,i]-Pressure_results[:,0]
-    dtheta_results[:,i] = theta_results[:,i]-theta_results[:,0]
-    de_results[:,i] = e_results[:,i]-e_results[:,0]
 
 #print (Soil_states.e_ini)
 "calculate settlement"
@@ -432,6 +419,11 @@ with open('../results/Pressure_top.dat', 'w') as dis:
     for i in range(len(date_list)):
         dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {Pressure_results[0,i]:<15} \n")
 
+with open('../results/Pressure_bottom.dat', 'w') as dis:
+    dis.write(f"{'':<2}{'time[days]':<15} {'Pressure top':<15} \n")
+    for i in range(len(date_list)):
+        dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {Pressure_results[-1,i]:<15} \n")
+
 with open('../results/Se.dat', 'w') as dis:
     dis.write(f"{'':<2}{'time[days]':<15} {'depth':<15} {'Se':<15}\n")
     for i in range(len(date_list)):
@@ -462,6 +454,7 @@ plt.savefig('../results/figure/displacement.png')
 
 #------------
 abs_max = np.max(np.abs(Pressure_results))
+#abs_min = np.min(np.abs(Pressure_results))
 
 plt.figure()
 plt.pcolormesh(date_list, Soil_dimension.node_vector, Pressure_results,

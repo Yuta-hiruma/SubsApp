@@ -897,7 +897,7 @@ def df_dz_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
     
     return (df_dz)
 
-
+@jit(forceobj=True, looplift=True,fastmath = True)
 def d2f_dz2_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
     
     Parameter_loc = Parameter
@@ -930,7 +930,6 @@ def d2f_dz2_non_uniform_h(Parameter,Bctop,Bcbottom,Soil_dimension):
     
     Parameter_loc[0] = Bctop
     Parameter_loc[-1] = Bcbottom
-    
     node_size_loc = 0*Parameter_loc
     d2f_dz2 = 0*Parameter_loc
 
@@ -946,7 +945,6 @@ def d2f_dz2_non_uniform_h(Parameter,Bctop,Bcbottom,Soil_dimension):
         forward_diff = (Parameter_loc[i + 1] - Parameter_loc[i]) / dz_forward
         backward_diff = (Parameter_loc[i] - Parameter_loc[i - 1]) / dz_backward
         d2f_dz2[i] = (forward_diff - backward_diff) / (0.5 * (dz_forward + dz_backward))
- 
     return (d2f_dz2)
 
 def d2f_dz2_non_uniform_2(Parameter,Bctop,Bcbottom,node_size):
@@ -1064,27 +1062,23 @@ def deSSc_dt_h(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dp
     Lambda = Compression_vector.Lambda
     kappa = Compression_vector.Kappa
     mu = Compression_vector.Mu
-    Lambda_m = Lambda/(1.0+e)
-    kappa_m = kappa/(1.0+e)
-    mu_m = mu/(1.0+e)
+    Lambda_m = Lambda
+    kappa_m = kappa
+    mu_m = mu
 
 
     Tau_ref = Compression_vector.Tau_ref
     OCR = Compression_vector.OCR
 
-    dsigma_eff_dt = -dpsi_dt*S_e
+    #dsigma_eff_dt = -dpsi_dt*S_e
     ccott = Compression_vector.ccott
-
     compressibility = Lambda_m- kappa_m
 
     exponent = compressibility / mu_m
     exponent = np.maximum(exponent, 10.0)
-    #dPlastic = mu_m * (1 / Tau_ref) * (sigma_eff/PP) ** (exponent)
-    dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent)  
-
+    #dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent)  
+    dPlastic = 0
     dElastic = dsigma_eff_dt*kappa_m/(ccott+sigma_eff)
-
-
     deps_dt = -(dElastic + dPlastic) 
     dn_dt = deps_dt/(1+e)**2
 

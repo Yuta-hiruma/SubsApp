@@ -100,11 +100,6 @@ def soilbuilder(Soil_domain,Soil_parameters,node_vector,internode_vector):
     Water_retention_curve_vector.vG_mod = np.zeros(np.shape(node_vector))
     Water_retention_curve_vector.vG_n = np.zeros(np.shape(node_vector))
 
-    Emission_vector = Emission_vectors()
-    Emission_vector.T_min= np.zeros(np.shape(node_vector))
-    Emission_vector.a = np.zeros(np.shape(node_vector))
-    Emission_vector.alpha = np.zeros(np.shape(node_vector))
-    Emission_vector.beta = np.zeros(np.shape(node_vector))
 
         
     for material in material_vector:
@@ -142,15 +137,11 @@ def soilbuilder(Soil_domain,Soil_parameters,node_vector,internode_vector):
         Compression_vector.Tau_ref[i] = Soil_parameters[material]["Compression"]["Tau_ref"]
         Compression_vector.Pg[i] = Soil_parameters[material]["Compression"]["Pg"]
         Compression_vector.OCR[i] = Soil_parameters[material]["Compression"]["OCR"]
-        #Compression_vector.c[i] = Soil_parameters[material]["Compression"]["c"]
-        #Compression_vector.phi[i] = Soil_parameters[material]["Compression"]["phi"]
-        #Compression_vector.ccott[i] = Compression_vector.c[i]/math.tan(math.radians(Compression_vector.phi[i]))
-        Compression_vector.ccott[i] = Soil_parameters[material]["Compression"]["ccott"]
+        Compression_vector.c[i] = Soil_parameters[material]["Compression"]["c"]
+        Compression_vector.phi[i] = Soil_parameters[material]["Compression"]["phi"]
+        Compression_vector.ccott[i] = Compression_vector.c[i]/math.tan(math.radians(Compression_vector.phi[i]))
+        #Compression_vector.ccott[i] = Soil_parameters[material]["Compression"]["ccott"]
 
-        Emission_vector.T_min[i] = Soil_parameters[material]["Emission"]["T_min"]
-        Emission_vector.a[i] = Soil_parameters[material]["Emission"]["a"]
-        Emission_vector.alpha[i] = Soil_parameters[material]["Emission"]["alpha"]
-        Emission_vector.beta[i] = Soil_parameters[material]["Emission"]["beta"]
          
         Water_retention_curve_vector.vG_WCR[i] = Soil_parameters[material]["Water_retention_curve"]["vG_WCR"]
         Water_retention_curve_vector.vG_WCS[i] = Soil_parameters[material]["Water_retention_curve"]["vG_WCS"]
@@ -162,8 +153,7 @@ def soilbuilder(Soil_domain,Soil_parameters,node_vector,internode_vector):
         
        
         i=i+1
-    #e_ini = []
-    #e_ini = Soil_parameters[material_vector]["material_parameters"]["gamma_s"]
+
     return (material_vector,gamma_vector,Permeability_curve_Perm_vector,Shrinkage_curve_vector,Water_retention_curve_vector,Compression_vector,Emission_vector);
 
 
@@ -189,7 +179,9 @@ def set_ini(Soil_dimension,Soil_parameters,Soil_states,Bctop,swp):
                 psi_ini.append(0)
 #----------------------------------------------       
         #Soil_states.e = Shrinkage_curve_vector.A_sh*(((theta_ini**Shrinkage_curve_vector.C_sh)/(Shrinkage_curve_vector.B_sh**Shrinkage_curve_vector.C_sh))+1)**(1/Shrinkage_curve_vector.C_sh)
-        Soil_states.e = np.array(theta_ini)/(1-np.array(theta_ini))
+        S_e_ini = np.clip(update_S_e(Water_retention_curve_vector, theta_ini), 0.0, 1.0)
+        Soil_states.n = theta_ini/S_e_ini
+        Soil_states.e = Soil_states.n /(1-Soil_states.n)
         #sigma_sumsoil_ini = effective_stress_ini(gamma_vector, Soil_dimension, Soil_states)
         #psi_ini = Water_retention_curve_vector.vG_WCS * 0
         return (Soil_states,theta_ini,psi_ini)
@@ -219,13 +211,7 @@ class gamma_vectors:
     def __init__ (self):  
         self.s = []
         self.w = []
-
-class Emission_vectors:
-    def __init__ (self):  
-        self.T_min = []
-        self.a = []
-        self.alpha = []
-        self.beta = []        
+      
         
 class Permeability_cruve_Perm_vectors:
     def __init__ (self):  
