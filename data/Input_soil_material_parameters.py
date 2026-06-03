@@ -1,85 +1,3 @@
-"""
-"material parameters"
-gamma_s -> [g/cm3]
-gamma_w -> [g/cm3]
-"""
-
-"""
-"shrinkage curve"
-A_sh    -> [-]
-B_sh    -> [-]
-C_sh    -> [-]
-n_eta   -> [-]
-v       -> [-]
-"""
-
-"""
-"Soil water retention curve"
-vG_WCS     -> [-]
-vG_WCR     -> [-]
-vG_aplha   -> [-]
-vG_n       -> [-]
-vG_m       -> [-]
-vG_a       -> [-]
-vG_mod     -> [-]
-"""
-
-"""
-"permeability curves" 
-Perm_a              -> [-]
-Perm_b              -> [-]
-Perm_rel            -> true (1) or false (0) tag for unsaturated permeability
-Perm_delta          ->  parameter for unsaturated permeability
-Perm_dess           ->  true (1) or false (0) tag for surface enhanced permeability
-Perm_epsilon        -> parametWCer for surface enhanced permeability
-Perm_eta            -> parameter for surface enhanced permeability
-Perm_desslength     -> [cm] parameter for surface enhanced permeability - depth dessication occurs until
-"""
-
-"""
-"settlement due to overburden"
-overburden  -> true (1) or false (0) tag for overburden compression
-C10         -> [-]
-sigma_init  -> kPa
-"""
-
-"""
-"material parameters"
-gamma_s = 2.31
-gamma_w = 1
-"""
-
-"""
-"shrinkage curve"
-A_sh    = 0.48
-B_sh    = 0.48
-C_sh    = 4.47
-n_eta   = 2
-v       = 2
-"""
-
-"""
-"Soil water retention curve"
-vG_WCS     = 5.91
-vG_WCR     = 0.00
-vG_aplha   = 0.92
-vG_n       = 1.15
-vG_m       = 1-(1/vG_n)
-vG_a       = 10000
-vG_mod     = 1
-"""
-
-"""
-"permeability curves" 
-Perm_a              = 0.783
-Perm_b              = 5
-Perm_rel            = 1
-Perm_delta          = 3
-Perm_dess           = 1
-Perm_epsilon        = 0.05
-Perm_eta            = 5
-Perm_desslength     = 10
-"""
 
 Soil_parameters = {
     'Peat':{
@@ -143,13 +61,6 @@ Soil_parameters = {
         'K_min' : 0.0001,
         'tau' : 0.5
         },
- 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.05,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        }
 
         }
     }
@@ -285,13 +196,7 @@ Soil_parameters['Peat2_SWP'] = {
         'K_min' : 0.0001,
         'tau' : 0.5
         },
- 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.05,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        }        
+       
         
         }
 
@@ -357,12 +262,6 @@ Soil_parameters ['Clay_top_SWP']= {
         'tau' : 0.5
         },
 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.00,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        } 
         
         }
 Soil_parameters ['Clay2_SWP']= {      
@@ -425,12 +324,6 @@ Soil_parameters ['Clay2_SWP']= {
         'tau' : 0.5
         },
 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.00,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        } 
         
         }
 Soil_parameters ['Sand_SWP']= {      
@@ -493,12 +386,6 @@ Soil_parameters ['Sand_SWP']= {
         'tau' : 0.5
         },
 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.00,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        } 
         
         }
 
