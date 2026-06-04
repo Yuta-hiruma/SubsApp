@@ -169,6 +169,7 @@ def calc_stress (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_v
 
     return (Soil_stresses)
 
+@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
 def calc_stress_ini_h (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_vector,Soil_stresses):
     # input:  theta_n, state par, simsettings, spatial, dm_in, ZZ, k, m
     # Output : psi_n (van genuchten), e_n, dedtheta_n, d2edtheta2_n, dZ_in, k, m 
@@ -264,158 +265,7 @@ def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve
     
     return (sigma_total)
 
-"eq-4"
 
-#   - paper dtheta/dt = d/dm {K*[dpsi/dtheta*dtheta/dm+(1+e)+(theta+gamma_s)dpsi/dtheta+d2e/dtheta2*intergral(z0-z)](theta+gamma_s)dm*dtheta/dm]}
-
-#   dtheta/dt = d/dm {K*}[dpsi/dm + SF1 + SF2*dtheta/dm]
-#   SF1 = (1+e) - (theta+gamma_s)*de/dtheta
-#   SF2 = d2e/dtheta2 * int_0^m(theta+gamma_s)dm
-    
-#def SF1(Soil_states,Soil_calc,gamma_vector):
-#    theta = Soil_calc.theta_internode
-#    e = Soil_calc.e_internode
-#    gamma_s = gamma_vector.s
-#    de_dtheta = Soil_calc.de_dtheta
-#    # equation
-#    "check sign convention"
-#    SF1 = (1+e) -(theta+gamma_s)*de_dtheta
-#    return SF1
-
-#def SF2(Soil_states,Soil_calc,gamma_vector,Soil_dimension):
-#    d2e_dtheta2  = Soil_calc.d2e_dtheta2
-#    theta       = Soil_states.theta
-#    gamma_w         = gamma_vector.w
-#    gamma_s         = gamma_vector.s
-#    gamma_o         = gamma_vector.o
-#    o_ratio         = gamma_vector.o_ratio
-#    internode_distance = Soil_dimension.internode_distance
-#    gamma_s_net = o_ratio*gamma_o+(1-o_ratio)*gamma_s
-#    
-#    local = np.zeros(len(internode_distance)+1)
-#    intergration = np.zeros(len(internode_distance)+1)
-#    
-#    for i in range(len(internode_distance)):
-#        local      [i]      = theta[i]*gamma_w[i]+gamma_s_net[i]
-#        intergration[i+1] = intergration[i]+local[i]
-#        
-#    print(intergration[9])    
-#    SF2 = d2e_dtheta2*intergration
-#        
-#    return SF2 
-
-#   K = K_sat*K_rel*K_dess (eq-6,eq-7,eq-8)
-
-#   theta is the volumetric water ratio,V_w / V_s
-#   t is time
-#   m is the 1D material coordinate
-#   K* = K/(1+e)
-#   K is the hydraulic conductivity
-#   psi is a suction component 
-#   theta is the volumetric water ratio
-#   e is the void ratio
-#   gamma_s = volumetric weight solids
-#   z is the depth
-#   z0 is the depth at the surface
-
-#def de_dtheta_drying(Shrinkage_curve_vector, Soil_states):
-#    #initialise parameters
-#    A_sh = Shrinkage_curve_vector.A_sh
-#    B_sh = Shrinkage_curve_vector.B_sh
-#    C_sh = Shrinkage_curve_vector.C_sh
-#    theta= Soil_states.theta_internode
-#    #equation
-#    de_dtheta_drying = A_sh*(theta**C_sh/B_sh**C_sh + 1)**(1/C_sh)*theta**C_sh/(theta*(theta**C_sh + B_sh**C_sh)) 
-#    return de_dtheta_drying
-
-#def d2e_dtheta2_drying(Shrinkage_curve_vector, Soil_states):
-#    #initialise parameters
-#    A_sh = Shrinkage_curve_vector.A_sh
-#    B_sh = Shrinkage_curve_vector.B_sh
-#    C_sh = Shrinkage_curve_vector.C_sh
-#    theta= Soil_states.theta_internode
-#    #equation
-#    d2e_dtheta2_drying = A_sh*(theta**C_sh/B_sh**C_sh + 1)**(1/C_sh)*theta**C_sh*B_sh**C_sh*(C_sh - 1)/(theta**2*(theta**C_sh + B_sh**C_sh)**2)
-#    return d2e_dtheta2_drying
-
-#def de_dtheta_wetting(Shrinkage_curve_vector, Soil_states):
-#    # nu_h = void ratio at maximum swelling
-#    # nu_z = the minimum void ratio of previouse shrinkage phase
-#    # ksi_h = water content at maximum swelling
-#    
-#    nu_h = np.array(Shrinkage_curve_vector.n_eta)
-#    nu_z = np.array(Shrinkage_curve_vector.n_eta)
-#    ksi_h = np.array(Shrinkage_curve_vector.n_eta)
-#    
-#    theta = Soil_states.theta_internode
-#    
-#    de_dtheta_wetting = 2*(nu_h - nu_z)*(-theta + ksi_h)/ksi_h**2
-#    return de_dtheta_wetting
-
-#def d2e_dtheta2_wetting(Shrinkage_curve_vector, Soil_states):
-#    # nu_h = void ratio at maximum swelling
-#    # nu_z = the minimum void ratio of previouse shrinkage phase
-#    # ksi_h = water content at maximum swelling
-#    
-#    nu_h = np.array(Shrinkage_curve_vector.n_eta)
-#    nu_z = np.array(Shrinkage_curve_vector.n_eta)
-#    ksi_h = np.array(Shrinkage_curve_vector.n_eta)
-#    
-#    theta = Soil_states.theta_internode
-#    
-#    d2e_dtheta2_wetting = 2*(nu_h - nu_z)*(-theta + ksi_h)/ksi_h**2
-#    return d2e_dtheta2_wetting
-
-#def dpsi_dm (Soil_stresses, Soil_dimension,Bctop,Bcbottom):
-#    psi = Soil_stresses.psi
-#    node_distance = Soil_dimension.node_distance
-#    psi_top = Bctop.psi_top
-#    
-#    dpsi_dm_int = np.zeros(len(psi)+1)
-#    for i in range(len(node_distance)):
-#        dpsi_dm_int[i+1] = (psi[i]-psi[i+1])/node_distance[i]
-#        
-#    dpsi_dm_int[0]  = (psi[0]-psi_top)/node_distance[0]
-#    dpsi_dm_int[-1] = 0
-#    
-#    
-#    return dpsi_dm_int
-#
-#def dtheta_dm (Soil_states, Soil_dimension,Bctop,Bcbottom):
-#    theta = Soil_states.theta
-#    node_distance = Soil_dimension.node_distance
-#    
-#    dtheta_dm_int = np.zeros(len(theta)+1)
-#    for i in range(len(node_distance)):
-#        dtheta_dm_int[i+1] = (theta[i]-theta[i+1])/node_distance[i]
-##    dtheta_dm_int[0]  = 0
-#    dtheta_dm_int[-1] = 0
-#    
-#    
-#    return dtheta_dm_int
-    
-"eq-5" "solved at eq-7"
-#   K_sat = 10**(A_hcc*theta-B_hcc)
-
-#   A_hcc and B_hcc are material parameters determined from experimental data
-#   theta is the volumetric water ratio
-
-"eq-6" "solved at eq-7"
-#   K_rel = S_l**(delta)
-
-#   Sl is the degree of saturation
-#   delta is a material parameter and is related to the pore size distribution
-
-"eq-7" "solved at eq-7"
-#   K_dess = 1 if h-z > d_des
-#   K_dess = (1-eps_dess)+eps_dess*(ksi_dess(1-S_l)) if h-z <d_dess
-
-#   Sl is the degree of saturation
-#   eps_dess is a material parameter
-#   ksi_dess is a material parameter
-#   z is the same as the gravitational potential (positive upwards), in this case with the zero datum at the base of the sludge
-#   h is the total height of the sludge column
-#   d_dess is the depth from the surface where desiccation and other surface effects act
 
 def update_K (theta,e,S_e,Permeability_curve_Perm_vector,WRC):
     #initialise parameters    
@@ -440,10 +290,7 @@ def update_K (theta,e,S_e,Permeability_curve_Perm_vector,WRC):
     
     #equation 5
     K_sat = 10**(A_HCC*theta - B_HCC)
-   #print ("K_sat",K_sat)
-   #print("A_HCC",A_HCC)
-   #print("theta",theta)
-   #print("B_HCC",B_HCC)
+
     #equation 6
     S= theta/n
     K_rel = S**(delta)
@@ -459,8 +306,7 @@ def update_K (theta,e,S_e,Permeability_curve_Perm_vector,WRC):
     
     return (K_out)
 
-def update_K_h (theta,e,S_e,Permeability_curve_Perm_vector,WRC):
-    #initialise parameters    
+def update_K_h (theta,e,S_e,Permeability_curve_Perm_vector,WRC):   
 
     n = e/(1+e)
     #tau = Permeability_curve_Perm_vector.tau
@@ -727,7 +573,7 @@ def update_height (Soil_dimension, Soil_states):
         internode_vector_out[-i-2] = internode_vector_out[-i-1] + Vs_temp/(1-e[-i-1]/(1+e[-i-1]))          
     return (internode_vector_out)
     
-@jit(forceobj=True, looplift=True,fastmath = True)
+@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
 def get_node_coordinates(Soil_dimension):
     internode_vector = Soil_dimension.internode_vector
     node_vector = np.zeros((len(internode_vector)-1))
@@ -735,7 +581,7 @@ def get_node_coordinates(Soil_dimension):
         node_vector[i] = 0.5*(internode_vector[i]+internode_vector[i+1])
     return (node_vector)
 
-@jit(forceobj=True, looplift=True,fastmath = True)
+@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
 def get_node_distance(Soil_dimension):
     internode_vector = Soil_dimension.internode_vector
     node_distance = np.zeros(len(internode_vector)-1)
@@ -751,103 +597,6 @@ def get_internode_distance(Soil_dimension):
     return(internode_distance)
 
 
-#def update_theta_internode_from_theta_node (Soil_states,Soil_dimension):
-#    theta_node = Soil_states.theta
-#    node_size = Soil_dimension.internode_distance
-#       
-#    theta_internode = np.zeros(len(theta_node)+1)
-#    
-#    theta_internode[0] = theta_node[0]#-0.5*(theta_node[1]-theta_node[0])
-#    theta_internode[-1] = theta_node[-1]#-0.5*(theta_node[-2]-theta_node[-1])
-#    for i in range(len(theta_node)-1):
-#        theta_internode[i+1] =  (theta_node[i]*node_size[i]+theta_node[i+1]*node_size[i+1])/(node_size[i]+node_size[i+1])
-#    
-#    for i in range(len(theta_internode)):
-#        if theta_internode[i] < 1e-8:
-#            theta_internode[i] = 1e-8
-#    
-#    return (theta_internode)
-
-#def update_materialproperty_internode_from_node (materialproperty,Soil_dimension):
-#    mp = materialproperty #note local input
-#    node_size = Soil_dimension.internode_distance
-#       
-#    prop_internode = np.zeros(len(mp)+1)
-#    
-#    prop_internode[0] = mp[0]
-#    prop_internode[-1] = mp[-1]
-#    for i in range(len(mp)-1):
-#        prop_internode[i+1] =  (mp[i]*node_size[i]+mp[i+1]*node_size[i+1])/(node_size[i]+node_size[i+1])
-#    return (prop_internode)
-
-#def update_Shrinkage_curve_vector_to_internode (Shrinkage_curve_vector,Soil_dimension):
-#    
-#    store = Shrinkage_curve_vectors()
-#    
-#    store.A_sh	 = update_materialproperty_internode_from_node (Shrinkage_curve_vector.A_sh,Soil_dimension)
-#    store.A_sh0  = update_materialproperty_internode_from_node (Shrinkage_curve_vector.A_sh0,Soil_dimension)
-#    store.B_sh   = update_materialproperty_internode_from_node (Shrinkage_curve_vector.B_sh,Soil_dimension)
-#    store.C_10   = update_materialproperty_internode_from_node (Shrinkage_curve_vector.C_10,Soil_dimension)
-#    store.C_sh   = update_materialproperty_internode_from_node (Shrinkage_curve_vector.C_sh,Soil_dimension)
-#    store.C_10   = update_materialproperty_internode_from_node (Shrinkage_curve_vector.C_10,Soil_dimension)
-#    store.n_eta  = update_materialproperty_internode_from_node (Shrinkage_curve_vector.n_eta,Soil_dimension)
-#    store.v      = update_materialproperty_internode_from_node (Shrinkage_curve_vector.v,Soil_dimension)
-#    store.nu_z   = update_materialproperty_internode_from_node (Shrinkage_curve_vector.nu_z,Soil_dimension)
-#    store.nu_h  = update_materialproperty_internode_from_node (Shrinkage_curve_vector.nu_h,Soil_dimension)
-#    store.ksi_h      = update_materialproperty_internode_from_node (Shrinkage_curve_vector.ksi_h,Soil_dimension)
-#    return (store)
-
-#def update_Permeability_curve_Perm_vector_to_internode (Permeability_curve_Perm_vector,Soil_dimension):
-#    
-#    store = Permeability_cruve_Perm_vectors()
-#    
-#    store.A_HCC		 = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.A_HCC,Soil_dimension)	
-#    store.B_HCC      = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.B_HCC,Soil_dimension)   
-#    store.delta      = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.delta,Soil_dimension)  
-#    store.dess       = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.dess,Soil_dimension)  
-#    store.desslength = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.desslength,Soil_dimension)
-#    store.epsilon    = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.epsilon,Soil_dimension)
-#    store.eta        = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.eta,Soil_dimension)
-#    store.rel        = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.rel,Soil_dimension) 
-#    store.K_tot      = update_materialproperty_internode_from_node (Permeability_curve_Perm_vector.K_tot,Soil_dimension) 
-#    return (store)
-
-#def update_Water_retention_curve_vector_to_internode (Water_retention_curve_vector,Soil_dimension):
-#    
-#    store = Water_retention_curve_vectors()
-#    
-#    store.vG_WCR	     = update_materialproperty_internode_from_node (Water_retention_curve_vector.vG_WCR,Soil_dimension)
-#    store.vG_WCS     = update_materialproperty_internode_from_node (Water_retention_curve_vector.vG_WCS,Soil_dimension)
-#    store.vG_a       = update_materialproperty_internode_from_node (Water_retention_curve_vector.vG_a,Soil_dimension)
-#    store.vG_aplha   = update_materialproperty_internode_from_node (Water_retention_curve_vector.vG_alpha,Soil_dimension)
-#    store.vG_m       = update_materialproperty_internode_from_node (Water_retention_curve_vector.vG_m,Soil_dimension)
-#    store.vG_mod     = update_materialproperty_internode_from_node (Water_retention_curve_vector.vG_mod,Soil_dimension)
-#    store.n          = update_materialproperty_internode_from_node (Water_retention_curve_vector.vG_n,Soil_dimension)
-#    return (store)
-
-#def update_gamma_vector_to_internode (gamma_vector,Soil_dimension):
-#    
-#    store = gamma_vectors()
-#    
-#    store.o	        = update_materialproperty_internode_from_node (gamma_vector.o,Soil_dimension)
-#    store.o_ratio   = update_materialproperty_internode_from_node (gamma_vector.o_ratio,Soil_dimension)
-#    store.s         = update_materialproperty_internode_from_node (gamma_vector.s,Soil_dimension)
-#    store.w         = update_materialproperty_internode_from_node (gamma_vector.w,Soil_dimension)
-#
-#    return (store)
-
-#def update_e_vector_to_internode (Soil_calc,Soil_dimension):
-#    
-#    store = Soil_calc
-#    
-#    store.e_drying_internode	= update_materialproperty_internode_from_node (Soil_calc.e_drying,Soil_dimension)
-#    store.e_wetting_internode   = update_materialproperty_internode_from_node (Soil_calc.e_wetting,Soil_dimension)
-#    
-#    isdrying = store.isdrying
-#    
-#    store.e_internode              = isdrying*store.e_drying_internode             +-1*(isdrying-1)*store.e_wetting_internode
-#    
-#    return (store)
 
 def untangle_parameters (in_in,nr_sets):
     size_holder = np.size(np.shape(in_in)) 
@@ -863,67 +612,13 @@ def untangle_parameters (in_in,nr_sets):
     theta = in_input[nr_elements:2*nr_elements]
     # Third set is void ratio #
     e = in_input[2*nr_elements:3*nr_elements]
-    ## Fith set is Temperature #
-    #T = in_input[3*nr_elements:4*nr_elements]    
-    ## sixth set is Emmision #
-    #emm = in_input[4*nr_elements:5*nr_elements] 
+
     
     return(Pressure, theta, e)
 
-def df_dz_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
-   
-    Parameter_loc = Parameter
-    
-    Bctop_loc = Bctop.pressure
-    Bcbottom_loc = Bcbottom.pressure
-    
-    node_size_loc = 0*Parameter_loc
-    df_dz = 0*Parameter_loc
 
-    #for i in range(len(Parameter_loc)):
-    #    node_size_loc[i]= Soil_dimension.internode_vector[i]-Soil_dimension.internode_vector[i+1]
-    
-    node_size_loc = Soil_dimension.node_distance
-        
-    #start   
-    for i in range(1,len(df_dz)-1):
-        df_dz[i] = (Parameter_loc[i+1]-Parameter_loc[i-1])/(0.5*(node_size_loc[i-1]+2*node_size_loc[i]+node_size_loc[i+1]))
-    
-    
-    df_dz[0]=(Parameter_loc[1]-Bctop_loc)/(0.5*(3*node_size_loc[0]+node_size_loc[1]))
-    
-    df_dz[-1]=(Bcbottom_loc-Parameter_loc[-2])/(0.5*(3*node_size_loc[-1]+node_size_loc[-2]))
-    
-    
-    return (df_dz)
 
-@jit(forceobj=True, looplift=True,fastmath = True)
-def d2f_dz2_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
-    
-    Parameter_loc = Parameter
-    
-    Bctop_loc = Bctop
-    Bcbottom_loc = Bcbottom
-    
-    node_size_loc = 0*Parameter_loc
-    d2f_dz2 = 0*Parameter_loc
-
-    #for i in range(len(Parameter_loc)):
-    #    node_size_loc[i]= Soil_dimension.internode_vector[i]-Soil_dimension.internode_vector[i+1]
-    
-    node_size_loc = Soil_dimension.node_distance
-    
-    #start
-    for i in range(1,len(d2f_dz2)-1):
-        d2f_dz2[i] = (((Parameter_loc[i+1]-Parameter_loc[i])/node_size_loc[i])-((Parameter_loc[i]-Parameter_loc[i-1])/node_size_loc[i-1]))/(0.5*node_size_loc[i]+0.5*node_size_loc[i-1])
-    
-    d2f_dz2[0] = (((Parameter_loc[1]-Parameter_loc[0])/node_size_loc[0])-((Parameter_loc[0]-Bctop_loc)/node_size_loc[0]))/(0.5*node_size_loc[0]+0.5*node_size_loc[0])
-
-    d2f_dz2[-1]=(((Bcbottom_loc-Parameter_loc[-1])/node_size_loc[-1])-((Parameter_loc[-1]-Parameter_loc[-2])/node_size_loc[-2]))/(0.5*node_size_loc[-1]+0.5*node_size_loc[-2])
- 
-    return (d2f_dz2)
-
-@jit(forceobj=True, looplift=True,fastmath = True)
+@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
 def d2f_dz2_non_uniform_h(Parameter,Bctop,Bcbottom,Soil_dimension):
     
     Parameter_loc = Parameter
@@ -947,113 +642,9 @@ def d2f_dz2_non_uniform_h(Parameter,Bctop,Bcbottom,Soil_dimension):
         d2f_dz2[i] = (forward_diff - backward_diff) / (0.5 * (dz_forward + dz_backward))
     return (d2f_dz2)
 
-def d2f_dz2_non_uniform_2(Parameter,Bctop,Bcbottom,node_size):
-    
-    Parameter_loc = Parameter
-    
-    Bctop_loc = Bctop
-    Bcbottom_loc = Bcbottom
-    
-    node_size_loc = 0*Parameter_loc
-    d2f_dz2 = 0*Parameter_loc
-
-    #for i in range(len(Parameter_loc)):
-    #    node_size_loc[i]= Soil_dimension.internode_vector[i]-Soil_dimension.internode_vector[i+1]
-    
-    node_size_loc = node_size
-    
-    #start
-    for i in range(1,len(d2f_dz2)-1):
-        d2f_dz2[i] = (((Parameter_loc[i+1]-Parameter_loc[i])/node_size_loc[i])-((Parameter_loc[i]-Parameter_loc[i-1])/node_size_loc[i-1]))/(0.5*node_size_loc[i]+0.5*node_size_loc[i-1])
-    
-    d2f_dz2[0] = (((Parameter_loc[1]-Parameter_loc[0])/node_size_loc[0])-((Parameter_loc[0]-Bctop_loc)/node_size_loc[0]))/(0.5*node_size_loc[0]+0.5*node_size_loc[0])
-
-    d2f_dz2[-1]=(((Bcbottom_loc-Parameter_loc[-1])/node_size_loc[-1])-((Parameter_loc[-1]-Parameter_loc[-2])/node_size_loc[-2]))/(0.5*node_size_loc[-1]+0.5*node_size_loc[-2])
- 
-    return (d2f_dz2)
 
 
-def d2f_dz2_non_uniform_loc(Parameter,Bctop,Bcbottom,Soil_dimension):
-    
-    Parameter_loc = Parameter
-    
-    Bctop_loc = Bctop
-    Bcbottom_loc = Bcbottom
-    
-    node_size_loc = 0*Parameter_loc
-    d2f_dz2 = 0*Parameter_loc
 
-    #for i in range(len(Parameter_loc)):
-    #    node_size_loc[i]= Soil_dimension.internode_vector[i]-Soil_dimension.internode_vector[i+1]
-    
-    node_size_loc = Soil_dimension
-    
-    #start
-    
-    d2f_dz2 = (((Bcbottom_loc-Parameter_loc)/node_size_loc)-((Parameter_loc-Bctop_loc)/node_size_loc))/(0.5*node_size_loc+0.5*node_size_loc)
-
-    return (d2f_dz2)
-
-
-#def derrivative_shrinkage (SCV, theta, psi_m):
-#    theta = theta
-#    de_dtheta = np.zeros(np.shape(theta))
-#    A = SCV.A_sh
-#    B = SCV.B_sh
-#    C = SCV.C_sh
-#    psi_m = -psi_m
-#    de_dtheta =((B**(-C))*(theta**(C-1))*((B**(-C))*(theta**C)+1)**(1/C-1))
-#    
-#    for i in range(len(psi_m)):
-#        if psi_m[i] <= 0:
-#            de_dtheta[i] = 0.0
-#    
-#    
-#    return de_dtheta
-
-def deSSc_dt(Compression_vector, S_e, sigma_eff,dpsi_dt,Water_retention_curve_vector, PP):
-    S_e = S_e
-    dpsi_dt_in = dpsi_dt
-    #vG_WCR = Water_retention_curve_vector.vG_WCR
-    #vG_WCS = Water_retention_curve_vector.vG_WCS
-    
-    Labmda = Compression_vector.Lambda
-    kappa = Compression_vector.Kappa
-    mu = Compression_vector.Mu
-    PP = abs(PP)
-    
-    Tau_ref = Compression_vector.Tau_ref
-    
-    sigma_eff = sigma_eff
-    dsigma_eff_dt = -dpsi_dt_in*S_e
-    
-    ccott = Compression_vector.ccott
-    
-    #print (PP[0],sigma_eff[0])
-    
-    Tau = (PP/sigma_eff)**((Labmda-kappa)/mu)
-    
-    #print (Tau)
-    
-    dElastic = dsigma_eff_dt*kappa/(ccott+sigma_eff)
-    dPlastic = (1/Tau)*(mu/Tau_ref)*(sigma_eff/PP)**((Labmda-kappa)/mu)
-    #dPlastic = (1/1)*(mu/1)*(sigma_eff/PP)**((Labmda-kappa)/mu)
-    
-    deps_dt = -(dElastic + dPlastic)
-
-    dPP_dt = PP*(dPlastic/(Labmda-kappa))    
-    
-    #print("theta","%.1f" %  theta[3])
-    #print("PP","%.1f" %  PP[3])
-    #print("dpsi_dt","%.1f" %  dpsi_dt[3])
-    #print("sigma_eff","%.1f" %  sigma_eff[3])
-    #print("dsigma_eff_dt","%.1f" %  dsigma_eff_dt[3])
-    #print("Tau","%.1f" %  Tau[3])
-    #print("dElastic","%.1f" % dElastic[3])
-    #print("dPlastic","%.1f" % dPlastic[3])
-    #print("dPP","%.1f" %  dPP_dt[3])
-    #rint("de_dt","%.1f" %  de_dt[3])
-    return deps_dt, dPP_dt
 
 
 def deSSc_dt_h(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector, PP):
@@ -1085,95 +676,6 @@ def deSSc_dt_h(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dp
     return deps_dt, dn_dt
 
 
-
-def deSSc_dt_loc(Compression_vector, sigma_eff,dsigma_eff_dt,Water_retention_curve_vector, PP):
-    #vG_WCR = Water_retention_curve_vector.vG_WCR
-    #vG_WCS = Water_retention_curve_vector.vG_WCS
-    
-    Labmda = Compression_vector.Lambda
-    kappa = Compression_vector.Kappa
-    mu = Compression_vector.Mu
-    ur = Compression_vector.unloadreload
-    PP = abs(PP)
-    
-    Tau_ref = Compression_vector.Tau_ref
-    
-    sigma_eff = abs(sigma_eff)
-    dsigma_loc_eff_dt = -(dsigma_eff_dt)
-    
-    ccott = Compression_vector.ccott
-    
-    #print (PP[0],sigma_eff[0])
-    
-    Tau = (PP/sigma_eff)**((Labmda-kappa)/mu)
-    
-    #print (Tau)
-    if dsigma_loc_eff_dt < 0 : kappa = kappa*ur
-    
-    dElastic = dsigma_loc_eff_dt*kappa/(ccott+sigma_eff)
-    dPlastic = (1/Tau)*(mu/Tau_ref)*(sigma_eff/PP)**((Labmda-kappa)/mu)
-    #dPlastic = (1/1)*(mu/1)*(sigma_eff/PP)**((Labmda-kappa)/mu)
-    
-    deps_dt = -(dElastic + dPlastic)
-
-    dPP_dt = PP*(dPlastic/(Labmda-kappa))    
-    
-    #print("theta","%.1f" %  theta[3])
-    #print("PP","%.1f" %  PP[3])
-    #print("dpsi_dt","%.1f" %  dpsi_dt[3])
-    #print("sigma_eff","%.1f" %  sigma_eff[3])
-    #print("dsigma_eff_dt","%.1f" %  dsigma_eff_dt[3])
-    #print("Tau","%.1f" %  Tau[3])
-    #print("dElastic","%.1f" % dElastic[3])
-    #print("dPlastic","%.1f" % dPlastic[3])
-    #print("dPP","%.1f" %  dPP_dt[3])
-    #rint("de_dt","%.1f" %  de_dt[3])
-    return deps_dt, dPP_dt
-
-def deSSc_dt2(Compression_vector, sigma_eff,dsigma_eff_dt,Water_retention_curve_vector, PP):
-    #vG_WCR = Water_retention_curve_vector.vG_WCR
-    #vG_WCS = Water_retention_curve_vector.vG_WCS
-    
-    Labmda = Compression_vector.Lambda
-    kappa = Compression_vector.Kappa
-    mu = Compression_vector.Mu
-    ur = Compression_vector.unloadreload
-    PP = abs(PP)
-    
-    Tau_ref = Compression_vector.Tau_ref
-    
-    sigma_eff = sigma_eff
-    dsigma_loc_eff_dt = -(dsigma_eff_dt)
-    
-    ccott = Compression_vector.ccott
-    
-    #print (PP[0],sigma_eff[0])
-    
-    Tau = (PP/sigma_eff)**((Labmda-kappa)/mu)
-    
-    #print (Tau)
-    for i in range(len(dsigma_loc_eff_dt)):
-        if dsigma_loc_eff_dt[i] < 0 : kappa[i] = kappa[i]*ur[i]
-    
-    dElastic = dsigma_loc_eff_dt*kappa/(ccott+sigma_eff)
-    dPlastic = (1/Tau)*(mu/Tau_ref)*(sigma_eff/PP)**((Labmda-kappa)/mu)
-    #dPlastic = (1/1)*(mu/1)*(sigma_eff/PP)**((Labmda-kappa)/mu)
-    
-    deps_dt = -(dElastic + dPlastic)
-
-    dPP_dt = PP*(dPlastic/(Labmda-kappa))    
-    
-    #print("theta","%.1f" %  theta[3])
-    #print("PP","%.1f" %  PP[3])
-    #print("dpsi_dt","%.1f" %  dpsi_dt[3])
-    #print("sigma_eff","%.1f" %  sigma_eff[3])
-    #print("dsigma_eff_dt","%.1f" %  dsigma_eff_dt[3])
-    #print("Tau","%.1f" %  Tau[3])
-    #print("dElastic","%.1f" % dElastic[3])
-    #print("dPlastic","%.1f" % dPlastic[3])
-    #print("dPP","%.1f" %  dPP_dt[3])
-    #rint("de_dt","%.1f" %  de_dt[3])
-    return deps_dt, dPP_dt
 
 def respiration_rate_curve (S_e,e,theta,dSatdt , dTemperature, Temperature, Water_retention_curve_vector,Emission_vector):
     T = Temperature

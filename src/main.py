@@ -121,19 +121,9 @@ Bctop.load_increments = [0]
 Bctop.load = np.cumsum(Bctop.load_increments)
 Bctop.time_incr = [0]
 
-"Top boundary conditions in equation form <-> the choice to use an equation or steps is made further on in the code"
-#Make a boundary condition
-def Boundary_equation(time):
-    t = time 
-    P = 5.0*np.sin(np.pi*t*(1/100)+0)-10.0*np.sin(np.pi*t*(1/50)+1)-2.5*np.sin(np.pi*t*(1/500))
-    T = np.sin(t*(6/365)-1.8)+7.5
-
-    return (P,T)
 
 "Bottom boundary conditions"        
-                               # kPa
 Bctop.devaporation = np.zeros(len(Bctop.pressure))
-
 Bcbottom = Bc_bottom()
 #Bcbottom.time = [0]
 #Bcbottom.pressure = [49]
@@ -285,7 +275,6 @@ def equations(simulation_time, in_in, sigma_tracker):
     "~~~~ Calculate permeability ~~~~~"
     Soil_calc.K                     = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
     K= Soil_calc.K/Soil_dimension.node_distance
-    
     "set differentials"
     # First set: pressure 
     d2psi_dz2 = d2f_dz2_non_uniform_h(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
@@ -381,11 +370,6 @@ colum_node_heigth[-1,:] = node_heigth[-1,:]
 for i in range(len(e_results[:,0])-2,-1,-1):
     colum_node_heigth[i,:] = node_heigth[i,:]+colum_node_heigth[i+1,:]
 
-pressure_top = sol.t*0
-Temperature_top =  sol.t*0
-
-for i in range(len(sol.t)):
-    pressure_top[i], Temperature_top[i] = Boundary_equation(sol.t[i])
 
 #ground water level-------------------------------------------
 gwl = []

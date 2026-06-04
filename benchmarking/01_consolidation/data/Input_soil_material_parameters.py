@@ -56,7 +56,7 @@ Soil_parameters ={
         'epsilon' : 0.05,       
         'eta' : 5,           
         'desslength' : 110,
-        'K_tot' : 0.0001,
+        'K_tot' : 0.001,
         'K_min' : 0.0001,
         'tau' : 0.5
         }
@@ -90,6 +90,7 @@ Soil_parameters['confining_layer'] = {
 
         'Compression':{
         'kappa' : 0.0868,   
+
         'lambda'  : 0.1302,
         'mu'  : 0.0028229,
         'Tau_ref'  : 1,
@@ -123,7 +124,7 @@ Soil_parameters['confining_layer'] = {
         'epsilon' : 1,       
         'eta' : 1,           
         'desslength' : 1,
-        'K_tot' : 0.001,
+        'K_tot' : 0.05,
         'K_min' : 0.0001,
         'tau' : 0.5
         }       
