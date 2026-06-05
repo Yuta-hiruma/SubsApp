@@ -13,13 +13,15 @@
 * Pore pressure boundary conditions is to be derived from SWAP simulations
 * Surface displacement output
 
-## Installation
+## Project Structure
 
-Clone the repository:
-
-```bash
-git clone git@github.com:Yuta-hiruma/SubsApp.git
-cd SubsApp
+```text
+SubsApp/
+├── data/           # Input files and soil parameters
+├── doc/            # Documentation
+├── results/        # Simulation results
+├── src/            # Script code
+└── README.md
 ```
 
 ## Usage
@@ -84,16 +86,7 @@ Simulation outputs are written to the `results/` directory and may include:
 * Pore pressure evolution
 * Effective stress development
 
-## Project Structure
 
-```text
-SubsApp/
-├── data/           # Input files and soil parameters
-├── doc/            # Documentation
-├── results/         # Simulation results
-├── src/            
-└── README.md
-```
 
 ## References
 
