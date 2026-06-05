@@ -69,6 +69,7 @@ python3 pressure_bc.py
 python3 pressure_ini.py
 python3 water_content.py
 ```
+This converts the swap output to SubsApp's boundary condition.
 
 ### 3. Run the Subsidence Model
 
@@ -82,10 +83,8 @@ python3 main.py
 Simulation outputs are written to the `results/` directory and may include:
 
 * Surface settlement time series
-* Layer-wise deformation
-* Pore pressure evolution
-* Effective stress development
-
+* Pressure distribution
+* Effective saturation
 
 
 ## References
