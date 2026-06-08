@@ -9,10 +9,15 @@ The permeability is changed based on watercontent and void ratio.
 
 
 """
+
 "Numba"
 from numba import int32, float32
 from numba import jit
+
+""
 import time
+""
+
 
 "The following function libraries are used in the programme and are local"
 " ## local files##" 
@@ -39,6 +44,9 @@ import math as math
 import pandas as pd
 import timeit as timeit
 from datetime import datetime, timedelta
+from dask import delayed
+import dask.bag as db
+
 
 #------
 import sys
@@ -51,6 +59,8 @@ from input import *
 sys.path.pop(0)
 os.chdir(current_dir)
 #------
+
+
 
 #input file-----------------------------
 infile_tp = "input/top_pressure/top_pressure_swp.dat"
@@ -184,6 +194,14 @@ class SigmaTracker:
 sigma_tracker = SigmaTracker()
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
+def saturated_theta(S_e,dtheta_dt,dn_dt,i):
+    if S_e[i] >= 1:
+        if dtheta_dt[i] > dn_dt[i] :  
+            dtheta_dt[i] = dn_dt[i] 
+    return dtheta_dt[i]
+
+def gather(*args):
+    return list(args)
 
 #@profile
 def equations(simulation_time, in_in, sigma_tracker):
@@ -252,7 +270,6 @@ def equations(simulation_time, in_in, sigma_tracker):
         if simulation_time < Bcbottom.time[i]:
             t_interval = t_interval-1  
 
-
     Bcbottom_in = Bc_bottom()
     Bcbottom_in.pressure = Bcbottom.pressure[t_interval]                                                         # kPa
     
@@ -273,7 +290,10 @@ def equations(simulation_time, in_in, sigma_tracker):
     "Matrix potential "
     psi_m = np.where(Pressure <= 0, Pressure, 0)
     "~~~~ Calculate permeability ~~~~~"
+
     Soil_calc.K                     = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
+    #-----------------------
+
     K= Soil_calc.K/Soil_dimension.node_distance
     "set differentials"
     # First set: pressure 
@@ -303,11 +323,11 @@ def equations(simulation_time, in_in, sigma_tracker):
 
 
     
-    for i in range(len(S_e)):
-        if S_e[i] >= 1:
-            if dtheta_dt[i] > dn_dt[i] :  
-                dtheta_dt[i] = dn_dt[i]    
-
+    #for i in range(len(S_e)):
+    #    if S_e[i] >= 1:
+    #        if dtheta_dt[i] > dn_dt[i] :  
+    #            dtheta_dt[i] = dn_dt[i]    
+    dtheta_dt =  gather(*(saturated_theta(S_e,dtheta_dt,dn_dt,i) for i in range(len(S_e))))#.compute()
     out_out = np.concatenate([dpsi_dt,dtheta_dt,de_dt],axis=0)
     #------------------------------------------------------------------------
 

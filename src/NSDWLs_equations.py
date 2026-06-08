@@ -169,7 +169,7 @@ def calc_stress (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_v
 
     return (Soil_stresses)
 
-@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
+@jit(forceobj=True, looplift=True,fastmath = True)
 def calc_stress_ini_h (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_vector,Soil_stresses):
     # input:  theta_n, state par, simsettings, spatial, dm_in, ZZ, k, m
     # Output : psi_n (van genuchten), e_n, dedtheta_n, d2edtheta2_n, dZ_in, k, m 
@@ -573,7 +573,7 @@ def update_height (Soil_dimension, Soil_states):
         internode_vector_out[-i-2] = internode_vector_out[-i-1] + Vs_temp/(1-e[-i-1]/(1+e[-i-1]))          
     return (internode_vector_out)
     
-@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
+@jit(forceobj=True, looplift=True,fastmath = True)
 def get_node_coordinates(Soil_dimension):
     internode_vector = Soil_dimension.internode_vector
     node_vector = np.zeros((len(internode_vector)-1))
@@ -581,7 +581,7 @@ def get_node_coordinates(Soil_dimension):
         node_vector[i] = 0.5*(internode_vector[i]+internode_vector[i+1])
     return (node_vector)
 
-@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
+@jit(forceobj=True, looplift=True,fastmath = True)
 def get_node_distance(Soil_dimension):
     internode_vector = Soil_dimension.internode_vector
     node_distance = np.zeros(len(internode_vector)-1)
@@ -618,7 +618,7 @@ def untangle_parameters (in_in,nr_sets):
 
 
 
-@jit(nogil = True, forceobj=True, looplift=True,fastmath = True)
+@jit(forceobj=True, looplift=True,fastmath = True)
 def d2f_dz2_non_uniform_h(Parameter,Bctop,Bcbottom,Soil_dimension):
     
     Parameter_loc = Parameter
