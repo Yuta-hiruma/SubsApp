@@ -1,5 +1,4 @@
 # SubsApp
-this is update on local
 **SubsApp** is a one-dimensional hydro-mechanical model for simulating shallow. The model is based on the **Soft Soil Creep (SSC)** fomulation and includes matric suction in unsaturated zone. It is designed for shallow subsurface deformation analysis of soft soils such as peat and clay.
 
 ## Features
@@ -14,13 +13,39 @@ this is update on local
 * Surface displacement output
 
 ## Installation
-[Update on my computer]
-Clone the repository:
 
 ```bash
 git clone git@github.com:Yuta-hiruma/SubsApp.git
 cd SubsApp
 ```
+## Project Structure
+
+```text
+SubsApp/
+├── data/           # Input files and soil parameters
+├── doc/            # Documentation
+├── results/        # Simulation results
+├── src/           	# Script code
+├── benchmarking/   # model testing and its input data
+└── README.md
+```
+
+## Testeted Software version for the main
+python (version 3.11.5) https://www.python.org/ The following python packages are required:
+
+geopandas                     0.14.4
+matplotlib                    3.7.2
+matplotlib-inline             0.1.6
+numba                         0.61.2
+numba_celltree                0.4.1
+numpy                         1.26.4
+numpydoc                      1.5.0
+pandas                        2.3.1
+scipy                         1.11.1
+
+SWAP model version 4 
+gfortran (version gcc-7.2.0) https://gcc.gnu.org/fortran/
+
 
 ## Usage
 
@@ -84,16 +109,7 @@ Simulation outputs are written to the `results/` directory and may include:
 * Pore pressure evolution
 * Effective stress development
 
-## Project Structure
 
-```text
-SubsApp/
-├── data/           # Input files and soil parameters
-├── doc/            # Documentation
-├── results/         # Simulation results
-├── src/            
-└── README.md
-```
 
 ## References
 
