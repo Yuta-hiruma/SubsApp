@@ -90,7 +90,6 @@ Soil_parameters['confining_layer'] = {
 
         'Compression':{
         'kappa' : 0.0868,   
-
         'lambda'  : 0.1302,
         'mu'  : 0.0028229,
         'Tau_ref'  : 1,
