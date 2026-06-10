@@ -14,18 +14,12 @@ The performance of SubsApp has been tested in several applications. Howeverm, fu
 * Surface displacement output
 
 ## Installation
-<<<<<<< HEAD
 
-=======
->>>>>>> 87caa450d8ce73df984e414460b444f1f399f116
 ```bash
 git clone git@github.com:Yuta-hiruma/SubsApp.git
 cd SubsApp
 ```
-<<<<<<< HEAD
-=======
 
->>>>>>> 87caa450d8ce73df984e414460b444f1f399f116
 ## Project Structure
 
 ```text
