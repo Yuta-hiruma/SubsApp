@@ -1,38 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jul 23 14:27:28 2021
-
-@author: tomdegast
+Created on Fri Jul 23 14:27:28 2021  @author: tomdegast
 
 This model links the change in effective stress due to transient flow to a consitutitve modelincluding creep (Modelled after Soft Soil creep). 
 The permeability is changed based on watercontent and void ratio. 
 
 
+Updated on Fri Jun 11 2026 
+@editor: Yuta_hiruma
+
 """
-
-"Numba"
-from numba import int32, float32
-from numba import jit
-
-""
-import time
-""
-
-
-"The following function libraries are used in the programme and are local"
-" ## local files##" 
-
-#from main_program import *
-from build_domain import *
-from NSDWLs_errors import *
-from NSDWLs_states import *
-from NSDWLs_equations import *
-from NSDWLs_potential import *
-
-
-"The following function libraries are used in the programme and are global"
-
-" ## global files ##"
+#------------------------------------------------------------------
+#------------------------------------------------------------------
+#global files ----------------
 from scipy import special
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -43,12 +23,22 @@ import scipy as sci
 import math as math
 import pandas as pd
 import timeit as timeit
+import time
 from datetime import datetime, timedelta
 from dask import delayed
 import dask.bag as db
 
+#Numba ----------------------
+from numba import int32, float32
+from numba import jit
 
-#------
+#Local files ----------------
+from build_domain import *
+from NSDWLs_errors import *
+from NSDWLs_states import *
+from NSDWLs_equations import *
+from NSDWLs_potential import *
+
 import sys
 import os
 current_dir = os.getcwd()
@@ -58,11 +48,10 @@ from Input_soil_material_parameters import *
 from input import *
 sys.path.pop(0)
 os.chdir(current_dir)
-#------
-
-
-
-#input file-----------------------------
+#------------------------------------------------------------------
+#------------------------------------------------------------------
+#Reading input files-----------------------------
+" Update directory"
 infile_tp = "input/top_pressure/top_pressure_swp.dat"
 infile_bp = "input/bottom_pressure/bottom_pressure_swp.dat"
 infile_wc_ini = "input/wc_ini/wc_ini_swp.dat"
@@ -71,29 +60,19 @@ df_tp = pd.read_csv(infile_tp, sep=r"\s+", skiprows=1, names=["date", "pressure"
 df_bp = pd.read_csv(infile_bp, sep=r"\s+", skiprows=1, names=["date", "pressure"])
 df_wc_ini = pd.read_csv(infile_wc_ini, sep=r"\s+", skiprows=1, names=["depth", "wcontent"])
 df_pressure_ini = pd.read_csv(infile_p_ini, sep=r"\s+", skiprows=1, names=["depth", "pressure"])
-#---------------------------------------
-#simulaiton period----------------------
-TSTART = tstart
-TEND = tend
 
-" #### input parameters "
-tic = timeit.default_timer()
 
-" Initiation of he soil domain, give top, bottom and precision"
-" precision directly influences calculation time. If the precision is small, the relative error required for accuracy will increase calulation time"
+#------------------------------------------------------------------
+#Initiation of the soil domain-------------------------------------
 Soil_dimension = Soil_domain()
 Soil_dimension.Depth_top = 0.00                     # m size
 Soil_dimension.Depth_bottom = depths[-1]            # m size
+
+"Default soil column discretization is 0.1 m. Adjust this value according to the required model resolution."
 Soil_dimension.precision = 0.1                      # m node size
-
-" Layers are added to the domain."
-" Soil properties are collected in the library Input_parameters_definitiions "
-
+#------------------------------
 Soil_dimension.Depth_o_soils = depths                # bottom of soil layer      
 Soil_dimension.soils = types                                      # soil types used
-
-""
-
 Soil_dimension.Number_o_soils = len(Soil_dimension.Depth_o_soils)                                                 # number of soils 
 Soil_dimension.domainsize = Soil_dimension.Depth_top-Soil_dimension.Depth_bottom
 
@@ -102,25 +81,27 @@ Soil_stresses = Soil_stresses()
 
 Soil_calc = Soil_calc()
 swp = swp()
-
-" ## Set calculation time, simulation steps to be reported, maximum time step and relative tolerance ##"
-start_date = datetime.strptime(TSTART, "%Y-%m-%d")
-end_date = datetime.strptime(TEND, "%Y-%m-%d")
-minimum_accuracy_time_step = 1               #days  
-max_time_step = 1.0  
+#------------------------------------------------------------------
+#Simulaiton period ------------------------------------------------
+"Aduest max_time_step and relative tolerance that are used in differential equation." 
+max_time_step = 1.0  #day
 rtol =1e-7 #relative tolerance
 #atol =1e-4 #absolute tolerance
-
+#--------------------------------
+TSTART = tstart
+TEND = tend
+tic = timeit.default_timer()
+start_date = datetime.strptime(TSTART, "%Y-%m-%d")
+end_date = datetime.strptime(TEND, "%Y-%m-%d")
 end_time = (end_date - start_date).days
 simssteps = (end_date - start_date).days
 date_list = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 simulation_time =  np.linspace (0,end_time,simssteps+1)
 
 
-
-"## Set boundary conditions"
-
-"Top boundary conditions"
+#------------------------------------------------------------------
+#Set boundary conditions ------------------------------------------
+#Top boundary conditions ------------------------------
 Bctop = Bc_top()
 #Initial conditoin from SWAP----------
 Bctop.time = df_tp["date"].tolist()
@@ -130,21 +111,21 @@ Bctop.trans = np.ones(len(Bctop.pressure))
 Bctop.load_increments = [0]
 Bctop.load = np.cumsum(Bctop.load_increments)
 Bctop.time_incr = [0]
-
-
-"Bottom boundary conditions"        
+#Bottom boundary conditions ----------------------------
 Bctop.devaporation = np.zeros(len(Bctop.pressure))
 Bcbottom = Bc_bottom()
 #Bcbottom.time = [0]
 #Bcbottom.pressure = [49]
 Bcbottom.time = df_bp["date"].tolist()
 Bcbottom.pressure = df_bp["pressure"].tolist()     # kPa
+#------------------------------------------------------------------
+#------------------------------------------------------------------
 
-"## check for errors ##"
-
+#Check errors -----------------------------------------------------
 checkerror(Soil_dimension,Soil_parameters)
 
-" Build the model domain and fill vectors with properties set initial conditions" 
+#------------------------------------------------------------------
+#Set initial conditions -------------------------------------------
 #Initial conditoin from SWAP----------
 swp.depth = df_wc_ini ["depth"].tolist()
 swp.wcontent = df_wc_ini ["wcontent"].tolist()
@@ -163,10 +144,11 @@ S_e_ini = Soil_states.theta/Soil_states.n_ini
 
 Soil_dimension.node_initial=get_node_distance(Soil_dimension)
 
-" ### RUN PROGRAM ###" 
-
+#------------------------------------------------------------------
+#------------------------------------------------------------------
+#RUN PROGRAM 
+#------------------------------------------------------------------
 (Soil_stresses) = calc_stress_ini_h (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_vector,Soil_stresses)
-
 Soil_stresses.sigma_effective_node_ini = np.array(Soil_stresses.sigma_effective_node)
 Soil_states.Preconsolidation_pressure =  Soil_stresses.sigma_effective_node_ini*Compression_vector.OCR
 #--------------------------------------------------------
@@ -188,23 +170,53 @@ class SigmaTracker:
         self.prev_sigma_eff = sigma_eff
         self.prev_t = t
         return dsigma_eff_dt
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
+
 #Initialize tracker ------------------------------
 sigma_tracker = SigmaTracker()
 #------------------------------------------------------------------------
-#------------------------------------------------------------------------
-def saturated_theta(S_e,dtheta_dt,dn_dt,i):
-    if S_e[i] >= 1:
-        if dtheta_dt[i] > dn_dt[i] :  
-            dtheta_dt[i] = dn_dt[i] 
-    return dtheta_dt[i]
 
-def gather(*args):
-    return list(args)
+#def saturated_theta(S_e,dtheta_dt,dn_dt,i):
+#    if S_e[i] >= 1:
+#        if dtheta_dt[i] > dn_dt[i] :  
+#            dtheta_dt[i] = dn_dt[i] 
+#    return dtheta_dt[i]
+#
+#def gather(*args):
+#    return list(args)
 
-#@profile
+
 def equations(simulation_time, in_in, sigma_tracker):
+    """
+        Computes the time derivatives of pore pressure (psi), water content (theta),
+        and void ratio (e) for all soil column elements.
+        
+        Parameters
+        ----------
+        simulation_time : float
+            Current simulation time provided by the ODE solver. The simulation time
+            vector is  defined as np.linspace(0, end_time, sim_steps + 1)
+        
+        in_in : ndarray
+            State vector containing the values of pore pressure (psi),
+            water content (theta), and void ratio (e) for each soil element.
+            The soil column is discretized into layers according to the specified
+            vertical resolution.
+        
+        sigma_tracker : object
+            Tracks changes in effective stress (sigma_eff). Effective stress is not
+            solved directly as a state variable in this system of equations. Instead,
+            sigma_eff is updated after each time step based on the updated values of
+            effective saturation (S_e), void ratio (e), and pore pressure (psi).
+            The rate of change of effective stress is then obtained from the
+            difference between the previous and updated sigma_eff values.
+        
+        Returns
+        -------
+        ndarray
+            Time derivatives of the state variables (psi, theta, and e) for all
+            soil elements.
+
+    """    
     global gamma_vector
     global Compression_vector
     global Shrinkage_curve_vector
@@ -220,7 +232,6 @@ def equations(simulation_time, in_in, sigma_tracker):
     "~~~~~~~setup_local_parameters~~~~~~"    
     
     Shrinkage_curve_node = Shrinkage_curve_vector
-
     Water_retention_curve_node = Water_retention_curve_vector
     "~~~~ retreive parameters from loop~~~~~~~"
     
@@ -260,8 +271,7 @@ def equations(simulation_time, in_in, sigma_tracker):
         P_range = P_next - Bctop.pressure[t_interval]
         Bctop_in.pressure = P_average+0.5*P_range*special.erf((simulation_time-t_next+trans_next)*(3/trans_next))
     
-    #print(Bctop_in.pressure)
-                                           # kPa
+
     Bctop_in.devaporation = Bctop.devaporation[t_interval]
     Bctop_in.trans = Bctop.trans[t_interval]
 
@@ -271,7 +281,7 @@ def equations(simulation_time, in_in, sigma_tracker):
             t_interval = t_interval-1  
 
     Bcbottom_in = Bc_bottom()
-    Bcbottom_in.pressure = Bcbottom.pressure[t_interval]                                                         # kPa
+    Bcbottom_in.pressure = Bcbottom.pressure[t_interval]                                                         
     
     
     "~~~~~~~Update soil_dimension~~~~~~"
@@ -408,11 +418,12 @@ Se_results = theta_results/e_results
 #AU_results = 0*Emission_results
 
 #AU_results = ((0.05*(Temperature_results-(-10)))**2)*sci.stats.beta.pdf(Se_results,2.59,1.84)
+#------------------------------------------------------------------
+#------------------------------------------------------------------
 
-
-#----------------
+#------------------------------------------------------------------
 #output
-##----------------
+#------------------------------------------------------------------
 with open('../results/displacement.dat', 'w') as dis:
     dis.write(f"{'':<2}{'time[days]':<15}  {'displacement [mm]':<15}\n")
     for i in range(len(date_list)):

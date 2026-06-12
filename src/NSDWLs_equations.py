@@ -8,6 +8,18 @@ import numpy as np
 import scipy as sci
 from numba import jit
 from NSDWLs_calc import *
+
+
+def saturated_theta(S_e,dtheta_dt,dn_dt,i):
+    if S_e[i] >= 1:
+        if dtheta_dt[i] > dn_dt[i] :  
+            dtheta_dt[i] = dn_dt[i] 
+    return dtheta_dt[i]
+
+def gather(*args):
+    return list(args)
+
+    
 "eq-1"
 
 #   dm = dz/(1+e)
