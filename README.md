@@ -28,7 +28,7 @@ SubsApp/
 
 ## Testeted Software version for the main
 python (version 3.11.5) https://www.python.org/ The following python packages are required:
-
+```
 geopandas                     0.14.4
 matplotlib                    3.7.2
 matplotlib-inline             0.1.6
@@ -38,7 +38,7 @@ numpy                         1.26.4
 numpydoc                      1.5.0
 pandas                        2.3.1
 scipy                         1.11.1
-
+```
 SWAP model version 4 
 gfortran (version gcc-7.2.0) https://gcc.gnu.org/fortran/
 
