@@ -1,5 +1,5 @@
 # SubsApp
-**SubsApp** is a one-dimensional hydro-mechanical model for simulating shallow. The model is based on the **Soft Soil Creep (SSC)** fomulation and includes matric suction in unsaturated zone. It is designed for shallow subsurface deformation analysis of soft soils such as peat and clay.
+**SubsApp** is a one-dimensional hydro-mechanical model for simulating shallow subsurface. The model is based on the **Soft Soil Creep (SSC)** fomulation and includes matric suction in unsaturated zone. It is designed for shallow subsurface deformation analysis of soft soils such as peat and clay.
 The performance of SubsApp has been tested in several applications. Howeverm, future applications might reveal errors that were not detected in the test simulations. Users are requested to send notifcation of any errors found in this model documentation report.
 
 ## Features
