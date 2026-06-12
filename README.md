@@ -25,17 +25,6 @@ SubsApp/
 ├── benchmarking/   # model testing and its input data
 └── README.md
 ```
-## Project Structure
-
-```text
-SubsApp/
-├── data/           # Input files and soil parameters
-├── doc/            # Documentation
-├── results/        # Simulation results
-├── src/           	# Script code
-├── benchmarking/   # model testing and its input data
-└── README.md
-```
 
 ## Testeted Software version for the main
 python (version 3.11.5) https://www.python.org/ The following python packages are required:
