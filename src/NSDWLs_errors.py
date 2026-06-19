@@ -21,18 +21,3 @@ def checkerror (Soil_domain,Soil_parameters):
          print("no other boundary input error found")
          
          
-" TIC-TOC timing "  
-def tic():
-    # Homemade version of matlab tic and toc functions
-    import time
-    global start_tictoc
-    startTime_for_tictoc = time.time()
-
-
-def toc():
-    import time
-    if 'start_tictoc' in globals():
-        print("Elapsed time " + str(time.time() - start_tictoc)
-              + " seconds.")
-    else:
-        print("Toc: start time not set")
