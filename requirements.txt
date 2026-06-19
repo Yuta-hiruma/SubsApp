@@ -1,0 +1,15 @@
+```text
+numpy==1.26.4
+scipy==1.11.1
+pandas==2.3.1
+
+matplotlib==3.7.2
+
+numba==0.61.2
+numba-celltree==0.4.1
+
+geopandas==0.14.4
+
+numpydoc==1.5.0
+```
+
