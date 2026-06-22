@@ -8,7 +8,7 @@ Updated on Fri Jun 11 2026
 @editor: Yuta_hiruma
 
 """
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 #Preparation ----------------
 from scipy import special
@@ -52,7 +52,7 @@ df_bp = pd.read_csv(infile_bp, sep=r"\s+", skiprows=1, names=["date", "pressure"
 df_wc_ini = pd.read_csv(infile_wc_ini, sep=r"\s+", skiprows=1, names=["depth", "wcontent"])
 df_pressure_ini = pd.read_csv(infile_p_ini, sep=r"\s+", skiprows=1, names=["depth", "pressure"])
 #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Initilization of the soil domain-------------------------------------
 Soil_dimension = Soil_domain()
 Soil_dimension.Depth_top = 0.00                     # m size
@@ -71,7 +71,7 @@ Soil_stresses = Soil_stresses()
 
 Soil_calc = Soil_calc()
 swp = swp()
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Simulaiton time ------------------------------------------------
 "Aduest max_time_step and relative tolerance that are used in differential equation." 
 max_time_step = 1.0  #day
@@ -87,7 +87,7 @@ end_time = (end_date - start_date).days
 simssteps = (end_date - start_date).days
 date_list = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 simulation_time =  np.linspace (0,end_time,simssteps+1)
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Set boundary conditions ------------------------------------------
 #Top boundary conditions ------------------------------
 Bctop = Bc_top()
@@ -106,10 +106,10 @@ Bcbottom = Bc_bottom()
 #Bcbottom.pressure = [49]
 Bcbottom.time = df_bp["date"].tolist()
 Bcbottom.pressure = df_bp["pressure"].tolist()     # kPa
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Check errors -----------------------------------------------------
 checkerror(Soil_dimension,Soil_parameters)
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Set initial conditions -------------------------------------------
 #Initial conditoin from SWAP----------
 swp.depth = df_wc_ini ["depth"].tolist()
@@ -130,7 +130,7 @@ Soil_dimension.node_initial=get_node_distance(Soil_dimension)
 (Soil_stresses) = calc_stress_ini_h (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_vector,Soil_stresses)
 Soil_stresses.sigma_effective_node_ini = np.array(Soil_stresses.sigma_effective_node)
 Soil_states.Preconsolidation_pressure =  Soil_stresses.sigma_effective_node_ini*Compression_vector.OCR
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Define a wrapper function to store previous values------
 class SigmaTracker:
     def __init__(self):
@@ -152,9 +152,8 @@ class SigmaTracker:
 #Initialize tracker ------------------------------
 sigma_tracker = SigmaTracker()
 
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#Defining the equation for PDE.
+
+#Defining the equation for PDE ------------------------
 def equations(simulation_time, in_in, sigma_tracker):
     """
         Computes the time derivatives of pore pressure (psi), water content (theta),
@@ -231,12 +230,12 @@ def equations(simulation_time, in_in, sigma_tracker):
             t_interval = t_interval-1  
     Bcbottom_in = Bc_bottom()
     Bcbottom_in.pressure = Bcbottom.pressure[t_interval]                                                         
-    #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/  
+ 
     #Update soil_dimension------------
     Soil_dimension.node_vector = get_node_coordinates(Soil_dimension)
     Soil_dimension.node_distance = get_node_distance(Soil_dimension)  
     Soil_dimension.node_distance = (1-((Soil_states.e_ini-e)/(1+Soil_states.e_ini)))*Soil_dimension.node_initial
-    #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/  
+ 
     #Update_soil_stresses------------
     sigma_total = np.zeros(len(e))
     sigma_total = update_sigma_total (Soil_dimension.node_distance,gamma_vector,Soil_states,Water_retention_curve_vector,Bctop_in)
@@ -245,11 +244,11 @@ def equations(simulation_time, in_in, sigma_tracker):
     dsigma_eff_dt = sigma_tracker.compute_dsigma_eff_dt(sigma_eff, simulation_time) 
     #---------------------------------------------------------------------
     psi_m = np.where(Pressure <= 0, Pressure, 0)
-    #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/  
+
     #Calculate permeability----------
     Soil_calc.K                     = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
     K= Soil_calc.K/Soil_dimension.node_distance
-    #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/  
+
     #set differentials ------------------------
     #First set: pressure ----------
     d2psi_dz2 = d2f_dz2_non_uniform(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
@@ -259,7 +258,9 @@ def equations(simulation_time, in_in, sigma_tracker):
     dtheta_dt = dpsi_dt*dtheta_dpsi  
     # third set: void ratio -------
     de_dt,dn_dt = deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector, Soil_states.Preconsolidation_pressure)
-    
+    de_dt = vertical_strain_to_void_ratio(Compression_vector,e,deps_dt)
+
+
     compression = (de_dt < 0).astype(int)    
     extension = (de_dt > 0).astype(int)  
     
@@ -269,11 +270,11 @@ def equations(simulation_time, in_in, sigma_tracker):
     dpsi_dt = update_dpsi_dt(dpsi_dt, K, compression, saturated, dn_dt)
     dtheta_dt, dSat_dt = update_dtheta_and_dSat(dtheta_dt,positive_pressure, extension, saturated, dn_dt,n, theta, unsaturated)
     dtheta_dt =  gather(*(saturated_theta(S_e,dtheta_dt,dn_dt,i) for i in range(len(S_e))))#.compute()
-    #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/  
+
     out_out = np.concatenate([dpsi_dt,dtheta_dt,de_dt],axis=0)
     return [out_out]
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
+
 
 #Set input ---------
 # First set is pressure #
@@ -283,20 +284,17 @@ input_in = np.append(input_in,Soil_states.theta)
 # Third set is void ratio #
 input_in = np.append(input_in,Soil_states.e_ini) 
 
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 # Solveing differential equation ------
 start = time.perf_counter() # measure the performance
 sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,method='RK23',t_eval=simulation_time,max_step = max_time_step, rtol = rtol ,args=(sigma_tracker,))#, atol = atol)
 end = time.perf_counter()# measure the performance
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 print("Elapsed  = {}s".format((end - start)))
 print("Success:", sol.success)
 print("Message:", sol.message)
 print("Final time reached:", sol.t[-1])
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Post process---------
 nr_elements = int(np.size(input_in)/3)
 # First set is pressure -----
@@ -309,7 +307,7 @@ e_results = sol.y[2*nr_elements:3*nr_elements]
 n_results = e_results/(1+e_results)
 #Se_results = theta_results/n_results
 Se_results = theta_results/e_results
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #Convert void ratio to surface displacement -----
 colum_heigth=np.zeros(len(e_results[0,:]))
 node_heigth=0*(e_results)
@@ -321,7 +319,7 @@ colum_node_heigth[-1,:] = node_heigth[-1,:]
 
 for i in range(len(e_results[:,0])-2,-1,-1):
     colum_node_heigth[i,:] = node_heigth[i,:]+colum_node_heigth[i+1,:]
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
 #ground water level-------------------------------------------
 gwl = []
 
@@ -332,8 +330,6 @@ for i in range(Pressure_results.shape[1]):  # Loop over columns (time)
             break 
 
 
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 #Output ------------------------------------------
 with open('../results/displacement.dat', 'w') as dis:
     dis.write(f"{'':<2}{'time[days]':<15}  {'displacement [mm]':<15}\n")
