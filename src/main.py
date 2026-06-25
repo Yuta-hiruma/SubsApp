@@ -258,7 +258,6 @@ def equations(simulation_time, in_in, sigma_tracker):
     dtheta_dt = dpsi_dt*dtheta_dpsi  
     # third set: void ratio -------
     de_dt,dn_dt = deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector, Soil_states.Preconsolidation_pressure)
-    de_dt = vertical_strain_to_void_ratio(Compression_vector,e,deps_dt)
 
 
     compression = (de_dt < 0).astype(int)    
