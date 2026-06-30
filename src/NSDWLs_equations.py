@@ -219,7 +219,7 @@ def d2f_dz2_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
 
 
 
-def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector, PP):
+def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector):
     """
     Soft Soil Creep Model
     """

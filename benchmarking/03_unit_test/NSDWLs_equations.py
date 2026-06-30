@@ -105,8 +105,10 @@ def untangle_parameters (in_in,nr_sets):
 
 
 
-def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve_vector,Bctop_in):
-    node_size = node_size
+def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve_vector):
+    node_size= node_size
+    print("type(node_size)=",type(node_size))
+    print("node_size=",node_size)
     
     gamma_s     = np.array(gamma_vector.s)
     gamma_w     = np.array(gamma_vector.w)
@@ -118,8 +120,6 @@ def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve
     theta = np.array(Soil_states.theta)
     e = np.array(Soil_states.e)
     n = e/(1+e)
-    water_top = Bctop_in.pressure
-    if water_top < 0 : 0
     
     S_sat = np.clip((theta - WCR) / (WCS - WCR), 0, 1)
     sigma_total_node = np.zeros(np.shape(gamma_s))
@@ -129,7 +129,7 @@ def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve
     sigma_total_in = np.zeros(len(sigma_total_node)+1)
      
     for i in range(len(sigma_total_node)):
-        sigma_total_in[i+1] = sigma_total_node[i]*node_size[i]+sigma_total_in[i]#+water_top
+        sigma_total_in[i+1] = sigma_total_node[i]*node_size+sigma_total_in[i]#+water_top
         sigma_total[i] = 0.5*sigma_total_in[i]+0.5*sigma_total_in[i+1]
 
     return (sigma_total)
@@ -140,11 +140,11 @@ def update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,WRC):
     n = e/(1+e)
     tau = Permeability_curve_Perm_vector.tau
     
-    for i in range(len(theta)):
-        if theta[i] <= WRC.vG_WCR[i]:
-            theta[i] = WRC.vG_WCR[i]
-        elif theta[i] >= WRC.vG_WCS[i]:
-            theta[i] = WRC.vG_WCS[i]
+    
+    if theta <= WRC.vG_WCR:
+        theta = WRC.vG_WCR
+    elif theta >= WRC.vG_WCS:
+        theta = WRC.vG_WCS
    
     K_sat = Permeability_curve_Perm_vector.K_tot
     K_min = Permeability_curve_Perm_vector.K_min
@@ -166,10 +166,7 @@ def update_S_e (Water_retention_curve_vector,theta):
 
 
 @jit(forceobj=True, looplift=True,fastmath = True)
-def derrivative_van_genuchten_S_e(WRC, theta,e, psi_m):
-    Se = np.zeros(np.shape(theta))
-    dSe_dpsi = np.zeros(np.shape(theta))
-    dtheta_dpsi = np.zeros(np.shape(theta))
+def derrivative_van_genuchten_S_e(WRC, theta, e, psi_m):
     psi_m = -psi_m
     #shrinking
     a = WRC.vG_a
@@ -183,9 +180,9 @@ def derrivative_van_genuchten_S_e(WRC, theta,e, psi_m):
     dSe_dpsi = -m * (1 + (alpha * np.abs(psi_m))**n)**-(m+1) * n * alpha**n * np.abs(psi_m)**(n-1) * np.sign(psi_m)
     dtheta_dpsi = (theta_s - theta_r) * dSe_dpsi
 
-    for i in range(len(psi_m)):
-        if psi_m[i] <= 0:
-            dSe_dpsi[i] = 0.0
+  
+    if psi_m <= 0:
+        dSe_dpsi = 0.0
 
     return dSe_dpsi, dtheta_dpsi
 
@@ -217,9 +214,23 @@ def d2f_dz2_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
         d2f_dz2[i] = (forward_diff - backward_diff) / (0.5 * (dz_forward + dz_backward))
     return (d2f_dz2)
 
+def d2f_dz2_non_uniform_loc(Parameter,Bctop,Bcbottom,Soil_dimension):
+    
+    Parameter_loc = Parameter
+    
+    Bctop_loc = Bctop
+    Bcbottom_loc = Bcbottom
+    
+    node_size_loc = 0*Parameter_loc
+    d2f_dz2 = 0*Parameter_loc
 
+    node_size_loc = Soil_dimension
+    
+    d2f_dz2 = (((Bcbottom_loc-Parameter_loc)/node_size_loc)-((Parameter_loc-Bctop_loc)/node_size_loc))/(0.5*node_size_loc+0.5*node_size_loc)
 
-def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector, PP):
+    return (d2f_dz2)
+
+def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector):
     """
     Soft Soil Creep Model
     """
@@ -249,6 +260,30 @@ def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi
 
     return deps_dt, dn_dt
 
+
+def deSSc_dt_loc(Compression_vector, sigma_eff,dsigma_eff_dt,e,Water_retention_curve_vector):
+
+    Lambda = Compression_vector.Lambda
+    kappa = Compression_vector.Kappa
+    mu = Compression_vector.Mu
+    Lambda_m = Lambda/(1+e)
+    kappa_m = kappa/(1+e)
+    mu_m = mu/(1+e)
+
+    OCR = Compression_vector.OCR
+    Tau_ref = Compression_vector.Tau_ref
+    sigma_eff = abs(sigma_eff)
+    dsigma_loc_eff_dt = -(dsigma_eff_dt)
+    ccott = Compression_vector.ccott
+
+    exponent = (Lambda - kappa) / mu
+
+    dElastic = dsigma_eff_dt*kappa/(ccott+sigma_eff)
+    dPlastic = mu * (1 / Tau_ref) * (1/OCR) ** (exponent)
+
+    deps_dt = -(dElastic + dPlastic) 
+    
+    return deps_dt
 
 @jit(forceobj=True, looplift=True,fastmath = True)
 def update_dpsi_dt(dpsi_dt, K, compression, saturated, dn_dt):

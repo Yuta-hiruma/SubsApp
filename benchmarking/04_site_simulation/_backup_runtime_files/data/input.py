@@ -16,6 +16,6 @@ GL_to_NAP = -1.48	#[m]
 # -------------------------------------------
 # Soil depths and types
 # -------------------------------------------
-depths = [-1, -11.0]
-types = ['aquifer','confining_layer']
+depths = [-1, -11.0,-12.0]
+types = ['aquifer','confining_layer','aquifer']
          

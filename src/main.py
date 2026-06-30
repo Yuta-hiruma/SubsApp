@@ -59,7 +59,7 @@ Soil_dimension.Depth_top = 0.00                     # m size
 Soil_dimension.Depth_bottom = depths[-1]            # m size
 
 "Default soil column discretization is 0.1 m. Adjust this value according to the required model resolution."
-Soil_dimension.precision = 0.1                      # m node size
+Soil_dimension.precision = 0.05                      # m node size
 #------------------------------
 Soil_dimension.Depth_o_soils = depths                # bottom of soil layer      
 Soil_dimension.soils = types                                      # soil types used
@@ -257,7 +257,7 @@ def equations(simulation_time, in_in, sigma_tracker):
     # second set: theta ----------
     dtheta_dt = dpsi_dt*dtheta_dpsi  
     # third set: void ratio -------
-    de_dt,dn_dt = deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector, Soil_states.Preconsolidation_pressure)
+    de_dt,dn_dt = deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector)
 
 
     compression = (de_dt < 0).astype(int)    

@@ -5,25 +5,8 @@ Soil_parameters ={
         'Material_parameters':{
          'gamma_s' : 2.31,
         'gamma_w' : 1,
-        'gamma_o' : 1.17,
-        'gamma_o_ratio' : 1.0
         },
         
-        'Shrinkage_curve':{
-        'A_sh0'  : 1,     
-        'A_sh'  : 1,
-        'B_sh'  : 1,
-        'C_sh'  : 1,
-        'n_eta' : 1,
-        'v'     : 1,
-        'C_10'  : 10,
-        'nu_z'  :1,
-        'nu_h'  :1,
-        'ksi_h' :1,
-
-        },
-
-
         'Compression': {
         'kappa': 0.2,
         'lambda': 0.40,
@@ -51,25 +34,10 @@ Soil_parameters ={
         },
         
         'Permeability_curve_Perm':{
-        'A_HCC' : 1.6,          
-        'B_HCC' : 4.4,  
-        'rel' : 1,           
-        'delta' : 4,         
-        'dess' : 1,         
-        'epsilon' : 1,       
-        'eta' : 1,           
-        'desslength' : 1,
         'K_tot' : 0.1,
         'K_min' : 0.0001,
         'tau' : 0.5
-        },
- 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.05,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        }        
+        }       
         
         }
         }
@@ -78,21 +46,6 @@ Soil_parameters['Peat2_SWP'] = {
         'Material_parameters':{
          'gamma_s' : 2.31,
         'gamma_w' : 1,
-        'gamma_o' : 1.17,
-        'gamma_o_ratio' : 1.0
-        },
-        'Shrinkage_curve':{
-        'A_sh0'  : 1,     
-        'A_sh'  : 1,
-        'B_sh'  : 1,
-        'C_sh'  : 1,
-        'n_eta' : 1,
-        'v'     : 1,
-        'C_10'  : 10,
-        'nu_z'  :1,
-        'nu_h'  :1,
-        'ksi_h' :1,
-
         },
 
 
@@ -123,25 +76,10 @@ Soil_parameters['Peat2_SWP'] = {
         },
         
         'Permeability_curve_Perm':{
-        'A_HCC' : 1.6,          
-        'B_HCC' : 4.4,  
-        'rel' : 1,           
-        'delta' : 4,         
-        'dess' : 1,         
-        'epsilon' : 1,       
-        'eta' : 1,           
-        'desslength' : 1,
         'K_tot' : 0.1,
         'K_min' : 0.0001,
         'tau' : 0.5
-        },
- 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.05,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        }        
+        }      
         
         }
 
@@ -151,21 +89,6 @@ Soil_parameters ['Clay_top_SWP']= {
         'Material_parameters':{
         'gamma_s' : 2.31,
         'gamma_w' : 1,
-        'gamma_o' : 1.5,
-        'gamma_o_ratio' : 0.0
-        },
-        
-        'Shrinkage_curve':{
-        'A_sh0' : 0.48,   
-        'A_sh'  : 0.9,
-        'B_sh'  : 0.79,
-        'C_sh'  : 2.85,
-        'n_eta' : 1,
-        'v'     : 1,
-        'C_10'  : 10,
-        'nu_z'  :1,
-        'nu_h'  :1,
-        'ksi_h' :1,
         },
 
         'Compression': {
@@ -195,46 +118,16 @@ Soil_parameters ['Clay_top_SWP']= {
         },
         
         'Permeability_curve_Perm':{
-        'A_HCC' : 0.783,          
-        'B_HCC' : 5,  
-        'rel' : 1,           
-        'delta' : 3,         
-        'dess' : 1,         
-        'epsilon' : 0.05,       
-        'eta' : 5,           
-        'desslength' : 110,
         'K_tot' : 0.01,
         'K_min' : 0.0001,
         'tau' : 0.5
-        },
-
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.00,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        } 
+        }
         
         }
 Soil_parameters ['Clay2_SWP']= {      
         'Material_parameters':{
         'gamma_s' : 2.31,
         'gamma_w' : 1,
-        'gamma_o' : 1.5,
-        'gamma_o_ratio' : 0.0
-        },
-        
-        'Shrinkage_curve':{
-        'A_sh0' : 0.48,   
-        'A_sh'  : 0.9,
-        'B_sh'  : 0.79,
-        'C_sh'  : 2.85,
-        'n_eta' : 1,
-        'v'     : 1,
-        'C_10'  : 10,
-        'nu_z'  :1,
-        'nu_h'  :1,
-        'ksi_h' :1,
         },
 
         'Compression': {
@@ -264,48 +157,18 @@ Soil_parameters ['Clay2_SWP']= {
         },
         
         'Permeability_curve_Perm':{
-        'A_HCC' : 0.783,          
-        'B_HCC' : 5,  
-        'rel' : 1,           
-        'delta' : 3,         
-        'dess' : 1,         
-        'epsilon' : 0.05,       
-        'eta' : 5,           
-        'desslength' : 110,
         'K_tot' : 0.01,
         'K_min' : 0.0001,
         'tau' : 0.5
-        },
-
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.00,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        } 
+        }
         
         }
 Soil_parameters ['Sand_SWP']= {      
         'Material_parameters':{
         'gamma_s' : 2.31,
         'gamma_w' : 1,
-        'gamma_o' : 1.5,
-        'gamma_o_ratio' : 0.0
         },
         
-        'Shrinkage_curve':{
-        'A_sh0' : 0.48,   
-        'A_sh'  : 0.9,
-        'B_sh'  : 0.79,
-        'C_sh'  : 2.85,
-        'n_eta' : 1,
-        'v'     : 1,
-        'C_10'  : 10,
-        'nu_z'  :1,
-        'nu_h'  :1,
-        'ksi_h' :1,
-        },
-
         'Compression':{
         'kappa' : 0.0868,   
         'lambda'  : 0.1302,
@@ -333,25 +196,11 @@ Soil_parameters ['Sand_SWP']= {
         },
         
         'Permeability_curve_Perm':{
-        'A_HCC' : 0.783,          
-        'B_HCC' : 5,  
-        'rel' : 1,           
-        'delta' : 3,         
-        'dess' : 1,         
-        'epsilon' : 0.05,       
-        'eta' : 5,           
-        'desslength' : 110,
         'K_tot' : 0.01,
         'K_min' : 0.0001,
         'tau' : 0.5
-        },
+        }
 
-        'Emission':{
-        'T_min' : -10,          
-        'a' : 0.00,  
-        'alpha' : 2.59,           
-        'beta' : 1.84,
-        } 
         
         }
    
@@ -363,12 +212,3 @@ class Soil_domain:
         self.precision = []
         self.node_initial = []
 
-
-
-
-"""
-"settlement due to overburden"
-overburden  = 1
-C10         = 100
-sigma_init  = 0.01
-"""

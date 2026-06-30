@@ -186,7 +186,6 @@ def equations(simulation_time, in_in):
 
     " set change in pore pressure"
     du_dt = K*d2f_dz2_non_uniform_loc(u, u_t, u_t, h0)
-
     "check compression or extension"
     compression = 1
 

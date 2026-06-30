@@ -8,9 +8,9 @@ Soil_parameters ={
         },
         
         'Compression': {
-        'kappa': 0.078,
-        'lambda': 0.114,
-        'mu': 0.045,
+        'kappa': 0.086,
+        'lambda': 0.13,
+        'mu': 0.015,
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.2,
@@ -19,7 +19,7 @@ Soil_parameters ={
         },
         
         'Water_retention_curve':{
-        'vG_WCS' : 0.89,
+        'vG_WCS' : 0.65,
         'vG_WCR' : 0.00,
         'vG_alpha' : 0.0097,
         'vG_n' : 1.36,
