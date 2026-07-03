@@ -26,7 +26,7 @@ SubsApp/
 └── README.md
 ```
 
-## Testeted Software version for the main
+## Tested Software version for the main
 python (version 3.11.5) https://www.python.org/ The following python packages are required:
 ```
 geopandas                     0.14.4
