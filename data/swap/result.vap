@@ -2,7 +2,7 @@
 * File content:  soil profile data
 * File name:     ./result.vap
 * Model version: Swap 4.2.0
-* Generated at:  2025-06-24 10:51:25
+* Generated at:  2026-06-26 12:13:23
 * Explanation:   instantaneous fluxes of drainage, root extraction, water and solute 
 *                fluxes of water and solute apply to top of compartment
 *                solute1 = concentration in soil water

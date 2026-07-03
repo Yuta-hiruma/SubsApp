@@ -2,7 +2,7 @@
 * File content:  Main input variables
 * File name:     swap.swp
 * Model version: Swap 4.2.0
-* Generated at:  2025-06-24 10:51:25
+* Generated at:  2026-06-26 12:13:23
  
  Data file   SWAP.SWP with 125 variables parsed by RDINDX
 Warning from module Readswap : simulation with additonal Ksat value (Ksatexm)
@@ -642,6 +642,6 @@ It Numb  No of Hits  Tot BTr cycles
       2       20567         41134
       3         387          1161
 
-  Run-time:         4.70 sec
+  Run-time:         2.56 sec
 
  Swap simulation okay!

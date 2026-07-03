@@ -78,7 +78,7 @@ Soil_parameters['confining_layer'] = {
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.05,
+        'K_tot' : 0.2,
         'K_min' : 0.0001,
         'tau' : 0.5
         }       

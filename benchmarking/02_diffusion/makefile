@@ -1,14 +1,10 @@
-all: output
-	python3 main.py
-
-output:
-	mkdir output
-	mkdir output/result
+all: 
+	python3 run_benchmark.py
 
 clean:
-	rm output/*.png
 	rm -f job.*
-	rm ._*
-
+	rm -f nsdwl/output/*.png
+	rm -f ._*
+	rm -f nsdwl/output/result/*
 
 
