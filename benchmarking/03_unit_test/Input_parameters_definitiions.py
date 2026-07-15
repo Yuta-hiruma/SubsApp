@@ -8,22 +8,22 @@ Soil_parameters ={
         },
         
         'Compression': {
-        'kappa': 0.086,
-        'lambda': 0.13,
-        'mu': 0.015,
+        'kappa': 0.014209523,
+        'lambda': 0.28199239,
+        'mu': 0.045,
         'Tau_ref': 1,
-        'Pg': 400,
-        'OCR': 1.2,
-        'c' : 10,
-        'phi' : 20
+        'OCR': 1.2928094,
+        #'c' : 10,
+        #'phi' : 20,
+        'ccott': 48.049839,
         },
         
         'Water_retention_curve':{
-        'vG_WCS' : 0.65,
+        'vG_WCS' : 0.742024693396348,
         'vG_WCR' : 0.00,
-        'vG_alpha' : 0.0097,
-        'vG_n' : 1.36,
-        'vG_m' : (1-1/1.31),
+        'vG_alpha' : 0.11,
+        'vG_n' : 1.23,
+        'vG_m' : (1-1/1.23),
         'vG_a' : 50000,
         'vG_mod' : 1,
         'Ksatfit' : 1.46,
@@ -34,7 +34,7 @@ Soil_parameters ={
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.1,
+        'K_tot' : 0.062917602,
         'K_min' : 0.0001,
         'tau' : 0.5
         }       

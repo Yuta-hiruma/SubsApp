@@ -6,4 +6,5 @@ clean:
 	rm -f ../results/*
 	rm -f ../results/figure/*
 	rm -f ._*
+	rm -r __pycache__
 

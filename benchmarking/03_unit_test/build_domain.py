@@ -61,7 +61,6 @@ def soilbuilder(Soil_domain,Soil_parameters,node_vector,internode_vector):
     Compression_vector.Mu = np.zeros(np.shape(node_vector))
     Compression_vector.Tau_ref = np.zeros(np.shape(node_vector))
     Compression_vector.OCR = np.zeros(np.shape(node_vector))
-    Compression_vector.Pg = np.zeros(np.shape(node_vector))
     Compression_vector.c = np.zeros(np.shape(node_vector))
     Compression_vector.phi = np.zeros(np.shape(node_vector))
     Compression_vector.ccott = np.zeros(np.shape(node_vector))
@@ -90,7 +89,6 @@ def soilbuilder(Soil_domain,Soil_parameters,node_vector,internode_vector):
         Compression_vector.Lambda[i] = Soil_parameters[material]["Compression"]["lambda"]
         Compression_vector.Mu[i] = Soil_parameters[material]["Compression"]["mu"]
         Compression_vector.Tau_ref[i] = Soil_parameters[material]["Compression"]["Tau_ref"]
-        Compression_vector.Pg[i] = Soil_parameters[material]["Compression"]["Pg"]
         Compression_vector.OCR[i] = Soil_parameters[material]["Compression"]["OCR"]
         Compression_vector.c[i] = Soil_parameters[material]["Compression"]["c"]
         Compression_vector.phi[i] = Soil_parameters[material]["Compression"]["phi"]
@@ -176,7 +174,6 @@ class Compression_vector:
         self.Mu = []
         self.Tau_ref = []     
         self.OCR = []
-        self.Pg = []
                 
 class Water_retention_curve_vectors:
     def __init__ (self):  

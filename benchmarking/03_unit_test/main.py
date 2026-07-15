@@ -88,7 +88,7 @@ u = 10*(h0/2)
 sigma_eff = sigma_tot-u
 
 Soil_stresses.psi_ini = u
-Soil_states.theta = e0
+Soil_states.theta = e0/(1+e0) 
 Soil_states.eps_ini = 0.0
 
 Soil_dimension = Soil_dimension()
@@ -109,11 +109,11 @@ Compression_vector.Kappa =Soil_parameters[material]["Compression"]["kappa"]
 Compression_vector.Lambda = Soil_parameters[material]["Compression"]["lambda"]
 Compression_vector.Mu = Soil_parameters[material]["Compression"]["mu"]
 Compression_vector.Tau_ref = Soil_parameters[material]["Compression"]["Tau_ref"]
-Compression_vector.Pg = Soil_parameters[material]["Compression"]["Pg"]
 Compression_vector.OCR = Soil_parameters[material]["Compression"]["OCR"]
-Compression_vector.c = Soil_parameters[material]["Compression"]["c"]
-Compression_vector.phi = Soil_parameters[material]["Compression"]["phi"]
-Compression_vector.ccott = Compression_vector.c/math.tan(math.radians(Compression_vector.phi))
+#Compression_vector.c = Soil_parameters[material]["Compression"]["c"]
+#Compression_vector.phi = Soil_parameters[material]["Compression"]["phi"]
+#Compression_vector.ccott = Compression_vector.c/math.tan(math.radians(Compression_vector.phi))
+Compression_vector.ccott = Soil_parameters[material]["Compression"]["ccott"]
 #Horizontal volume change ------------
 Compression_vector.K0 = 0.1
 Compression_vector.poisson = 0.1
@@ -186,7 +186,6 @@ def equations(simulation_time, in_in):
     saturated = (S_e >= 1).astype(int)
     unsaturated = (S_e < 1).astype(int)  
 
-
     " get suction forom u"
     psi_m = np.where(u <= 0, u, 0)
 
@@ -206,7 +205,6 @@ def equations(simulation_time, in_in):
     t_interval = len(time_pressure)-1
 
     for i in range(len(time_pressure)-1):
-        # print(i)
         if simulation_time < time_pressure[i+1]:
             t_interval = t_interval-1
 
@@ -230,8 +228,6 @@ def equations(simulation_time, in_in):
 
     " set change in pore pressure"
     du_dt = K*d2f_dz2_non_uniform_loc(u, u_t, u_t, h0)
-    print("du_dt",du_dt)
-
 
     compression = 1
     if dsigmaeff_dt < 0:
@@ -243,11 +239,11 @@ def equations(simulation_time, in_in):
 
     deps_dt = deSSc_dt_loc(Compression_vector, -sigma_eff, dsigmaeff_dt, Soil_states.e, Water_retention_curve_vector)
     de_dt = vertical_strain_to_void_ratio(Compression_vector, Soil_states.e, deps_dt)
+    #de_dt = deps_dt
 
     dS_e_du, dtheta_du = derrivative_van_genuchten_S_e(Water_retention_curve_vector, Soil_states.theta, Soil_states.e, psi_m)
-    dtheta_dt = du_dt*dtheta_du 
+    dtheta_dt = -du_dt*dtheta_du 
 
-    dSat_dt = -dS_e_du*du_dt
 
     return [du_dt, dtheta_dt, de_dt]
 
@@ -264,22 +260,17 @@ with open('output_evaporation/void_time.dat', 'w') as dis:
     for i in range(len(simulation_time)):
         dis.write(f"{'':<2}{simulation_time[i]:.4f}  {sol.y[2,i]:.4f}\n")
 
-
+#Plot void results----------------------------------
 #plt.figure()
-#plt.scatter(suction_measured, e_measured, marker='.')
-#plt.ylabel("void ratio")
-#plt.xlabel("pressure")
-#plt.scatter(-sol.y[3, :], (1+e0)*(sol.y[0, :]+1)-1)
-#plt.xlim(0.1, 10000)
-#plt.ylim(0, 4)
-#plt.text(1000, 3.75, f"Lambda: {Compression_vector.Lambda:.4f}")
-#plt.text(1000, 3.65, f"Kappa: {Compression_vector.Kappa:.4f}")
-#plt.text(1000, 3.55, f"Mu: {Compression_vector.Mu:.4f}")
-#plt.text(1000, 3.45, f"OCR: {PP:.2f}")
-#plt.text(1000, 3.35, f"ccott: {Compression_vector.ccott:.2f}")
-#plt.xscale('log')
-#plt.legend()
-#plt.savefig('output_evaporation/linear_strain.png')
+#fig, ax = plt.subplots(figsize=(8, 5))
+#ax.plot(simulation_time,sol.y[2],label="Simulated",linewidth=1,color="blue" )
+#ax.scatter(time_values,e_measured,label="Measured",color="orange",linewidth=1,zorder=3,)
+#ax.set(xlabel="Time [days]",ylabel="Void ratio [-]",title="Void ratio over time",)
+#ax.grid(True, alpha=0.3)
+#ax.legend()
+#fig.autofmt_xdate(rotation=45)
+#fig.tight_layout()
+#fig.savefig('output_evaporation/displacement.png',dpi=300, bbox_inches="tight",)
 
 
 
@@ -290,13 +281,6 @@ plt.xlabel("Suction [kPa]")
 plt.scatter(-sol.y[0, :], sol.y[2,:],label='Simulation')
 plt.xlim(0.1, 10000)
 plt.ylim(0, 4)
-#plt.text(1000, 3.75, f"Lambda: {Compression_vector.Lambda:.3f}")
-#plt.text(1000, 3.63, f"Kappa: {Compression_vector.Kappa:.3f}")
-#plt.text(1000, 3.51, f"Mu: {Compression_vector.Mu:.3f}")
-#plt.text(1000, 3.39, f"OCR: {Compression_vector.OCR:.1f}")
-#plt.text(1000, 3.27, f"ccott: {Compression_vector.ccott:.0f}")
-#plt.text(1000, 3.15, f"poisson ratio: {Compression_vector.poisson:.1f}")
-#plt.text(1000, 3.03, f"K0: {Compression_vector.K0:.1f}")
 plt.xscale('log')
 plt.legend()
 plt.savefig('output_evaporation/linear_strain_3D.png')
