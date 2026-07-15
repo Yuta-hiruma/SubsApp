@@ -6,21 +6,18 @@ import math
 
 # Parameters
 z_f = -1.35  # depth of profile [m]
-theta_s = 0.53
+theta_s = 0.44
 theta_r = 0.0
-theta_top = 0.38
 n = 1.28
 m = 1 - 1 / n
-_lambda = 0.5
-kappa = 0.05
+_lambda = 0.1302
+kappa = 0.0868
 #-----
 gamma_s = 2.31
 gamma_w = 1
-gamma_o = 1.5
-gamma_o_ratio = 0.0
 #------
-c = 2
-phi = 15
+c = 10
+phi = 20
 ccott=c/math.tan(math.radians(phi))
 K0_list = [1, 2]  # m/day
 cell = 11
@@ -53,11 +50,11 @@ for z in z_vals:
     psi_ini.append(psi)
 psi_ini = np.array(psi_ini)
 e= np.array(theta_ini)/(1-np.array(theta_ini))
-kappa_m = kappa/(1+e)
+
 
 #calculate effective stress and effective stress changes------------
 S_sat = (np.array(theta_ini) - theta_r) / (theta_s - theta_r)
-sigma_total = 9.81*((1-gamma_o_ratio)*gamma_s*(1/(e+1))+(gamma_o_ratio)*gamma_o*(1/(e+1))+S_sat*gamma_w*(1-(1/(e+1))))
+sigma_total = 9.81*(gamma_s*(1/(e+1))+S_sat*gamma_w*(1-(1/(e+1))))
 sigma_eff = sigma_total - psi_ini
 
 
@@ -72,7 +69,7 @@ gwl_list = []
 for dP in dP_list:
     psi = psi_ini + dP
     dsigma_eff_dt = np.abs(sigma_eff - (sigma_total - psi))
-    dElastic = dsigma_eff_dt * kappa_m / (ccott + sigma_eff)
+    dElastic = dsigma_eff_dt * kappa / (ccott + sigma_eff)
     e_results = e - dElastic
     node_heights = (e + 1) / (e_results + 1) * dz
     print(dP)

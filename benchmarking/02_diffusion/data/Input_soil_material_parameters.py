@@ -96,13 +96,13 @@ Soil_parameters ['Clay_top_SWP']= {
         'mu'  : 0.0028229,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 2.0,
+        'OCR': 10.0,
         'c' : 10,
         'phi' : 20
         },
         
         'Water_retention_curve':{
-        'vG_WCS' : 0.53,
+        'vG_WCS' : 0.44,
         'vG_WCR' : 0.00,
         'vG_alpha' : 0.023,
         'vG_n' : 1.28,
@@ -135,8 +135,7 @@ Soil_parameters ['Clay2_SWP']= {
         'lambda'  : 0.1302,
         'mu'  : 0.0028229,
         'Tau_ref': 1,
-        'Pg': 400,
-        'OCR': 1.5,
+        'OCR': 10,
         'c' : 10,
         'phi' : 20
         },
