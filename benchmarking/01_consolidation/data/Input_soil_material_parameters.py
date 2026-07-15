@@ -1,8 +1,6 @@
 Soil_parameters ={
     'aquifer':{      
         'Material_parameters':{
-        #'gamma_s' : 2.65,
-        #'gamma_s' : 13.7,
         'gamma_s' : 2.31,
         'gamma_w' : 1,
         },
@@ -11,12 +9,11 @@ Soil_parameters ={
         'Compression':{
         'kappa' : 0.00173718,   
         'lambda'  : 0.001736,
-        'mu'  : 0.0001,
+        'mu'  : 0.0000,
         'Tau_ref'  : 1,
-        'Pg' : 400,
-        'OCR' : 1.5,
+        'OCR' : 20,
         'c' : 10,
-        'phi' : 20,
+        'phi' : 35,
         },
         
         'Water_retention_curve':{
@@ -35,7 +32,7 @@ Soil_parameters ={
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.001,
+        'K_tot' : 0.2,
         'K_min' : 0.0001,
         'tau' : 0.5
         }
@@ -45,25 +42,22 @@ Soil_parameters ={
 
 Soil_parameters['confining_layer'] = {
         'Material_parameters':{
-        #'gamma_s' : 2.65,
-        #'gamma_s' : 13.7,
         'gamma_s' : 2.31,
         'gamma_w' : 1,
         },
         
         'Compression':{
-        'kappa' : 0.0868,   
-        'lambda'  : 0.1302,
-        'mu'  : 0.0028229,
+        'kappa' : 0.086,   
+        'lambda'  : 0.130,
+        'mu'  : 0.0028,
         'Tau_ref'  : 1,
-        'Pg' : 400,
         'OCR' : 1.5,
-        'c' : 0,
-        'phi' : 30,
+        'c' : 5,
+        'phi' : 18,
         },
         
         'Water_retention_curve':{
-        'vG_WCS' : 0.33,
+        'vG_WCS' : 0.25,
         'vG_WCR' : 0.01,
         'vG_alpha' : 0.030,
         'vG_n' : 2.88,
@@ -78,7 +72,7 @@ Soil_parameters['confining_layer'] = {
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.2,
+        'K_tot' : 0.20,
         'K_min' : 0.0001,
         'tau' : 0.5
         }       
