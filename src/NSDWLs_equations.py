@@ -217,6 +217,26 @@ def d2f_dz2_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
         d2f_dz2[i] = (forward_diff - backward_diff) / (0.5 * (dz_forward + dz_backward))
     return (d2f_dz2)
 
+def diffusion(Parameter,Bctop,Bcbottom,Soil_dimension,K):
+    psi_loc = Parameter
+    
+    psi_loc[0] = Bctop
+    psi_loc[-1] = Bcbottom
+    node_size_loc = 0*psi_loc
+    dpsi_dt = 0*psi_loc
+
+    node_size_loc = Soil_dimension.node_distance
+
+    dpsi_dt[0] = K[0]*(psi_loc[2] - 2 * psi_loc[1] + psi_loc[0]) / (node_size_loc[0]**2)
+    dpsi_dt[-1] = K[-1]*(psi_loc[-1] - 2 * psi_loc[-2] + psi_loc[-3]) / (node_size_loc[-2]**2)
+
+    for i in range(1, len(dpsi_dt) - 1):
+        dz_forward = node_size_loc[i]
+        dz_backward = node_size_loc[i - 1]
+        dz = (dz_forward+dz_backward)/2
+        dpsi_dt[i] = (K[i-1]*psi_loc[i - 1]-(K[i-1]+K[i])*psi_loc[i]+K[i]*psi_loc[i+1]) / (dz**2)
+    return (dpsi_dt)
+
 
 
 def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector):

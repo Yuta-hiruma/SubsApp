@@ -251,8 +251,11 @@ def equations(simulation_time, in_in, sigma_tracker):
 
     #set differentials ------------------------
     #First set: pressure ----------
-    d2psi_dz2 = d2f_dz2_non_uniform(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
-    dpsi_dt = K*d2psi_dz2
+    #d2psi_dz2 = d2f_dz2_non_uniform(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
+    #dpsi_dt = K*d2psi_dz2
+    #Diffusion equation
+    dpsi_dt = diffusion(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension,K)
+
     dS_e_dpsi,dtheta_dpsi  = derrivative_van_genuchten_S_e(Water_retention_curve_node, theta,e, psi_m)
     # second set: theta ----------
     dtheta_dt = dpsi_dt*dtheta_dpsi  
@@ -267,6 +270,7 @@ def equations(simulation_time, in_in, sigma_tracker):
     negative_pressure = (dpsi_dt < 0).astype(int)
 
     dpsi_dt = update_dpsi_dt(dpsi_dt, K, compression, saturated, dn_dt)
+
     dtheta_dt, dSat_dt = update_dtheta_and_dSat(dtheta_dt,positive_pressure, extension, saturated, dn_dt,n, theta, unsaturated)
     dtheta_dt =  gather(*(saturated_theta(S_e,dtheta_dt,dn_dt,i) for i in range(len(S_e))))#.compute()
 
