@@ -251,10 +251,10 @@ def equations(simulation_time, in_in, sigma_tracker):
 
     #set differentials ------------------------
     #First set: pressure ----------
-    #d2psi_dz2 = d2f_dz2_non_uniform(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
-    #dpsi_dt = K*d2psi_dz2
+    d2psi_dz2 = d2f_dz2_non_uniform(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
+    dpsi_dt = K*d2psi_dz2
     #Diffusion equation
-    dpsi_dt = diffusion(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension,K)
+    #dpsi_dt = diffusion(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension,K)
 
     dS_e_dpsi,dtheta_dpsi  = derrivative_van_genuchten_S_e(Water_retention_curve_node, theta,e, psi_m)
     # second set: theta ----------
@@ -378,14 +378,14 @@ plt.savefig('../results/figure/displacement.png')
 abs_max = np.max(np.abs(Pressure_results))
 #abs_min = np.min(np.abs(Pressure_results))
 plt.figure()
-plt.pcolormesh(date_list, Soil_dimension.node_vector, Pressure_results,
-               cmap='bwr', vmin=-abs_max, vmax=abs_max)
+#plt.pcolormesh(date_list, Soil_dimension.node_vector, Pressure_results,cmap='bwr', vmin=-abs_max, vmax=abs_max)
+plt.pcolormesh(simulation_time, Soil_dimension.node_vector, Pressure_results,cmap='bwr', vmin=-abs_max, vmax=abs_max)
 for i in range(len(Soil_dimension.Depth_o_soils) - 1):
     plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
 plt.title("Pressure")
 plt.xlabel("Time [days]")
 plt.ylabel("Depth [m]")
-plt.xticks(rotation=45)
+#plt.xticks(rotation=45)
 plt.subplots_adjust(left=0.2, right=0.8, bottom=0.2)
 cax = plt.axes((0.85, 0.1, 0.075, 0.8))
 plt.colorbar(cax=cax)
@@ -413,13 +413,14 @@ plt.figure()
 vG_WCR = Water_retention_curve_vector.vG_WCR[:, np.newaxis]  
 vG_WCS = Water_retention_curve_vector.vG_WCS[:, np.newaxis]
 norm = mcolors.Normalize(vmin=np.min((theta_results-vG_WCR)/(vG_WCS-vG_WCR)), vmax=np.max((theta_results-vG_WCR)/(vG_WCS-vG_WCR)))
-plt.pcolormesh(date_list,Soil_dimension.node_vector,(theta_results-vG_WCR)/(vG_WCS-vG_WCR), cmap='Blues', norm=norm)
+#plt.pcolormesh(date_list,Soil_dimension.node_vector,(theta_results-vG_WCR)/(vG_WCS-vG_WCR), cmap='Blues', norm=norm)
+plt.pcolormesh(simulation_time,Soil_dimension.node_vector,(theta_results-vG_WCR)/(vG_WCS-vG_WCR), cmap='Blues', norm=norm)
 for i in range(len(Soil_dimension.Depth_o_soils)-1):
     plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
 plt.title("Se")
 plt.xlabel("time [days]")
 plt.ylabel("depth [m]")
-plt.xticks(rotation=45)
+#plt.xticks(rotation=45)
 plt.subplots_adjust(left=0.2, bottom=0.5) 
 plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
 cax = plt.axes((0.85,0.1,0.075,0.8))
@@ -443,3 +444,59 @@ cax = plt.axes((0.85,0.1,0.075,0.8))
 plt.colorbar(cax=cax)
 plt.title("[-]")
 plt.savefig('../results/figure/porosity.png')
+
+
+#--------------------------------
+#Benchmarking
+#--------------------------------
+i = 5
+#stress-strain------
+plt.figure()
+plt.plot(Pressure_results[i], e_results[i])
+plt.title(f"Stress strain at i ={i}")
+plt.xlabel("Pore pressure[kPa]")
+plt.ylabel("Void ratio [-]")
+plt.savefig('../results/figure/pressure_void.png')
+
+#Pressure_time------
+
+plt.figure()
+plt.plot(simulation_time,Pressure_results[i])
+plt.title(f"Pressure at i ={i}")
+plt.xlabel("Time [day]")
+plt.ylabel("Pore pressure [kPa]")
+plt.savefig('../results/figure/pressure_time.png')
+
+#Soil shrinkage characteristic curve------
+plt.figure()
+one = np.ones(len(vG_WCS))
+plt.plot((theta_results[i]-vG_WCR[i])/(vG_WCS[i]-vG_WCR[i]),e_results[i])
+#plt.plot([0, (theta_results[i]-vG_WCR[i])/(vG_WCS[i]-vG_WCR[i])], [0, vG_WCS[i]/(one[i]-vG_WCS[i])],ls="--",color="black")
+plt.title(f"Soil shrinkage characteristic at i ={i}")
+plt.xlabel("Se [-]")
+plt.ylabel("Void ratio")
+plt.savefig('../results/figure/sscc_vG.png')
+
+plt.figure()
+plt.plot(Se_results[i],e_results[i])
+plt.title(f"Soil shrinkage characteristic at i ={i}")
+plt.xlabel("Se [-]")
+plt.ylabel("Void ratio")
+plt.savefig('../results/figure/sscc.png')
+
+
+#Groundwater level------
+gwl = []
+for i in range(Pressure_results.shape[1]):  # Loop over columns (time)
+    for j in range(Pressure_results.shape[0] - 1):  # Loop over rows (depth)
+        if Pressure_results[j, i] > 0:
+            gwl.append(colum_node_heigth[j, i] + Soil_dimension.Depth_bottom)
+            break 
+#--------------------
+plt.figure()
+plt.plot(simulation_time,gwl)
+plt.title(f"Simulated groundwater level")
+plt.xlabel("time")
+plt.ylabel("Depth(m)")
+plt.savefig('../results/figure/gwl.png')
+

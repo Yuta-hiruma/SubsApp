@@ -287,3 +287,15 @@ plt.savefig('output_evaporation/linear_strain_3D.png')
 plt.figure()
 
 
+plt.figure()
+#plt.scatter(suction_measured, e_measured, marker='.', label='Laboratory test')
+plt.xlabel("Se [-]")
+plt.ylabel("Void ratio [-]")
+plt.scatter(sol.y[1, :], sol.y[2,:],label='Simulation')
+#plt.xlim(0.1, 10000)
+#plt.ylim(0, 4)
+#plt.xscale('log')
+plt.legend()
+plt.savefig('output_evaporation/sscc.png')
+plt.figure()
+
