@@ -4,6 +4,7 @@ all:
 clean:
 	rm -f job.*
 	rm -f output/*
+	rm -f output/._*
 	rm -f ._*
 
 

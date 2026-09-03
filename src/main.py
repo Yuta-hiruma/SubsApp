@@ -59,7 +59,7 @@ Soil_dimension.Depth_top = 0.00                     # m size
 Soil_dimension.Depth_bottom = depths[-1]            # m size
 
 "Default soil column discretization is 0.1 m. Adjust this value according to the required model resolution."
-Soil_dimension.precision = 0.01                      # m node size
+Soil_dimension.precision = 0.1                      # m node size
 #------------------------------
 Soil_dimension.Depth_o_soils = depths                # bottom of soil layer      
 Soil_dimension.soils = types                                      # soil types used
@@ -75,7 +75,7 @@ swp = swp()
 #Simulaiton time ------------------------------------------------
 "Aduest max_time_step and relative tolerance that are used in differential equation." 
 max_time_step = 1.0  #day
-rtol =1e-7 #relative tolerance
+rtol =1e-3 #relative tolerance 
 #atol =1e-4 #absolute tolerance
 #--------------------------------
 TSTART = tstart
@@ -129,6 +129,8 @@ S_e_ini = Soil_states.theta/Soil_states.n_ini
 Soil_dimension.node_initial=get_node_distance(Soil_dimension)
 (Soil_stresses) = calc_stress_ini_h (Soil_dimension,gamma_vector,Soil_states,Water_retention_curve_vector,Soil_stresses)
 Soil_stresses.sigma_effective_node_ini = np.array(Soil_stresses.sigma_effective_node)
+Soil_stresses.sigma_effective_p = Compression_vector.OCR*Soil_stresses.sigma_effective_node_ini
+sigma_eff_p=Soil_stresses.sigma_effective_p
 Soil_states.Preconsolidation_pressure =  Soil_stresses.sigma_effective_node_ini*Compression_vector.OCR
 
 #Define a wrapper function to store previous values------
@@ -260,7 +262,10 @@ def equations(simulation_time, in_in, sigma_tracker):
     # second set: theta ----------
     dtheta_dt = dpsi_dt*dtheta_dpsi  
     # third set: void ratio -------
-    de_dt,dn_dt = deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector)
+    for i in range(len(sigma_eff_p)):
+        if sigma_eff[i] > sigma_eff_p[i]:
+            sigma_eff_p[i] = sigma_eff[i]    
+    de_dt,dn_dt = deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,sigma_eff_p, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector)
 
 
     compression = (de_dt < 0).astype(int)    
@@ -378,16 +383,13 @@ plt.savefig('../results/figure/displacement.png')
 
 #--------------
 abs_max = np.max(np.abs(Pressure_results))
-#abs_min = np.min(np.abs(Pressure_results))
 plt.figure()
-#plt.pcolormesh(date_list, Soil_dimension.node_vector, Pressure_results,cmap='bwr', vmin=-abs_max, vmax=abs_max)
 plt.pcolormesh(simulation_time, Soil_dimension.node_vector, Pressure_results,cmap='bwr', vmin=-abs_max, vmax=abs_max)
 for i in range(len(Soil_dimension.Depth_o_soils) - 1):
     plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
 plt.title("Pressure")
 plt.xlabel("Time [days]")
 plt.ylabel("Depth [m]")
-#plt.xticks(rotation=45)
 plt.subplots_adjust(left=0.2, right=0.8, bottom=0.2)
 cax = plt.axes((0.85, 0.1, 0.075, 0.8))
 plt.colorbar(cax=cax)
@@ -395,16 +397,15 @@ plt.title("kPa")
 plt.savefig('../results/figure/pressure.png')
 #--------------
 plt.figure()
-#plt.pcolormesh(date_list,Soil_dimension.node_vector,theta_results, cmap='Blues', vmin=np.min(theta_results), vmax=np.max(theta_results))
 plt.pcolormesh(simulation_time,Soil_dimension.node_vector,theta_results, cmap='Blues', vmin=np.min(theta_results), vmax=np.max(theta_results))
 for i in range(len(Soil_dimension.Depth_o_soils)-1):
     plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
 plt.title("theta")
-plt.xticks(rotation=45)
 plt.subplots_adjust(left=0.2, bottom=0.2) 
 plt.xlabel("time [days]")
 plt.ylabel("depth [m]")
-plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+plt.subplots_adjust(left=0.2, right=0.8, bottom=0.2)
+#plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
 cax = plt.axes((0.85,0.1,0.075,0.8))
 plt.colorbar(cax=cax)
 plt.title("[-]")
@@ -445,46 +446,85 @@ plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
 cax = plt.axes((0.85,0.1,0.075,0.8))
 plt.colorbar(cax=cax)
 plt.title("[-]")
-plt.savefig('../results/figure/porosity.png')
+plt.savefig('../results/figure/porosity.png',dpi=300,bbox_inches="tight")
 
 
 #--------------------------------
 #Benchmarking
 #--------------------------------
-i = 2
+i = 0
 #--------------------------------
 measure_void_moist = "../benchmarking/05_shrinkage/measurement/void_moisture.dat"
 measure_suction_time = "../benchmarking/05_shrinkage/measurement/suction_time.dat"
-
+measure_void_suction = "../benchmarking/05_shrinkage/measurement/void_suction.dat"
 void_moist_tp = pd.read_csv(measure_void_moist, sep=r"\s+", skiprows=1, names=["void", "moist"])
-suction_time_bp = pd.read_csv(infile_bp, sep=r"\s+", skiprows=1, names=["time", "suction"])
+suction_time_bp = pd.read_csv(measure_suction_time, sep=r"\s+", skiprows=1, names=["time", "suction"])
+void_suction_bp = pd.read_csv(measure_void_suction, sep=r"\s+", skiprows=1, names=["suction","void"])
+measured_strain = (void_suction_bp["void"]-void_suction_bp["void"][0])/void_suction_bp["void"][0]
+
 #stress-strain------
-sigma_total_in = 0
-for j in range(i):
-    sigma_total_node = 9.81*(gamma_s[j]*(1/(e_results[j]+1))+Se_results[j]*gamma_w[j]*(1-(1/(e_results[j]+1))))
-    sigma_total_in[j+1] = sigma_total_node[j]*node_size[j]+sigma_total_in[j]
+sigma_total_node = 9.81 * (gamma_vector.s[:, None] * (1 / (e_results + 1))+ Se_results * gamma_vector.w[:, None] * (1 - (1 / (e_results + 1))))
+sigma_total_in = np.zeros((i+2,len(sigma_total_node[0])))
+sigma_total = np.zeros((i+1,len(sigma_total_node[0])))
+for j in range(i+1):
+    sigma_total_in[j+1] = sigma_total_node[j]*Soil_dimension.node_distance[j]+sigma_total_in[j]
     sigma_total[j] = 0.5*sigma_total_in[j]+0.5*sigma_total_in[j+1]
+
 sigma_eff = np.abs(sigma_total[i] - Pressure_results[i]*Se_results[i])
 strain = (Soil_states.e_ini[i]-e_results[i])/Soil_states.e_ini[i]
 
 plt.figure()
-plt.plot(strain, sigma_eff)
-plt.title(f"Stress strain at i ={i}")
-plt.xlabel("Strain [-]")
-plt.ylabel("Effective stress [kPa]")
+plt.plot(sigma_eff,-strain,".",color="black")
+plt.title(f"Stress strain")
+plt.xlabel(rf"Effective stress $\sigma'$[kPa] ")
+plt.ylabel(rf"Strain $\varepsilon$[-]")
+plt.xscale("log")
+textstr = (
+    rf"$\kappa = {Compression_vector.Kappa[i]:.3f}$" "\n"
+    rf"$\lambda = {Compression_vector.Lambda[i]:.3f}$" "\n"
+    rf"$\mu = {Compression_vector.Mu[i]:.3f}$"
+)
+plt.text(
+    0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
+    bbox=dict(boxstyle="round", facecolor="white", alpha=0.8)
+)
+plt.grid(True, which="both", linestyle="--", alpha=0.5)
 plt.savefig('../results/figure/stress_strain.png')
 
 plt.figure()
-plt.plot(Pressure_results[i], e_results[i])
+plt.plot(-void_suction_bp["suction"],void_suction_bp["void"],".",color="black",label="Measurement")
+plt.plot(Pressure_results[i], e_results[i],color="red")
 plt.title(f"Stress strain at i ={i}")
-plt.xlabel("Pore pressure[kPa]")
-plt.ylabel("Void ratio [-]")
+plt.xlabel(rf"Pore pressure $\psi$[kPa]")
+plt.ylabel(rf"Void ratio $e$[-]")
+#plt.xscale("log")
+plt.grid(True, which="both", linestyle="--", alpha=0.5)
 plt.savefig('../results/figure/pressure_void.png')
+
+plt.figure()
+plt.plot(-void_suction_bp["suction"],measured_strain,".",color="black",label="Measurement")
+plt.plot(Pressure_results[i], -strain,color="red")
+plt.title(f"Stress strain at i ={i}")
+plt.xlabel(rf"Pore pressure $\psi$[kPa]")
+plt.ylabel(rf"Strain $\varepsilon$[-]")
+#plt.xscale("log")
+plt.grid(True, which="both", linestyle="--", alpha=0.5)
+plt.savefig('../results/figure/pressure_strain.png')
+
+#Void_time------
+plt.figure()
+plt.plot(suction_time_bp["time"],void_suction_bp["void"],".",color="black",label="Measurement")
+plt.plot(simulation_time,e_results[i],label="Simulation")
+plt.title(f"Pressure at i ={i}")
+plt.xlabel("Time [day]")
+plt.ylabel(rf"Void ratio $e$")
+plt.legend()
+plt.savefig('../results/figure/void_time.png')
 
 #Pressure_time------
 plt.figure()
 plt.plot(suction_time_bp["time"],-suction_time_bp["suction"],".",color="black",label="Measurement")
-plt.plot(simulation_time,-Pressure_results[i],label="Simulation")
+plt.plot(simulation_time,Pressure_results[i],label="Simulation")
 plt.title(f"Pressure at i ={i}")
 plt.xlabel("Time [day]")
 plt.ylabel("Pore pressure [kPa]")
@@ -495,7 +535,6 @@ plt.savefig('../results/figure/pressure_time.png')
 plt.figure()
 one = np.ones(len(vG_WCS))
 plt.plot((theta_results[i]-vG_WCR[i])/(vG_WCS[i]-vG_WCR[i]),e_results[i])
-#plt.plot([0, (theta_results[i]-vG_WCR[i])/(vG_WCS[i]-vG_WCR[i])], [0, vG_WCS[i]/(one[i]-vG_WCS[i])],ls="--",color="black")
 plt.title(f"Soil shrinkage characteristic at i ={i}")
 plt.xlabel("Se [-]")
 plt.ylabel("Void ratio")
@@ -511,10 +550,12 @@ plt.savefig('../results/figure/sscc.png')
 plt.figure()
 plt.plot(void_moist_tp["void"],void_moist_tp["moist"],".", markeredgewidth=0.1, color="black",label="Measurement")
 plt.plot(MR[i],e_results[i],label="Simulation")
+#plt.plot(e_results[i],e_results[i],color="black",ls="--")
 plt.title(f"Soil shrinkage characteristic at i ={i}")
-plt.xlabel("Moisture ratio")
-plt.ylabel("Void ratio")
+plt.xlabel(rf"Moisture ratio $\vartheta$")
+plt.ylabel(rf"Void ratio $e$")
 plt.legend()
+plt.grid(True, which="both", linestyle="--", alpha=0.5)
 plt.savefig('../results/figure/sscc_MR.png')
 
 #Groundwater level------
@@ -531,4 +572,3 @@ for i in range(Pressure_results.shape[1]):  # Loop over columns (time)
 #plt.xlabel("time")
 #plt.ylabel("Depth(m)")
 #plt.savefig('../results/figure/gwl.png')
-

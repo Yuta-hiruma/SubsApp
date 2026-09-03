@@ -12,10 +12,10 @@ tend = "2024-12-16"
 # -------------------------------------------
 gwli = -50 		#initial groundwater level
 Ref_Time = "10:00" 	#Reference Time
-GL_to_NAP = -0.5	#[m]
+GL_to_NAP = -10.0	#[m]
 
 # -------------------------------------------
 # Soil depths and types
 # -------------------------------------------
-depths = [-0.5]
+depths = [-10.0]
 types = ['Clay']

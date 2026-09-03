@@ -53,7 +53,7 @@ def calc_stress_ini_h (Soil_dimension,gamma_vector,Soil_states,Water_retention_c
     psi = np.array(Soil_stresses.psi)
 
     # step 5 calculate effective stress
-    sigma_effective_node = sigma_total_sum_node - psi
+    sigma_effective_node = sigma_total_sum_node - S_sat*psi
 
     Soil_stresses.sigma_total_node              = np.array(sigma_total_node)
     Soil_stresses.sigma_total_sum_node          = np.array(sigma_total_sum_node)
@@ -239,7 +239,7 @@ def diffusion(Parameter,Bctop,Bcbottom,Soil_dimension,K):
 
 
 
-def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector):
+def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,sigma_eff_p,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector):
     """
     Soft Soil Creep Model
     """
@@ -262,7 +262,9 @@ def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,dsigma_eff_dt, dpsi
 
     exponent = compressibility / mu_m
     exponent = np.maximum(exponent, 10.0)
-    dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent)  
+    sigma_eff_p = np.max(sigma_eff)
+    #dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent)  
+    dPlastic = mu_m * (1 / Tau_ref) * (sigma_eff/sigma_eff_p) ** (exponent)
     dElastic = dsigma_eff_dt*kappa_m/(ccott+sigma_eff)
     deps_dt = -(dElastic + dPlastic) 
     dn_dt = deps_dt/(1+e)**2
