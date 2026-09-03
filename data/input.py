@@ -3,19 +3,19 @@
 # -------------------------------------------
 site = "benchmark"
 tstart = "2024-01-01"
-tend = "2024-04-10"
+tend = "2024-01-31"
+
 
 
 # -------------------------------------------
 # Groundwater
 # -------------------------------------------
-gwli = 0 		#initial groundwater level
+gwli = -50 		#initial groundwater level
 Ref_Time = "10:00" 	#Reference Time
-GL_to_NAP = -1.48	#[m]
+GL_to_NAP = -0.05	#[m]
 
 # -------------------------------------------
 # Soil depths and types
 # -------------------------------------------
-depths = [-5.0, -10.0]
-types = ['Clay', 'Clay']
-         
+depths = [-0.05]
+types = ['Clay']

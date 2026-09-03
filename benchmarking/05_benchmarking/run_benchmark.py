@@ -84,10 +84,10 @@ def collect_results():
     Se_vG_fig = RESULTS_DIR /  "figure/Se_vG.png"
     #benchmarking---------------------
     pressure_void_fig = RESULTS_DIR /  "figure/pressure_void.png"
-    stress_strain_fig = RESULTS_DIR /  "figure/stress_strain.png"
     pressure_time_fig = RESULTS_DIR /  "figure/pressure_time.png"
     sscc_fig = RESULTS_DIR /  "figure/sscc.png"
     sscc_vG_fig = RESULTS_DIR /  "figure/sscc_vG.png"
+    sscc_MR_fig = RESULTS_DIR /  "figure/sscc_MR.png"
     gwl_fig = RESULTS_DIR /  "figure/gwl.png"
 
 
@@ -105,10 +105,10 @@ def collect_results():
     shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
     shutil.copy2(Se_vG_fig, BENCH_OUTPUT_DIR / "Se_vG.png",)
     shutil.copy2(pressure_void_fig, BENCH_OUTPUT_DIR / "pressure_void.png",)
-    shutil.copy2(stress_strain_fig, BENCH_OUTPUT_DIR / "stress_strain.png",)
     shutil.copy2(pressure_time_fig, BENCH_OUTPUT_DIR / "pressure_time.png",)
     shutil.copy2(sscc_fig, BENCH_OUTPUT_DIR / "sscc.png",)
     shutil.copy2(sscc_vG_fig, BENCH_OUTPUT_DIR / "sscc_vG.png",)
+    shutil.copy2(sscc_MR_fig, BENCH_OUTPUT_DIR / "sscc_MR.png",)
     shutil.copy2(gwl_fig, BENCH_OUTPUT_DIR / "gwl.png",)
 
 

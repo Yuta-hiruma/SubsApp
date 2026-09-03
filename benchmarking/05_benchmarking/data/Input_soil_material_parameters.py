@@ -11,7 +11,7 @@ Soil_parameters ={
         'mu': 0.025,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.5,
+        'OCR': 1.3,
         'c' : 10,
         'phi' : 20
         },
@@ -52,7 +52,7 @@ Soil_parameters ['Clay']= {
         'mu'  : 0.0028229,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.5,
+        'OCR': 1.3,
         'c' : 10,
         'phi' : 20
         },

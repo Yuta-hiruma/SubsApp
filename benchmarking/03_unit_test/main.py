@@ -46,6 +46,11 @@ try:
 except FileNotFoundError:
     print("file doesn't exist")
 
+measure_void_moist = "test/void_moisture.dat"
+measure_suction_time = "test/suction_time.dat"
+void_moist_tp = pd.read_csv(measure_void_moist, sep=r"\s+", skiprows=1, names=["void", "moist"])
+suction_time_bp = pd.read_csv(measure_suction_time, sep=r"\s+", skiprows=1, names=["time", "suction"])
+
 time_values = df['time'].to_numpy()
 suction_measured = df['suction'].to_numpy()
 e_measured = df['void ratio'].to_numpy()
@@ -179,8 +184,7 @@ def equations(simulation_time, in_in):
     Soil_states.theta = in_in[1]
     Soil_states.e = in_in[2]
 
-    print("simulation_time", round(simulation_time, 2))
-
+    print ("time", "%.2f" % simulation_time)
 
     S_e = np.clip(update_S_e(Water_retention_curve_vector, Soil_states.theta ), 0.0, 1.0)
     saturated = (S_e >= 1).astype(int)
@@ -255,25 +259,28 @@ start = time.perf_counter() # measure the performance
 sol = solve_ivp(equations, [simulation_time[0], simulation_time[-1]],input_in,method='RK23',t_eval=simulation_time,max_step = max_time_step, rtol = rtol)#, atol = atol)
 end = time.perf_counter()# measure the performance
 
+print("Elapsed  = {}s".format((end - start)))
+print("Success:", sol.success)
+print("Message:", sol.message)
+print("Final time reached:", sol.t[-1])
+
+#Post process---------
+#-------------------------------------------------------------
+n_results=[] 
+Se_results=[]
+MR=[]
+
+n_results[:] = sol.y[2,:]/(1+sol.y[2,:])
+Se_results[:] = sol.y[1,:]/n_results[:]
+MR[:] = sol.y[1,:]*(1+sol.y[2,:]) #Moisture ratio
+
+
 with open('output_evaporation/void_time.dat', 'w') as dis:
     dis.write(f"{'':<2}{'time[d]':<15}  {'void ratio':<15}\n")
     for i in range(len(simulation_time)):
         dis.write(f"{'':<2}{simulation_time[i]:.4f}  {sol.y[2,i]:.4f}\n")
 
-#Plot void results----------------------------------
-#plt.figure()
-#fig, ax = plt.subplots(figsize=(8, 5))
-#ax.plot(simulation_time,sol.y[2],label="Simulated",linewidth=1,color="blue" )
-#ax.scatter(time_values,e_measured,label="Measured",color="orange",linewidth=1,zorder=3,)
-#ax.set(xlabel="Time [days]",ylabel="Void ratio [-]",title="Void ratio over time",)
-#ax.grid(True, alpha=0.3)
-#ax.legend()
-#fig.autofmt_xdate(rotation=45)
-#fig.tight_layout()
-#fig.savefig('output_evaporation/displacement.png',dpi=300, bbox_inches="tight",)
-
-
-
+#Suction void ratio----------------------------------
 plt.figure()
 plt.scatter(suction_measured, e_measured, marker='.', label='Laboratory test')
 plt.ylabel("void ratio [-]")
@@ -286,16 +293,27 @@ plt.legend()
 plt.savefig('output_evaporation/linear_strain_3D.png')
 plt.figure()
 
-
-plt.figure()
-#plt.scatter(suction_measured, e_measured, marker='.', label='Laboratory test')
-plt.xlabel("Se [-]")
-plt.ylabel("Void ratio [-]")
-plt.scatter(sol.y[1, :], sol.y[2,:],label='Simulation')
-#plt.xlim(0.1, 10000)
-#plt.ylim(0, 4)
-#plt.xscale('log')
-plt.legend()
-plt.savefig('output_evaporation/sscc.png')
-plt.figure()
-
+#Soil shrinkage characteristic curve------
+#plt.figure()
+##plt.scatter(suction_measured, e_measured, marker='.', label='Laboratory test')
+#plt.plot(void_moist_tp["moist"],void_moist_tp["void"],".",  color="black",label="Laboratory test")
+#plt.xlabel("Se [-]")
+#plt.ylabel("Void ratio [-]")
+#plt.scatter(MR[:],sol.y[2,:] ,label='Simulation')
+##plt.xlim(0.1, 10000)
+##plt.ylim(0, 4)
+##plt.xscale('log')
+#plt.legend()
+#plt.savefig('output_evaporation/sscc_MR.png')
+#plt.figure()
+#
+##Pressure_time------
+#plt.figure()
+#plt.plot(suction_time_bp["time"],-suction_time_bp["suction"],".",color="black",label="Laboratory test")
+#plt.plot(simulation_time,sol.y[0,:],label="Simulation")
+#plt.title(f"Pressure at i ={i}")
+#plt.xlabel("Time [day]")
+#plt.ylabel("Pore pressure [kPa]")
+#plt.legend()
+#plt.savefig('output_evaporation/pressure_time.png')
+#plt.figure()
