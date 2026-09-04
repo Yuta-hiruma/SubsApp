@@ -261,9 +261,8 @@ def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,sigma_eff_p,dsigma_
     compressibility = Lambda_m- kappa_m
 
     exponent = compressibility / mu_m
-    exponent = np.maximum(exponent, 10.0)
-    sigma_eff_p = np.max(sigma_eff)
-    #dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent)  
+    #exponent = np.maximum(exponent, 5.0)
+    #dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent) 
     dPlastic = mu_m * (1 / Tau_ref) * (sigma_eff/sigma_eff_p) ** (exponent)
     dElastic = dsigma_eff_dt*kappa_m/(ccott+sigma_eff)
     deps_dt = -(dElastic + dPlastic) 
