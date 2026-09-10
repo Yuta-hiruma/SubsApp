@@ -217,7 +217,7 @@ def d2f_dz2_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
         d2f_dz2[i] = (forward_diff - backward_diff) / (0.5 * (dz_forward + dz_backward))
     return (d2f_dz2)
 
-def diffusion(Parameter,Bctop,Bcbottom,Soil_dimension,K):
+def diffusion(Parameter,Bctop,Bcbottom,dpsi_top_fun,dpsi_bottom_fun,bc,Soil_dimension,K,t):
     psi_loc = Parameter
     
     psi_loc[0] = Bctop
@@ -226,9 +226,12 @@ def diffusion(Parameter,Bctop,Bcbottom,Soil_dimension,K):
     dpsi_dt = 0*psi_loc
 
     node_size_loc = Soil_dimension.node_distance
-
-    dpsi_dt[0] = K[0]*(psi_loc[2] - 2 * psi_loc[1] + psi_loc[0]) / (node_size_loc[0]**2)
-    dpsi_dt[-1] = K[-1]*(psi_loc[-1] - 2 * psi_loc[-2] + psi_loc[-3]) / (node_size_loc[-2]**2)
+    if bc == 0:
+        dpsi_dt[0] = K[0]*(psi_loc[2] - 2 * psi_loc[1] + psi_loc[0]) / (node_size_loc[0]**2)
+        dpsi_dt[-1] = K[-1]*(psi_loc[-1] - 2 * psi_loc[-2] + psi_loc[-3]) / (node_size_loc[-2]**2)
+    else:
+        dpsi_dt[0] = dpsi_top_fun(t)
+        dpsi_dt[-1] = dpsi_bottom_fun(t)        
 
     for i in range(1, len(dpsi_dt) - 1):
         dz_forward = node_size_loc[i]

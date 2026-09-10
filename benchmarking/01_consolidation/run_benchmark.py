@@ -2,6 +2,17 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import pandas as pd
+import matplotlib.pyplot as plt
+#Reading input data ----------
+import sys
+import os
+current_dir = os.getcwd()
+parent_dir = os.path.abspath("data")
+sys.path.insert(0, parent_dir)
+from Input_soil_material_parameters import *
+sys.path.pop(0)
+os.chdir(current_dir)
 
 
 CASE_DIR = Path(__file__).resolve().parent
@@ -75,6 +86,10 @@ def collect_results():
     BENCH_OUTPUT_DIR.mkdir(exist_ok=True)
 
     displacement_file = RESULTS_DIR / "displacement.dat"
+    displacement = pd.read_csv(displacement_file,sep=r"\s+",skiprows=1,names=["days", "displacement"])
+    displacement["time"] = pd.to_datetime(displacement["days"])
+    displacement["time"] = (displacement["time"] - displacement["time"].iloc[0]).dt.days
+
     displacement_fig = RESULTS_DIR /  "figure/displacement.png"
     Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
     Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
@@ -96,6 +111,112 @@ def collect_results():
     shutil.copy2(theta_file, BENCH_OUTPUT_DIR / "theta.dat",)
     shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
 
+def plotting():
+    # read measurement data-----
+    measure_displacement = "sub-cr_result/sub-cr__ch5.csv"
+    displacement_bp = pd.read_csv(measure_displacement, sep=r"\s+",delimter=",", skiprows=3, names=["time","ocr15","ocr17","ocr20"])
+    
+    # read simulation result-----
+    stress_strain_file = RESULTS_DIR / "stress_strain.dat"
+    pressure_strain_file = RESULTS_DIR / "pressure_strain_simulation.dat"
+    pressure_void_file = RESULTS_DIR / "pressure_void_simulation.dat"
+    void_time_file = RESULTS_DIR / "void_time_simulation.dat"
+    pressure_time_file = RESULTS_DIR / "pressure_time_simulation.dat"
+    stress_strain = pd.read_csv(stress_strain_file,sep=r"\s+",skiprows=1,names=["sigma_eff", "strain"])
+    pressure_strain = pd.read_csv(pressure_strain_file,sep=r"\s+",skiprows=1,names=["pressure", "strain"])
+    pressure_void = pd.read_csv(pressure_void_file,sep=r"\s+",skiprows=1,names=["pressure", "void"])
+    void_time = pd.read_csv(void_time_file,sep=r"\s+",skiprows=1,names=["time", "void"])
+    pressure_time = pd.read_csv(pressure_time_file,sep=r"\s+",skiprows=1,names=["time", "pressure"])
+
+    #-----------------------------------
+    #displacement
+    plt.figure()
+    plt.plot(displacement_bp["time"],displacement_bp["ocr15"],marker="s",linestyle=":",label="Sub-CR")
+    plt.plot(displacement["time"],displacement["displacement"],marker="s",linestyle=":",label="SubsApp")
+    plt.title("Comparison between Sub-CR and SubsApp")
+    plt.xlabel(r"Time $\psi$ [day]")
+    plt.ylabel(r"Vetical displacement [m]")
+    #plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    textstr = (
+    rf"$OCR = {Soil_parameters["confining_layer"]["Compression"]["OCR"]:.3f}$" "\n"
+    )
+    plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
+    bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
+    plt.savefig(BENCH_OUTPUT_DIR / "displacement.png",dpi=300)
+    plt.close()
+
+    #-----------------------------------
+    #Effective stress - strain
+    plt.figure()
+    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],marker="s",linestyle=":")
+    plt.title("Stress strain")
+    plt.xlabel(r"Effective stress $\sigma'$ [kPa]")
+    plt.ylabel(r"Strain $\varepsilon$ [-]")
+    plt.xscale("log")
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    textstr = (
+    rf"$\kappa = {Soil_parameters["Clay"]["Compression"]["kappa"]:.3f}$" "\n"
+    rf"$\lambda = {Soil_parameters["Clay"]["Compression"]["lambda"]:.3f}$" "\n"
+    rf"$\mu = {Soil_parameters["Clay"]["Compression"]["mu"]:.3f}$"
+    )
+    plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
+    bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
+    plt.savefig(BENCH_OUTPUT_DIR / "stress_strain.png",dpi=300)
+    plt.close()
+
+    #-----------------------------------
+    #Pore pressure - void ratio
+    plt.figure()
+    plt.plot(pressure_void["pressure"],pressure_void["void"],marker="s",linestyle=":")
+    plt.title("Pressure - void ratio")
+    plt.xlabel(r"Pore pressure $\psi$ [kPa]")
+    plt.ylabel(r"Void ratio $e$ [-]")
+    #plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_void.png",dpi=300)
+    plt.close()
+
+    #-----------------------------------
+    #Pore pressure - strain
+    plt.figure()
+    plt.plot(pressure_strain["pressure"],pressure_strain["strain"],marker="s",linestyle=":")
+    plt.title("Pressure - strain")
+    plt.xlabel(r"Pore pressure $\psi$ [kPa]")
+    plt.ylabel(r"Strain $\varepsilon$ [-]")
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_strain.png",dpi=300)
+    plt.close()
+
+    #-----------------------------------
+    #Void ratio - time
+    plt.figure()
+    plt.plot(void_time["time"],void_time["void"])
+    plt.title("Void ratio - time")
+    plt.xlabel("Time [day]")
+    plt.ylabel(r"Void ratio $e$")
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "void_time.png",dpi=300)
+    plt.close()
+    #-----------------------------------
+    #Pore pressure - time
+    plt.figure()
+    plt.plot(pressure_time["time"],pressure_time["pressure"],marker="s",linestyle=":")
+    plt.title("Pressure - time")
+    plt.xlabel("Time [day]")
+    plt.ylabel("Pore pressure [kPa]")
+    plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_time.png",dpi=300)
+    plt.close()
+
+
 
 def main():
     BACKUP_DIR.mkdir(exist_ok=True)
@@ -114,6 +235,7 @@ def main():
         copy_case_files()
         run_model()
         collect_results()
+        plotting()
 
         print(f"Output saved to: {BENCH_OUTPUT_DIR}")
 

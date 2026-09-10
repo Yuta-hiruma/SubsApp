@@ -9,11 +9,11 @@ Soil_parameters ={
         
         'Compression': {
         'kappa': 0.2,
-        'lambda': 0.40,
-        'mu': 0.025,
+        'lambda': 0.30,
+        'mu': 0.004,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.5,
+        'OCR': 1.7,
         'c' : 10,
         'phi' : 20
         },
@@ -92,13 +92,13 @@ Soil_parameters ['Clay_top_SWP']= {
         },
 
         'Compression': {
-        'kappa' : 0.0868,   
-        'lambda'  : 0.1302,
+        'kappa' : 0.0968,   
+        'lambda'  : 0.1402,
         'mu'  : 0.0028229,
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.5,
-        'c' : 10,
+        'c' : 2,
         'phi' : 20
         },
         

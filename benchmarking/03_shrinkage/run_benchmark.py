@@ -1,0 +1,282 @@
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import pandas as pd
+import matplotlib.pyplot as plt
+#Reading input data ----------
+import sys
+import os
+current_dir = os.getcwd()
+parent_dir = os.path.abspath("data")
+sys.path.insert(0, parent_dir)
+from Input_soil_material_parameters import *
+sys.path.pop(0)
+os.chdir(current_dir)
+
+
+CASE_DIR = Path(__file__).resolve().parent
+ROOT_DIR = CASE_DIR.parents[1]
+
+SRC_DIR = ROOT_DIR / "src"
+DATA_DIR = ROOT_DIR / "data"
+RESULTS_DIR = ROOT_DIR / "results"
+
+BENCH_DATA_DIR = CASE_DIR / "data"
+BENCH_INPUT_DIR = CASE_DIR / "input"
+BENCH_OUTPUT_DIR = CASE_DIR / "output"
+
+BACKUP_DIR = CASE_DIR / "_backup_runtime_files"
+
+
+#Read measurement data
+measure_void_moist = "measurement/void_moisture.dat"
+measure_suction_time = "measurement/suction_time.dat"
+measure_void_suction = "measurement/void_suction.dat"
+void_moist_tp = pd.read_csv(measure_void_moist, sep=r"\s+", skiprows=1, names=["moist","void"])
+suction_time_bp = pd.read_csv(measure_suction_time, sep=r"\s+", skiprows=1, names=["time", "suction"])
+void_suction_bp = pd.read_csv(measure_void_suction, sep=r"\s+", skiprows=1, names=["suction","void"])
+measured_strain = (void_suction_bp["void"]-void_suction_bp["void"][0])/void_suction_bp["void"][0]
+
+
+def backup_path(path: Path):
+    backup = BACKUP_DIR / path.relative_to(ROOT_DIR)
+    backup.parent.mkdir(parents=True, exist_ok=True)
+
+    if path.exists():
+        if path.is_dir():
+            shutil.copytree(path, backup, dirs_exist_ok=True)
+        else:
+            shutil.copy2(path, backup)
+
+
+def restore_path(path: Path):
+    backup = BACKUP_DIR / path.relative_to(ROOT_DIR)
+
+    if path.exists():
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
+
+    if backup.exists():
+        if backup.is_dir():
+            shutil.copytree(backup, path, dirs_exist_ok=True)
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(backup, path)
+
+
+def copy_case_files():
+    DATA_DIR.mkdir(exist_ok=True)
+
+    shutil.copy2(BENCH_DATA_DIR / "input.py", DATA_DIR / "input.py")
+    shutil.copy2(
+        BENCH_DATA_DIR / "Input_soil_material_parameters.py",
+        DATA_DIR / "Input_soil_material_parameters.py",
+    )
+
+    if (SRC_DIR / "input").exists():
+        shutil.rmtree(SRC_DIR / "input")
+
+    shutil.copytree(BENCH_INPUT_DIR, SRC_DIR / "input")
+
+
+def run_model():
+    RESULTS_DIR.mkdir(exist_ok=True)
+
+    subprocess.run(
+        [sys.executable, "main.py"],
+        cwd=SRC_DIR,
+        check=True,
+    )
+
+
+def collect_results():
+    BENCH_OUTPUT_DIR.mkdir(exist_ok=True)
+
+    displacement_file = RESULTS_DIR / "displacement.dat"
+    displacement_fig = RESULTS_DIR /  "figure/displacement.png"
+    Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
+    Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
+    Pressure_fig = RESULTS_DIR /  "figure/pressure.png"
+    theta_file = RESULTS_DIR / "theta.dat"
+    theta_fig = RESULTS_DIR /  "figure/theta.png"
+    Se_vG_fig = RESULTS_DIR /  "figure/Se_vG.png"
+
+
+
+    if not displacement_file.exists():
+        raise FileNotFoundError(
+            f"Expected output was not created: {displacement_file}"
+        )
+
+    shutil.copy2(displacement_file, BENCH_OUTPUT_DIR / "displacement.dat",)
+    shutil.copy2(displacement_fig, BENCH_OUTPUT_DIR / "displacement.png",)
+    shutil.copy2(Pressure_top_file, BENCH_OUTPUT_DIR / "Pressure_top.dat",)
+    shutil.copy2(Pressure_bottom_file, BENCH_OUTPUT_DIR / "Pressure_bottom.dat",)
+    shutil.copy2(Pressure_fig, BENCH_OUTPUT_DIR / "pressure.png",)
+    shutil.copy2(theta_file, BENCH_OUTPUT_DIR / "theta.dat",)
+    shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
+    shutil.copy2(Se_vG_fig, BENCH_OUTPUT_DIR / "Se_vG.png",)
+
+
+
+def plotting():
+    # read measurement data-----
+    measure_void_moist = "measurement/void_moisture.dat"
+    measure_suction_time = "measurement/suction_time.dat"
+    measure_void_suction = "measurement/void_suction.dat"
+    void_moist_tp = pd.read_csv(measure_void_moist, sep=r"\s+", skiprows=1, names=["moist","void"])
+    suction_time_bp = pd.read_csv(measure_suction_time, sep=r"\s+", skiprows=1, names=["time", "suction"])
+    void_suction_bp = pd.read_csv(measure_void_suction, sep=r"\s+", skiprows=1, names=["suction","void"])
+    measured_strain = (void_suction_bp["void"]-void_suction_bp["void"][0])/void_suction_bp["void"][0]
+    
+    # read simulation result-----
+    stress_strain_file = RESULTS_DIR / "stress_strain.dat"
+    pressure_strain_file = RESULTS_DIR / "pressure_strain_simulation.dat"
+    pressure_void_file = RESULTS_DIR / "pressure_void_simulation.dat"
+    void_time_file = RESULTS_DIR / "void_time_simulation.dat"
+    pressure_time_file = RESULTS_DIR / "pressure_time_simulation.dat"
+    sscc_file = RESULTS_DIR / "sscc_vG.dat"
+    sscc_MR_file = RESULTS_DIR / "sscc_MR_simulation.dat"
+    stress_strain = pd.read_csv(stress_strain_file,sep=r"\s+",skiprows=1,names=["sigma_eff", "strain"])
+    pressure_strain = pd.read_csv(pressure_strain_file,sep=r"\s+",skiprows=1,names=["pressure", "strain"])
+    pressure_void = pd.read_csv(pressure_void_file,sep=r"\s+",skiprows=1,names=["pressure", "void"])
+    void_time = pd.read_csv(void_time_file,sep=r"\s+",skiprows=1,names=["time", "void"])
+    pressure_time = pd.read_csv(pressure_time_file,sep=r"\s+",skiprows=1,names=["time", "pressure"])
+    sscc = pd.read_csv(sscc_file,sep=r"\s+",skiprows=1,names=["Se", "void"])
+    sscc_MR = pd.read_csv(sscc_MR_file,sep=r"\s+",skiprows=1,names=["moisture_ratio", "void"])
+
+    #-----------------------------------
+    #Effective stress - strain
+    plt.figure()
+    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],marker="s",linestyle=":")
+    plt.title("Stress strain")
+    plt.xlabel(r"Effective stress $\sigma'$ [kPa]")
+    plt.ylabel(r"Strain $\varepsilon$ [-]")
+    plt.xscale("log")
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    textstr = (
+    rf"$\kappa = {Soil_parameters["Clay"]["Compression"]["kappa"]:.3f}$" "\n"
+    rf"$\lambda = {Soil_parameters["Clay"]["Compression"]["lambda"]:.3f}$" "\n"
+    rf"$\mu = {Soil_parameters["Clay"]["Compression"]["mu"]:.3f}$"
+    )
+    plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
+    bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
+    plt.savefig(BENCH_OUTPUT_DIR / "stress_strain.png",dpi=300)
+    plt.close()
+
+    #-----------------------------------
+    #Pore pressure - void ratio
+    plt.figure()
+    plt.plot(-void_suction_bp["suction"],void_suction_bp["void"],".",color="black",label="Measurement")
+    plt.plot(pressure_void["pressure"],pressure_void["void"],marker="s",linestyle=":",label="Simulation")
+    plt.title("Pressure - void ratio")
+    plt.xlabel(r"Pore pressure $\psi$ [kPa]")
+    plt.ylabel(r"Void ratio $e$ [-]")
+    plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_void.png",dpi=300)
+    plt.close()
+
+    #-----------------------------------
+    #Pore pressure - strain
+    plt.figure()
+    plt.plot(-void_suction_bp["suction"],measured_strain,".",color="black",label="Measurement")
+    plt.plot(pressure_strain["pressure"],pressure_strain["strain"],marker="s",linestyle=":",label="Simulation")
+    plt.title("Pressure - strain")
+    plt.xlabel(r"Pore pressure $\psi$ [kPa]")
+    plt.ylabel(r"Strain $\varepsilon$ [-]")
+    plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_strain.png",dpi=300)
+    plt.close()
+
+    #-----------------------------------
+    #Void ratio - time
+    plt.figure()
+    #plt.plot(suction_time_bp["time"],void_suction_bp["void"],".",color="black",label="Measurement")
+    plt.plot(void_time["time"],void_time["void"],label="Simulation")
+    plt.title("Void ratio - time")
+    plt.xlabel("Time [day]")
+    plt.ylabel(r"Void ratio $e$")
+    plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "void_time.png",dpi=300)
+    plt.close()
+    #-----------------------------------
+    #Pore pressure - time
+    plt.figure()
+    plt.plot(suction_time_bp["time"],-suction_time_bp["suction"],".",color="black",label="Measurement")
+    plt.plot(pressure_time["time"],pressure_time["pressure"],marker="s",linestyle=":",label="Simulation")
+    plt.title("Pressure - time")
+    plt.xlabel("Time [day]")
+    plt.ylabel("Pore pressure [kPa]")
+    plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_time.png",dpi=300)
+    plt.close()
+    #-----------------------------------
+    #Soil shrinkage characteristic curve: Se
+    plt.figure()
+    plt.plot(sscc["Se"],sscc["void"])
+    plt.title("Soil shrinkage characteristic curve")
+    plt.xlabel(rf"$S_e$ [-]")
+    plt.ylabel(rf"Void ratio $e$")
+    plt.grid(True, which="both",linestyle="--",alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "sscc_vG.png",dpi=300)
+    plt.close()
+    #-----------------------------------
+    #Soil shrinkage characteristic curve
+    plt.figure()
+    plt.plot(void_moist_tp["moist"],void_moist_tp["void"],".",markeredgewidth=0.1,color="black",label="Measurement")
+    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],marker="s",linestyle=":",label="Simulation")
+    plt.plot(void_moist_tp["void"],void_moist_tp["void"],color="black", ls="--" ,label="Saturation")
+    plt.title("Soil shrinkage characteristic curve")
+    plt.xlabel(r"Moisture ratio $\vartheta$")
+    plt.ylabel(r"Void ratio $e$")
+    plt.legend()
+    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+
+    plt.tight_layout()
+    plt.savefig(BENCH_OUTPUT_DIR / "sscc_MR.png",dpi=300)
+    plt.close()
+
+
+def main():
+    BACKUP_DIR.mkdir(exist_ok=True)
+
+    paths_to_restore = [
+        DATA_DIR / "input.py",
+        DATA_DIR / "Input_soil_material_parameters.py",
+        SRC_DIR / "input",
+        RESULTS_DIR,
+    ]
+
+    try:
+        for path in paths_to_restore:
+            backup_path(path)
+
+        copy_case_files()
+        run_model()
+        collect_results()
+        plotting()
+
+        print(f"Output saved to: {BENCH_OUTPUT_DIR}")
+
+    finally:
+        for path in paths_to_restore:
+            restore_path(path)
+
+        shutil.rmtree(BACKUP_DIR, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    main()
