@@ -148,7 +148,6 @@ Soil_dimension.node_initial=get_node_distance(Soil_dimension)
 Soil_stresses.sigma_effective_node_ini = np.array(Soil_stresses.sigma_effective_node)
 Soil_stresses.sigma_effective_p = Compression_vector.OCR*Soil_stresses.sigma_effective_node_ini
 sigma_eff_p=Soil_stresses.sigma_effective_p
-Soil_states.Preconsolidation_pressure =  Soil_stresses.sigma_effective_node_ini*Compression_vector.OCR
 
 #Define a wrapper function to store previous values------
 class SigmaTracker:
@@ -282,7 +281,7 @@ def equations(simulation_time, in_in, sigma_tracker):
     # third set: void ratio -------
     for i in range(len(sigma_eff_p)):
         if sigma_eff[i] > sigma_eff_p[i]:
-            sigma_eff_p[i] = sigma_eff[i]    
+            sigma_eff_p[i] = sigma_eff[i]  
     de_dt,dn_dt = deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,sigma_eff_p, dsigma_eff_dt,dpsi_dt,Water_retention_curve_vector)
 
 

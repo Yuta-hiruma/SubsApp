@@ -136,7 +136,6 @@ def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve
 
 
 def update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,WRC): 
-
     n = e/(1+e)
     tau = Permeability_curve_Perm_vector.tau
     
@@ -150,9 +149,10 @@ def update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,WRC):
     K_min = Permeability_curve_Perm_vector.K_min
     vG_n = WRC.vG_n
     vG_m = WRC.vG_m
-    
+
     K_out = K_sat*(S_e**tau)*(1-(1-S_e**(1/vG_m)**vG_m))**2
     K_out = np.maximum(K_out, K_min)
+    K_out = np.where(S_e < 1,K_out,K_sat)
 
     return (K_out)
 
@@ -265,7 +265,7 @@ def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,sigma_eff_p,dsigma_
 
     exponent = compressibility / mu_m
     #exponent = np.maximum(exponent, 5.0)
-    #dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent) 
+    #dPlastic = mu_m * (1 / Tau_ref) * (1/OCR) ** (exponent)
     dPlastic = mu_m * (1 / Tau_ref) * (sigma_eff/sigma_eff_p) ** (exponent)
     dElastic = dsigma_eff_dt*kappa_m/(ccott+sigma_eff)
     deps_dt = -(dElastic + dPlastic) 

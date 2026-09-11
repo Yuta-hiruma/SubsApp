@@ -7,13 +7,13 @@ Soil_parameters ={
         
 
         'Compression':{
-        'kappa' : 0.00173718/(1+(0.53/(1-0.53))),   
-        'lambda'  : 0.001736/(1+(0.53/(1-0.53))),
-        'mu'  : 0.007,
+        'kappa' : 0.00173718,#/(1+(0.53/(1-0.53))),   
+        'lambda'  : 0.001736,#/(1+(0.53/(1-0.53))),
+        'mu'  : 0.000001,
         'Tau_ref'  : 1,
         'OCR' : 20,
-        'c' : 2,
-        'phi' : 20,
+        'c' : 10,
+        'phi' : 10,
         },
         
         'Water_retention_curve':{
@@ -32,9 +32,9 @@ Soil_parameters ={
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.01,
+        'K_tot' : 0.2,
         'K_min' : 0.0001,
-        'tau' : 0.5
+        'tau' : 1
         }
         
         }
@@ -47,18 +47,18 @@ Soil_parameters['confining_layer'] = {
         },
         
         'Compression':{
-        'kappa' : 0.087/(1+(0.50/(1-0.50))),   
-        'lambda'  : 0.130/(1+(0.50/(1-0.50))),
-        'mu'  : 0.0028/(1+(0.50/(1-0.50))),
+        'kappa' : 0.087/(1+(0.25/(1-0.25))),   
+        'lambda'  : 0.130/(1+(0.25/(1-0.25))),
+        'mu'  : 0.0028/(1+(0.25/(1-0.25))),
         'Tau_ref'  : 1,
-        'OCR' : 1.5,
-        'c' : 18,
-        'phi' : 20,
+        'OCR' : 2.0,
+        'c' : 10,
+        'phi' : 10,
         },
         
         'Water_retention_curve':{
-        'vG_WCS' : 0.50,
-        'vG_WCR' : 0.01,
+        'vG_WCS' : 0.25,
+        'vG_WCR' : 0.00,
         'vG_alpha' : 0.030,
         'vG_n' : 2.88,
         'vG_m' : 0.18,
@@ -72,9 +72,9 @@ Soil_parameters['confining_layer'] = {
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.001,
+        'K_tot' : 0.2,
         'K_min' : 0.0001,
-        'tau' : 0.5
+        'tau' : 1
         }       
         
         }

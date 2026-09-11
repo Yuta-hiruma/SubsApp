@@ -86,22 +86,12 @@ def collect_results():
     BENCH_OUTPUT_DIR.mkdir(exist_ok=True)
 
     displacement_file = RESULTS_DIR / "displacement.dat"
-    displacement = pd.read_csv(displacement_file,sep=r"\s+",skiprows=1,names=["days", "displacement"])
-    displacement["time"] = pd.to_datetime(displacement["days"])
-    displacement["time"] = (displacement["time"] - displacement["time"].iloc[0]).dt.days
-
     displacement_fig = RESULTS_DIR /  "figure/displacement.png"
     Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
     Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
     Pressure_fig = RESULTS_DIR /  "figure/pressure.png"
     theta_file = RESULTS_DIR / "theta.dat"
     theta_fig = RESULTS_DIR /  "figure/theta.png"
-
-
-    if not displacement_file.exists():
-        raise FileNotFoundError(
-            f"Expected output was not created: {displacement_file}"
-        )
 
     shutil.copy2(displacement_file, BENCH_OUTPUT_DIR / "displacement.dat",)
     shutil.copy2(displacement_fig, BENCH_OUTPUT_DIR / "displacement.png",)
@@ -113,10 +103,14 @@ def collect_results():
 
 def plotting():
     # read measurement data-----
-    measure_displacement = "sub-cr_result/sub-cr__ch5.csv"
-    displacement_bp = pd.read_csv(measure_displacement, sep=r"\s+",delimter=",", skiprows=3, names=["time","ocr15","ocr17","ocr20"])
+    measure_displacement = "sub-cr_result/sub-cr_ch5.csv"
+    displacement_bp = pd.read_csv(measure_displacement, sep=",", skiprows=3, names=["time","ocr15","ocr17","ocr20"])
     
     # read simulation result-----
+    displacement_file = RESULTS_DIR / "displacement.dat"
+    displacement = pd.read_csv(displacement_file,sep=r"\s+",skiprows=1,names=["days", "displacement"])
+    displacement["time"] = pd.to_datetime(displacement["days"])
+    displacement["time"] = (displacement["time"] - displacement["time"].iloc[0]).dt.days
     stress_strain_file = RESULTS_DIR / "stress_strain.dat"
     pressure_strain_file = RESULTS_DIR / "pressure_strain_simulation.dat"
     pressure_void_file = RESULTS_DIR / "pressure_void_simulation.dat"
@@ -132,11 +126,11 @@ def plotting():
     #displacement
     plt.figure()
     plt.plot(displacement_bp["time"],displacement_bp["ocr15"],marker="s",linestyle=":",label="Sub-CR")
-    plt.plot(displacement["time"],displacement["displacement"],marker="s",linestyle=":",label="SubsApp")
+    plt.plot(displacement["time"],displacement["displacement"]/1000,label="SubsApp")
     plt.title("Comparison between Sub-CR and SubsApp")
     plt.xlabel(r"Time $\psi$ [day]")
     plt.ylabel(r"Vetical displacement [m]")
-    #plt.legend()
+    plt.legend()
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
     textstr = (
@@ -150,20 +144,21 @@ def plotting():
     #-----------------------------------
     #Effective stress - strain
     plt.figure()
-    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],marker="s",linestyle=":")
+    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"])#,marker="s",linestyle=":")
     plt.title("Stress strain")
     plt.xlabel(r"Effective stress $\sigma'$ [kPa]")
     plt.ylabel(r"Strain $\varepsilon$ [-]")
+    plt.xticks(rotation=45)
     plt.xscale("log")
-    plt.grid(True,which="both",linestyle="--",alpha=0.5)
+    plt.grid(True,which="both",linestyle="--",alpha=1.0)
     plt.tight_layout()
+
     textstr = (
-    rf"$\kappa = {Soil_parameters["Clay"]["Compression"]["kappa"]:.3f}$" "\n"
-    rf"$\lambda = {Soil_parameters["Clay"]["Compression"]["lambda"]:.3f}$" "\n"
-    rf"$\mu = {Soil_parameters["Clay"]["Compression"]["mu"]:.3f}$"
+    rf"$\kappa = {Soil_parameters["confining_layer"]["Compression"]["kappa"]:.3f}$" "\n"
+    rf"$\lambda = {Soil_parameters["confining_layer"]["Compression"]["lambda"]:.3f}$" "\n"
+    rf"$\mu = {Soil_parameters["confining_layer"]["Compression"]["mu"]:.3f}$"
     )
-    plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
-    bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
+    #plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
     plt.savefig(BENCH_OUTPUT_DIR / "stress_strain.png",dpi=300)
     plt.close()
 
@@ -210,7 +205,6 @@ def plotting():
     plt.title("Pressure - time")
     plt.xlabel("Time [day]")
     plt.ylabel("Pore pressure [kPa]")
-    plt.legend()
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
     plt.savefig(BENCH_OUTPUT_DIR / "pressure_time.png",dpi=300)

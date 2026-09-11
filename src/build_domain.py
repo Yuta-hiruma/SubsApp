@@ -80,7 +80,6 @@ def soilbuilder(Soil_domain,Soil_parameters,node_vector,internode_vector):
         gamma_vector.s[i] = Soil_parameters[material]["Material_parameters"]["gamma_s"]
         gamma_vector.w[i] = Soil_parameters[material]["Material_parameters"]["gamma_w"]
 
-
         Permeability_curve_Perm_vector.K_tot[i] = Soil_parameters[material]["Permeability_curve_Perm"]["K_tot"]
         Permeability_curve_Perm_vector.K_min[i] = Soil_parameters[material]["Permeability_curve_Perm"]["K_min"]
         Permeability_curve_Perm_vector.tau[i] = Soil_parameters[material]["Permeability_curve_Perm"]["tau"]
