@@ -7,11 +7,11 @@ Soil_parameters ={
 
         'Compression': {
         'kappa': 0.01,
-        'lambda': 0.28199239,
-        'mu': 0.07,
+        'lambda': 0.28,
+        'mu': 0.007,
         'Tau_ref': 1,
-        'OCR': 1.3,
-        'c' : 10,
+        'OCR': 1.5,
+        'c' : 5,
         'phi' : 20
         },
         
@@ -19,8 +19,8 @@ Soil_parameters ={
         'vG_WCS' : 0.735,
         'vG_WCR' : 0.00,
         'vG_alpha' : 0.023,
-        'vG_n' : 1.23,
-        'vG_m' : (1-1/1.23),
+        'vG_n' : 1.3,
+        'vG_m' : (1-1/1.3),
         'vG_a' : 50000,
         'vG_mod' : 1,
         'Ksatfit' : 87.4,

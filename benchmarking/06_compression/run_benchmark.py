@@ -86,10 +86,7 @@ def collect_results():
     stress_strain_fig = RESULTS_DIR /  "figure/stress_strain.png"
     pressure_void_fig = RESULTS_DIR /  "figure/pressure_void.png"
     pressure_time_fig = RESULTS_DIR /  "figure/pressure_time.png"
-    sscc_fig = RESULTS_DIR /  "figure/sscc.png"
-    sscc_vG_fig = RESULTS_DIR /  "figure/sscc_vG.png"
     sscc_MR_fig = RESULTS_DIR /  "figure/sscc_MR.png"
-    gwl_fig = RESULTS_DIR /  "figure/gwl.png"
 
     if not displacement_file.exists():
         raise FileNotFoundError(
@@ -108,10 +105,8 @@ def collect_results():
     shutil.copy2(stress_strain_fig, BENCH_OUTPUT_DIR / "stress_strain.png",)
     shutil.copy2(pressure_void_fig, BENCH_OUTPUT_DIR / "pressure_void.png",)
     shutil.copy2(pressure_time_fig, BENCH_OUTPUT_DIR / "pressure_time.png",)
-    shutil.copy2(sscc_fig, BENCH_OUTPUT_DIR / "sscc.png",)
-    shutil.copy2(sscc_vG_fig, BENCH_OUTPUT_DIR / "sscc_vG.png",)
     shutil.copy2(sscc_MR_fig, BENCH_OUTPUT_DIR / "sscc_MR.png",)
-    shutil.copy2(gwl_fig, BENCH_OUTPUT_DIR / "gwl.png",)
+
 
 def main():
     BACKUP_DIR.mkdir(exist_ok=True)

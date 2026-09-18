@@ -235,9 +235,11 @@ def diffusion(Parameter,Bctop,Bcbottom,dpsi_top_fun,dpsi_bottom_fun,bc,Soil_dime
 
     for i in range(1, len(dpsi_dt) - 1):
         dz_forward = node_size_loc[i]
+        k_forward = (2*K[i-1]*K[i])/(K[i-1]+K[i])
         dz_backward = node_size_loc[i - 1]
+        k_backward = (2*K[i]*K[i+1])/(K[i]+K[i+1])
         dz = (dz_forward+dz_backward)/2
-        dpsi_dt[i] = (K[i-1]*psi_loc[i - 1]-(K[i-1]+K[i])*psi_loc[i]+K[i]*psi_loc[i+1]) / (dz**2)
+        dpsi_dt[i] = (k_forward*psi_loc[i - 1]-(k_forward+k_backward)*psi_loc[i]+k_backward*psi_loc[i+1]) / (dz**2)
     return (dpsi_dt)
 
 

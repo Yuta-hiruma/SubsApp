@@ -1,29 +1,29 @@
 
 
 Soil_parameters ={
-    'Peat1_SWP':{
+    'Peat1':{
         'Material_parameters':{
          'gamma_s' : 2.31,
         'gamma_w' : 1,
         },
         
         'Compression': {
-        'kappa': 0.2,
+        'kappa': 0.1,
         'lambda': 0.30,
         'mu': 0.004,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.7,
-        'c' : 10,
-        'phi' : 20
+        'OCR': 1.5,
+        'c' : 15,
+        'phi' : 10
         },
         
         'Water_retention_curve':{
         'vG_WCS' : 0.89,
         'vG_WCR' : 0.00,
         'vG_alpha' : 0.0097,
-        'vG_n' : 1.36,
-        'vG_m' : (1-1/1.31),
+        'vG_n' : 1.2,
+        'vG_m' : (1-1/1.2),
         'vG_a' : 50000,
         'vG_mod' : 1,
         'Ksatfit' : 1.46,
@@ -42,7 +42,7 @@ Soil_parameters ={
         }
         }
 
-Soil_parameters['Peat2_SWP'] = {
+Soil_parameters['Peat2'] = {
         'Material_parameters':{
          'gamma_s' : 2.31,
         'gamma_w' : 1,
@@ -52,12 +52,12 @@ Soil_parameters['Peat2_SWP'] = {
         'Compression': {
         'kappa': 0.2,
         'lambda': 0.40,
-        'mu': 0.025,
+        'mu': 0.004,
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.5,
-        'c' : 10,
-        'phi' : 20
+        'c' : 15,
+        'phi' : 10
         },
         
         'Water_retention_curve':{
@@ -85,46 +85,7 @@ Soil_parameters['Peat2_SWP'] = {
 
 
  
-Soil_parameters ['Clay_top_SWP']= {      
-        'Material_parameters':{
-        'gamma_s' : 2.31,
-        'gamma_w' : 1,
-        },
-
-        'Compression': {
-        'kappa' : 0.0968,   
-        'lambda'  : 0.1402,
-        'mu'  : 0.0028229,
-        'Tau_ref': 1,
-        'Pg': 400,
-        'OCR': 1.5,
-        'c' : 2,
-        'phi' : 20
-        },
-        
-        'Water_retention_curve':{
-        'vG_WCS' : 0.53,
-        'vG_WCR' : 0.00,
-        'vG_alpha' : 0.023,
-        'vG_n' : 1.28,
-        'vG_m' : (1-1/1.28),
-        'vG_a' : 2000,
-        'vG_mod' : 1,
-        'Ksatfit' : 87.4,
-        'Lexp' : -4.493,
-        'H_enpr' :-10.0,
-        'Ksattexm' : 1.00,
-        'Bdens': 1300.0
-        },
-        
-        'Permeability_curve_Perm':{
-        'K_tot' : 0.01,
-        'K_min' : 0.0001,
-        'tau' : 0.5
-        }
-        
-        }
-Soil_parameters ['Clay2_SWP']= {      
+Soil_parameters ['Clay_top']= {      
         'Material_parameters':{
         'gamma_s' : 2.31,
         'gamma_w' : 1,
@@ -137,8 +98,47 @@ Soil_parameters ['Clay2_SWP']= {
         'Tau_ref': 1,
         'Pg': 400,
         'OCR': 1.5,
-        'c' : 10,
-        'phi' : 20
+        'c' : 15,
+        'phi' : 10
+        },
+        
+        'Water_retention_curve':{
+        'vG_WCS' : 0.53,
+        'vG_WCR' : 0.00,
+        'vG_alpha' : 0.023,
+        'vG_n' : 1.35,
+        'vG_m' : (1-1/1.35),
+        'vG_a' : 2000,
+        'vG_mod' : 1,
+        'Ksatfit' : 87.4,
+        'Lexp' : -4.493,
+        'H_enpr' :-10.0,
+        'Ksattexm' : 1.00,
+        'Bdens': 1300.0
+        },
+        
+        'Permeability_curve_Perm':{
+        'K_tot' : 0.001,
+        'K_min' : 0.0001,
+        'tau' : 0.5
+        }
+        
+        }
+Soil_parameters ['Clay2']= {      
+        'Material_parameters':{
+        'gamma_s' : 2.31,
+        'gamma_w' : 1,
+        },
+
+        'Compression': {
+        'kappa' : 0.0868,   
+        'lambda'  : 0.1302,
+        'mu'  : 0.0028229,
+        'Tau_ref': 1,
+        'Pg': 400,
+        'OCR': 1.5,
+        'c' : 15,
+        'phi' : 10
         },
         
         'Water_retention_curve':{
@@ -157,27 +157,27 @@ Soil_parameters ['Clay2_SWP']= {
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.01,
+        'K_tot' : 0.001,
         'K_min' : 0.0001,
         'tau' : 0.5
         }
         
         }
-Soil_parameters ['Sand_SWP']= {      
+Soil_parameters ['Sand']= {      
         'Material_parameters':{
         'gamma_s' : 2.31,
         'gamma_w' : 1,
         },
         
         'Compression':{
-        'kappa' : 0.0868,   
-        'lambda'  : 0.1302,
-        'mu'  : 0.0028229,
+        'kappa' : 0.005,   
+        'lambda'  : 0.10,
+        'mu'  : 0.0001,
         'Tau_ref'  : 1,
         'Pg' : 400,
         'OCR' : 10,
-        'c' : 10,
-        'phi' : 20
+        'c' : 30,
+        'phi' : 5
         },
         
         'Water_retention_curve':{
@@ -185,7 +185,7 @@ Soil_parameters ['Sand_SWP']= {
         'vG_WCR' : 0.01,
         'vG_alpha' : 0.030,
         'vG_n' : 2.88,
-        'vG_m' : 0.18,
+        'vG_m' : (1-1/2.88),
         'vG_a' : 2000,
         'vG_mod' : 1,
         'Ksatfit' : 17.4,

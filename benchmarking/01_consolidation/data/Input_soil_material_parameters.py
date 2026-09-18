@@ -47,9 +47,9 @@ Soil_parameters['confining_layer'] = {
         },
         
         'Compression':{
-        'kappa' : 0.087/(1+(0.25/(1-0.25))),   
-        'lambda'  : 0.130/(1+(0.25/(1-0.25))),
-        'mu'  : 0.0028/(1+(0.25/(1-0.25))),
+        'kappa' : 0.087/(1+(0.27/(1-0.27))),   
+        'lambda'  : 0.130/(1+(0.27/(1-0.27))),
+        'mu'  : 0.0028/(1+(0.27/(1-0.27))),
         'Tau_ref'  : 1,
         'OCR' : 2.0,
         'c' : 10,
@@ -57,7 +57,7 @@ Soil_parameters['confining_layer'] = {
         },
         
         'Water_retention_curve':{
-        'vG_WCS' : 0.25,
+        'vG_WCS' : 0.27,
         'vG_WCR' : 0.00,
         'vG_alpha' : 0.030,
         'vG_n' : 2.88,

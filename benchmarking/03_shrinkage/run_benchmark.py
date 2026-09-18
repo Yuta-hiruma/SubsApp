@@ -32,11 +32,8 @@ BACKUP_DIR = CASE_DIR / "_backup_runtime_files"
 #Read measurement data
 measure_void_moist = "measurement/void_moisture.dat"
 measure_suction_time = "measurement/suction_time.dat"
-measure_void_suction = "measurement/void_suction.dat"
 void_moist_tp = pd.read_csv(measure_void_moist, sep=r"\s+", skiprows=1, names=["moist","void"])
 suction_time_bp = pd.read_csv(measure_suction_time, sep=r"\s+", skiprows=1, names=["time", "suction"])
-void_suction_bp = pd.read_csv(measure_void_suction, sep=r"\s+", skiprows=1, names=["suction","void"])
-measured_strain = (void_suction_bp["void"]-void_suction_bp["void"][0])/void_suction_bp["void"][0]
 
 
 def backup_path(path: Path):
@@ -126,26 +123,19 @@ def plotting():
     # read measurement data-----
     measure_void_moist = "measurement/void_moisture.dat"
     measure_suction_time = "measurement/suction_time.dat"
-    measure_void_suction = "measurement/void_suction.dat"
     void_moist_tp = pd.read_csv(measure_void_moist, sep=r"\s+", skiprows=1, names=["moist","void"])
     suction_time_bp = pd.read_csv(measure_suction_time, sep=r"\s+", skiprows=1, names=["time", "suction"])
-    void_suction_bp = pd.read_csv(measure_void_suction, sep=r"\s+", skiprows=1, names=["suction","void"])
-    measured_strain = (void_suction_bp["void"]-void_suction_bp["void"][0])/void_suction_bp["void"][0]
     
     # read simulation result-----
     stress_strain_file = RESULTS_DIR / "stress_strain.dat"
-    pressure_strain_file = RESULTS_DIR / "pressure_strain_simulation.dat"
     pressure_void_file = RESULTS_DIR / "pressure_void_simulation.dat"
     void_time_file = RESULTS_DIR / "void_time_simulation.dat"
     pressure_time_file = RESULTS_DIR / "pressure_time_simulation.dat"
-    sscc_file = RESULTS_DIR / "sscc_vG.dat"
     sscc_MR_file = RESULTS_DIR / "sscc_MR_simulation.dat"
     stress_strain = pd.read_csv(stress_strain_file,sep=r"\s+",skiprows=1,names=["sigma_eff", "strain"])
-    pressure_strain = pd.read_csv(pressure_strain_file,sep=r"\s+",skiprows=1,names=["pressure", "strain"])
     pressure_void = pd.read_csv(pressure_void_file,sep=r"\s+",skiprows=1,names=["pressure", "void"])
     void_time = pd.read_csv(void_time_file,sep=r"\s+",skiprows=1,names=["time", "void"])
     pressure_time = pd.read_csv(pressure_time_file,sep=r"\s+",skiprows=1,names=["time", "pressure"])
-    sscc = pd.read_csv(sscc_file,sep=r"\s+",skiprows=1,names=["Se", "void"])
     sscc_MR = pd.read_csv(sscc_MR_file,sep=r"\s+",skiprows=1,names=["moisture_ratio", "void"])
 
     #-----------------------------------
@@ -171,7 +161,6 @@ def plotting():
     #-----------------------------------
     #Pore pressure - void ratio
     plt.figure()
-    plt.plot(-void_suction_bp["suction"],void_suction_bp["void"],".",color="black",label="Measurement")
     plt.plot(pressure_void["pressure"],pressure_void["void"],marker="s",linestyle=":",label="Simulation")
     plt.title("Pressure - void ratio")
     plt.xlabel(r"Pore pressure $\psi$ [kPa]")
@@ -180,20 +169,6 @@ def plotting():
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
     plt.savefig(BENCH_OUTPUT_DIR / "pressure_void.png",dpi=300)
-    plt.close()
-
-    #-----------------------------------
-    #Pore pressure - strain
-    plt.figure()
-    plt.plot(-void_suction_bp["suction"],measured_strain,".",color="black",label="Measurement")
-    plt.plot(pressure_strain["pressure"],pressure_strain["strain"],marker="s",linestyle=":",label="Simulation")
-    plt.title("Pressure - strain")
-    plt.xlabel(r"Pore pressure $\psi$ [kPa]")
-    plt.ylabel(r"Strain $\varepsilon$ [-]")
-    plt.legend()
-    plt.grid(True,which="both",linestyle="--",alpha=0.5)
-    plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "pressure_strain.png",dpi=300)
     plt.close()
 
     #-----------------------------------
@@ -212,7 +187,7 @@ def plotting():
     #-----------------------------------
     #Pore pressure - time
     plt.figure()
-    plt.plot(suction_time_bp["time"],-suction_time_bp["suction"],".",color="black",label="Measurement")
+    plt.plot(suction_time_bp["time"],suction_time_bp["suction"],".",color="black",label="Measurement")
     plt.plot(pressure_time["time"],pressure_time["pressure"],marker="s",linestyle=":",label="Simulation")
     plt.title("Pressure - time")
     plt.xlabel("Time [day]")
@@ -223,21 +198,10 @@ def plotting():
     plt.savefig(BENCH_OUTPUT_DIR / "pressure_time.png",dpi=300)
     plt.close()
     #-----------------------------------
-    #Soil shrinkage characteristic curve: Se
-    plt.figure()
-    plt.plot(sscc["Se"],sscc["void"])
-    plt.title("Soil shrinkage characteristic curve")
-    plt.xlabel(rf"$S_e$ [-]")
-    plt.ylabel(rf"Void ratio $e$")
-    plt.grid(True, which="both",linestyle="--",alpha=0.5)
-    plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "sscc_vG.png",dpi=300)
-    plt.close()
-    #-----------------------------------
     #Soil shrinkage characteristic curve
     plt.figure()
     plt.plot(void_moist_tp["moist"],void_moist_tp["void"],".",markeredgewidth=0.1,color="black",label="Measurement")
-    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],marker="s",linestyle=":",label="Simulation")
+    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],marker="s",linestyle=":",label="Simulation by SubsApp")
     plt.plot(void_moist_tp["void"],void_moist_tp["void"],color="black", ls="--" ,label="Saturation")
     plt.title("Soil shrinkage characteristic curve")
     plt.xlabel(r"Moisture ratio $\vartheta$")

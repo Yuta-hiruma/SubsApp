@@ -125,7 +125,7 @@ def plotting():
     #-----------------------------------
     #displacement
     plt.figure()
-    plt.plot(displacement_bp["time"],displacement_bp["ocr15"],marker="s",linestyle=":",label="Sub-CR")
+    plt.plot(displacement_bp["time"],displacement_bp["ocr20"],marker="s",linestyle=":",label="Sub-CR")
     plt.plot(displacement["time"],displacement["displacement"]/1000,label="SubsApp")
     plt.title("Comparison between Sub-CR and SubsApp")
     plt.xlabel(r"Time $\psi$ [day]")
@@ -138,7 +138,7 @@ def plotting():
     )
     plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
     bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
-    plt.savefig(BENCH_OUTPUT_DIR / "displacement.png",dpi=300)
+    plt.savefig(BENCH_OUTPUT_DIR / "displacement.png")#,dpi=300)
     plt.close()
 
     #-----------------------------------
@@ -159,7 +159,7 @@ def plotting():
     rf"$\mu = {Soil_parameters["confining_layer"]["Compression"]["mu"]:.3f}$"
     )
     #plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
-    plt.savefig(BENCH_OUTPUT_DIR / "stress_strain.png",dpi=300)
+    plt.savefig(BENCH_OUTPUT_DIR / "stress_strain.png")#,dpi=300)
     plt.close()
 
     #-----------------------------------
@@ -172,7 +172,7 @@ def plotting():
     #plt.legend()
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "pressure_void.png",dpi=300)
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_void.png")#,dpi=300)
     plt.close()
 
     #-----------------------------------
@@ -184,7 +184,7 @@ def plotting():
     plt.ylabel(r"Strain $\varepsilon$ [-]")
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "pressure_strain.png",dpi=300)
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_strain.png")#,dpi=300)
     plt.close()
 
     #-----------------------------------
@@ -196,7 +196,7 @@ def plotting():
     plt.ylabel(r"Void ratio $e$")
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "void_time.png",dpi=300)
+    plt.savefig(BENCH_OUTPUT_DIR / "void_time.png")#,dpi=300)
     plt.close()
     #-----------------------------------
     #Pore pressure - time
@@ -207,7 +207,7 @@ def plotting():
     plt.ylabel("Pore pressure [kPa]")
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "pressure_time.png",dpi=300)
+    plt.savefig(BENCH_OUTPUT_DIR / "pressure_time.png")#,dpi=300)
     plt.close()
 
 

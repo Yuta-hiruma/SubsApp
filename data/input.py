@@ -1,21 +1,21 @@
 # -------------------------------------------
 # General Input
 # -------------------------------------------
-site = "benchmark"
-tstart = "2024-01-01"
-tend = "2024-01-31"
+site = "nieuwolda"
+tstart = "2022-07-01"
+tend = "2024-07-31"
 
 
 
 # -------------------------------------------
 # Groundwater
 # -------------------------------------------
-gwli = -50 		#initial groundwater level
+gwli = -156.5 		#initial groundwater level
 Ref_Time = "10:00" 	#Reference Time
-GL_to_NAP = -0.05	#[m]
+GL_to_NAP = -1.48	#[m]
 
 # -------------------------------------------
 # Soil depths and types
 # -------------------------------------------
-depths = [-1.0]
-types = ['Clay']
+depths = [-2.7, -5.0, -5.70,-6.0, -6.50]
+types = ["Clay_top", "Peat1", "Clay2", "Peat2" , "Sand"] 

@@ -11,17 +11,17 @@ Soil_parameters ={
         'mu': 0.007,
         'Tau_ref': 1,
         'OCR': 1.0,
-        'c' : 2,
-        'phi' : 30
+        'c' : 10,
+        'phi' : 20
         },
         
         'Water_retention_curve':{
-        'vG_WCS' : 0.735,
+        'vG_WCS' : 0.66645,
         'vG_WCR' : 0.00,
         'vG_alpha' : 0.05,
         'vG_n' : 1.1,
         'vG_m' : (1-1/1.1),
-        'vG_a' : 50000,
+        'vG_a' : 10000,
         'vG_mod' : 1,
         'Ksatfit' : 1.46,
         'Lexp' : -10.502,
@@ -31,7 +31,7 @@ Soil_parameters ={
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.001,
+        'K_tot' : 0.2,
         'K_min' : 0.000001,
         'tau' : 1
         }       
