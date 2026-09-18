@@ -1,5 +1,5 @@
 all: 
-	-cd swap && ./swap420
+	-cd swp && ./swap420
 	cd swap/output_swap && python3 pressure_bc.py
 	cd swap/output_swap && python3 pressure_ini.py
 	cd swap/output_swap && python3 water_content.py

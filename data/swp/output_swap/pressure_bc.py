@@ -22,7 +22,7 @@ tstart = datetime.strptime(tstart, "%Y-%m-%d")
 
 file_path = "../result.vap"
 out_file_tp = "fig/pressure_head.dat"
-out_file_tp_swp = "../../nsdwl/input/top_pressure/top_pressure_swp.dat"   #convert output of swap to input for nsdwl
+out_file_tp_swp = "../../src/input/top_pressure/top_pressure_swp.dat"   #convert output of swap to input for nsdwl
 
 #out_file_bp = "fig/pressure_head.dat"
 #out_file_bp_swp = "../../nsdwl/input/bottom_pressure/bottom_pressure_swp.dat" 

@@ -4,8 +4,8 @@ from datetime import datetime
 
 file_path = "../result.vap"
 swp_path = "../swap.swp"
-out_file = "../../nsdwl/input/wc_ini/wc_ini_swp.dat"
-out_file_ini = "../../nsdwl/input/wc_ini/wc_ini_ave_swp.dat"   #convert output of swap to input for nsdwl
+out_file = "../../src/input/wc_ini/wc_ini_swp.dat"
+out_file_ini = "../../src/input/wc_ini/wc_ini_ave_swp.dat"   #convert output of swap to input for nsdwl
 
 hlayer = []
 dlayer = []

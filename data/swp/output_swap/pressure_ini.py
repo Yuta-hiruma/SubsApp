@@ -20,7 +20,7 @@ tstart = datetime.strptime(tstart, "%Y-%m-%d")
 
 file_path = "../result.vap"
 swp_path = "../swap.swp"
-out_file = "../../nsdwl/input/pressure_ini/pressure_ini_swp.dat"  #convert output of swap to input for nsdwl
+out_file = "../../src/input/pressure_ini/pressure_ini_swp.dat"  #convert output of swap to input for nsdwl
 
 rho = 1000 #kg/m3
 g = 9.81 #m/s2
