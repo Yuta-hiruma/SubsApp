@@ -4,6 +4,9 @@ all:
 	cd swap/output_swap && python3 pressure_ini.py
 	cd swap/output_swap && python3 water_content.py
 
+input:
+	cd swap && python3 input_geology.py
+
 clean:
 	rm -f ../src/bottom_pressure
 	rm -f ../src/pressure_ini

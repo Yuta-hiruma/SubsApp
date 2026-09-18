@@ -47,30 +47,7 @@
   TSTART = 2022-07-01    ! Start date of simulation run [YYYY-MM-DD]
 
 
-
-
-
-
-
-
-
-
-
-
-  TEND = 2024-12-31    ! End date of simulation run [YYYY-MM-DD]
-
-
-
-
-
-
-
-
-
-
-
-
-
+  TEND = 2024-07-31    ! End date of simulation run [YYYY-MM-DD]
 
 **********************************************************************************
 
@@ -189,6 +166,7 @@
 
 
 
+
                              ! Extension is equal to last 3 digits of year, e.g. 022 denotes year 2022
                              ! In case of meteorological in one file use extension .met
 
@@ -224,6 +202,7 @@
 
 * If SWRAIN = 3, then specify file name of file with detailed rainfall data
   RAINFIL = 'nieuwolda'    ! File name of detailed rainfall data without extension .YYY, [A200]
+
 
 
 
@@ -306,6 +285,7 @@
 
 * If SWINCO = 2, specify initial groundwater level:
   GWLI   = -156.5    ! Initial groundwater level, [-10000..100 cm, R]
+
 
 
 
@@ -406,8 +386,8 @@
 * BDENS = Dry soil bulk density [100..1d4 mg/cm3, R]
 
   ORES   OSAT    ALFA    NPAR  KSATFIT     LEXP  H_ENPR  KSATEXM   BDENS
-  0.0   0.53   0.023   1.28    87.4     -4.493   -10.0     1.0     1300.0
-  0.0   0.89   0.0097  1.36    1.46     -10.502  -10.0     3.08    1300.0
+  0.0   0.53   0.023   1.35    87.4     -4.493   -10.0     1.0     1300.0
+  0.0   0.89   0.0097  1.2     1.46     -10.502  -10.0     3.08    1300.0
   0.0   0.44   0.014   1.12    2.12     -4.493   -10.0     1.0     1300.0
   0.01  0.58   0.0126  1.31    35.9     -4.493   -10.0     3.08    1300.0
   0.01  0.33   0.03    2.88    17.4     -4.493   -10.0     1.0     1300.0
@@ -500,6 +480,7 @@
 **********************************************************************************
 * If SWBBCFILE = 1 specify name of file with bottom boundary data:
   BBCFIL = 'nieuwolda'    ! File name without extension .BBC [A32]
+
 
 
 
