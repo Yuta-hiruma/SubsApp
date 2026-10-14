@@ -3,7 +3,10 @@ import shutil
 import subprocess
 import sys
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib import ticker
 #Reading input data ----------
 import sys
 import os
@@ -21,6 +24,7 @@ ROOT_DIR = CASE_DIR.parents[1]
 SRC_DIR = ROOT_DIR / "src"
 DATA_DIR = ROOT_DIR / "data"
 RESULTS_DIR = ROOT_DIR / "results"
+GMT_DIR = ROOT_DIR / "results/gmt"
 
 BENCH_DATA_DIR = CASE_DIR / "data"
 BENCH_INPUT_DIR = CASE_DIR / "input"
@@ -96,10 +100,10 @@ def collect_results():
     displacement_fig = RESULTS_DIR /  "figure/displacement.png"
     Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
     Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
-    Pressure_fig = RESULTS_DIR /  "figure/pressure.png"
+    Pressure_fig = RESULTS_DIR /  "gmt/pressure.png"
     theta_file = RESULTS_DIR / "theta.dat"
-    theta_fig = RESULTS_DIR /  "figure/theta.png"
-    Se_vG_fig = RESULTS_DIR /  "figure/Se_vG.png"
+    theta_fig = RESULTS_DIR /  "gmt/theta.png"
+    Se_vG_fig = RESULTS_DIR /  "gmt/Se_vG.png"
 
 
 
@@ -132,11 +136,44 @@ def plotting():
     void_time_file = RESULTS_DIR / "void_time_simulation.dat"
     pressure_time_file = RESULTS_DIR / "pressure_time_simulation.dat"
     sscc_MR_file = RESULTS_DIR / "sscc_MR_simulation.dat"
+    #Se_vG_file = RESULTS_DIR / "Se_vG.dat"
     stress_strain = pd.read_csv(stress_strain_file,sep=r"\s+",skiprows=1,names=["sigma_eff", "strain"])
     pressure_void = pd.read_csv(pressure_void_file,sep=r"\s+",skiprows=1,names=["pressure", "void"])
     void_time = pd.read_csv(void_time_file,sep=r"\s+",skiprows=1,names=["time", "void"])
     pressure_time = pd.read_csv(pressure_time_file,sep=r"\s+",skiprows=1,names=["time", "pressure"])
     sscc_MR = pd.read_csv(sscc_MR_file,sep=r"\s+",skiprows=1,names=["moisture_ratio", "void"])
+    #Se_vG = pd.read_csv(Se_vG_file,sep=r"\s+",skiprows=1,names=["time", "depth", "effective_saturation"],)
+    #Se_grid = Se_vG.pivot(index="depth",columns="time",values="effective_saturation",).sort_index().sort_index(axis=1)
+    
+    # -----------------------------------
+    # Se_vG
+    #simulation_time = Se_grid.columns.to_numpy(dtype=float)
+    #depth = Se_grid.index.to_numpy(dtype=float)
+    #Se_values = Se_grid.to_numpy(dtype=float)
+ #
+    #Se_min = Se_values.min()
+    #Se_max = Se_values.max()
+    #
+    #bounds = np.linspace(Se_min, 1.0, 21)
+    #if Se_min >= 1.0:
+    #    bounds = np.linspace(0.0, max(1.0, Se_max), 21)
+    #
+    #colors = plt.get_cmap("Blues")(np.linspace(0, 1, 20))
+    #colors[0] = (1, 1, 1, 1)
+    #cmap = ListedColormap(colors)
+    #norm = BoundaryNorm(bounds, ncolors=cmap.N, clip=True)
+#
+    #plt.pcolormesh(simulation_time,-depth,Se_values, shading="nearest",cmap=cmap, norm=norm)
+    #plt.xlabel("time [day]")
+    #plt.ylabel("depth[-] ")
+    #plt.subplots_adjust(left=0.2, bottom=0.5) 
+    #plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+    #cax = plt.axes((0.85,0.1,0.075,0.8))
+    #cbar = plt.colorbar(cax=cax,boundaries=bounds)
+    #cbar.set_ticks(np.unique([Se_min, Se_max]))
+    #cbar.ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.2f"))
+    #plt.title(r"$S_e$[-]")
+    #plt.savefig(BENCH_OUTPUT_DIR / "Se_vG.png")
 
     #-----------------------------------
     #Effective stress - strain
@@ -153,8 +190,8 @@ def plotting():
     rf"$\lambda = {Soil_parameters["Clay"]["Compression"]["lambda"]:.3f}$" "\n"
     rf"$\mu = {Soil_parameters["Clay"]["Compression"]["mu"]:.3f}$"
     )
-    plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
-    bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
+    #plt.text(0.05, 0.05,textstr,transform=plt.gca().transAxes,fontsize=11,verticalalignment="bottom",
+    #bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
     plt.savefig(BENCH_OUTPUT_DIR / "stress_strain.png",dpi=300)
     plt.close()
 
@@ -202,8 +239,13 @@ def plotting():
     plt.figure()
     plt.plot(void_moist_tp["moist"],void_moist_tp["void"],".",markeredgewidth=0.1,color="black",label="Measurement")
     plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],marker="s",linestyle=":",label="Simulation by SubsApp")
-    plt.plot(void_moist_tp["void"],void_moist_tp["void"],color="black", ls="--" ,label="Saturation")
-    plt.title("Soil shrinkage characteristic curve")
+    x = void_moist_tp["void"]
+    plt.plot(x,x,color="black", ls="--" ,label="Saturation")
+    # Position the equation below the line
+    x_pos = x.min() + 0.55 * (x.max() - x.min())
+    offset = 0.05 * (x.max() - x.min())
+    plt.text(x_pos,x_pos - offset,r"$e = \vartheta = \frac{V_v}{V_s}, \quad V_v = V_w$",rotation=45,rotation_mode="anchor",ha="center",va="top",color="black")
+    #plt.title("Soil shrinkage characteristic curve")
     plt.xlabel(r"Moisture ratio $\vartheta$")
     plt.ylabel(r"Void ratio $e$")
     plt.legend()
@@ -212,6 +254,18 @@ def plotting():
     plt.tight_layout()
     plt.savefig(BENCH_OUTPUT_DIR / "sscc_MR.png",dpi=300)
     plt.close()
+
+def run_gmt_plots():
+    commands = [
+        ["python3", "plotgmt.py"],
+        ["bash", "plot_Se_vG.sh"],
+        ["bash", "plot_theta.sh"],
+        ["bash", "plot_pressure.sh"],
+    ]
+
+    for command in commands:
+        subprocess.run(command, cwd=GMT_DIR, check=True)
+    print("---Output GMT---")
 
 
 def main():
@@ -230,6 +284,7 @@ def main():
 
         copy_case_files()
         run_model()
+        run_gmt_plots()
         collect_results()
         plotting()
 

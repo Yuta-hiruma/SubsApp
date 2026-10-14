@@ -10,6 +10,7 @@ ROOT_DIR = CASE_DIR.parents[1]
 SRC_DIR = ROOT_DIR / "src"
 DATA_DIR = ROOT_DIR / "data"
 RESULTS_DIR = ROOT_DIR / "results"
+GMT_DIR = ROOT_DIR / "results/gmt"
 
 BENCH_DATA_DIR = CASE_DIR / "data"
 BENCH_INPUT_DIR = CASE_DIR / "input"
@@ -78,9 +79,10 @@ def collect_results():
     displacement_fig = RESULTS_DIR /  "figure/displacement.png"
     Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
     Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
-    Pressure_fig = RESULTS_DIR /  "figure/pressure.png"
     theta_file = RESULTS_DIR / "theta.dat"
-    theta_fig = RESULTS_DIR /  "figure/theta.png"
+    pressure_fig = RESULTS_DIR /  "gmt/pressure.png"
+    theta_fig = RESULTS_DIR /  "gmt/theta.png"
+    Se_vG_fig = RESULTS_DIR /  "gmt/Se_vG.png"
 
 
     if not displacement_file.exists():
@@ -92,10 +94,22 @@ def collect_results():
     shutil.copy2(displacement_fig, BENCH_OUTPUT_DIR / "displacement.png",)
     shutil.copy2(Pressure_top_file, BENCH_OUTPUT_DIR / "Pressure_top.dat",)
     shutil.copy2(Pressure_bottom_file, BENCH_OUTPUT_DIR / "Pressure_bottom.dat",)
-    shutil.copy2(Pressure_fig, BENCH_OUTPUT_DIR / "pressure.png",)
     shutil.copy2(theta_file, BENCH_OUTPUT_DIR / "theta.dat",)
+    shutil.copy2(pressure_fig, BENCH_OUTPUT_DIR / "pressure.png",)
     shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
+    shutil.copy2(Se_vG_fig, BENCH_OUTPUT_DIR / "Se_vG.png",)
 
+def run_gmt_plots():
+    commands = [
+        ["python3", "plotgmt.py"],
+        ["bash", "plot_Se_vG.sh"],
+        ["bash", "plot_theta.sh"],
+        ["bash", "plot_pressure.sh"],
+    ]
+
+    for command in commands:
+        subprocess.run(command, cwd=GMT_DIR, check=True)
+    print("---Output GMT---")
 
 def main():
     BACKUP_DIR.mkdir(exist_ok=True)
@@ -113,6 +127,7 @@ def main():
 
         copy_case_files()
         run_model()
+        run_gmt_plots()
         collect_results()
 
         print(f"Output saved to: {BENCH_OUTPUT_DIR}")

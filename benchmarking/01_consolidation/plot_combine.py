@@ -35,13 +35,13 @@ plt.plot(displacement_ocr15["time"],displacement_ocr15["displacement"]/1000,colo
 plt.plot(displacement_ocr17["time"],displacement_ocr17["displacement"]/1000,color="blue",label="SubsApp OCR = 1.7")
 plt.plot(displacement_ocr20["time"],displacement_ocr20["displacement"]/1000,color="green",label="SubsApp OCR = 2.0")
 
-plt.title("Comparison between Sub-CR and SubsApp")
+#plt.title("Comparison between Sub-CR and SubsApp")
 plt.xlabel(r"Time $\psi$ [day]")
 plt.ylabel(r"Vetical displacement [m]")
 plt.legend()
 plt.grid(True,which="both",linestyle="--",alpha=0.5)
 plt.tight_layout()
-plt.savefig( "output/combined_displacement.png",dpi=300)
+plt.savefig( "output/combined_displacement.png")#,dpi=300)
 plt.close()
 
 

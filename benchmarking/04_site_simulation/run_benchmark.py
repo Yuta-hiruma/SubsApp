@@ -89,6 +89,7 @@ def collect_results():
     stress_strain_fig = RESULTS_DIR /  "figure/stress_strain.png"
     sscc_MR_fig = RESULTS_DIR /  "figure/sscc_MR.png"
     Pressure_fig = RESULTS_DIR /  "figure/pressure.png"
+    Pressure_file = RESULTS_DIR /  "Pressure_top.dat"
     theta_file = RESULTS_DIR / "theta.dat"
     theta_fig = RESULTS_DIR /  "figure/theta.png"
 
@@ -97,6 +98,7 @@ def collect_results():
     shutil.copy2(stress_strain_fig, BENCH_OUTPUT_DIR / "stress_strain.png",)
     shutil.copy2(sscc_MR_fig, BENCH_OUTPUT_DIR / "sscc_MR.png",)
     shutil.copy2(Pressure_fig, BENCH_OUTPUT_DIR / "pressure.png",)
+    shutil.copy2(Pressure_file, BENCH_OUTPUT_DIR / "Pressure_top.dat",)
     shutil.copy2(theta_file, BENCH_OUTPUT_DIR / "theta.dat",)
     shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
 

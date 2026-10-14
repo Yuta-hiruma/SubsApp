@@ -13,8 +13,8 @@ Soil_parameters ={
         'mu': 0.004,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.5,
-        'c' : 15,
+        'OCR': 1.8,
+        'c' : 20,
         'phi' : 10
         },
         
@@ -34,7 +34,7 @@ Soil_parameters ={
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.1,
+        'K_tot' : 0.01,
         'K_min' : 0.0001,
         'tau' : 0.5
         }       
@@ -50,13 +50,13 @@ Soil_parameters['Peat2'] = {
 
 
         'Compression': {
-        'kappa': 0.2,
-        'lambda': 0.40,
-        'mu': 0.004,
+        'kappa': 0.15,
+        'lambda': 0.2,
+        'mu': 0.001,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.5,
-        'c' : 15,
+        'OCR': 1.8,
+        'c' : 20,
         'phi' : 10
         },
         
@@ -76,7 +76,7 @@ Soil_parameters['Peat2'] = {
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.1,
+        'K_tot' : 0.01,
         'K_min' : 0.0001,
         'tau' : 0.5
         }      
@@ -94,20 +94,20 @@ Soil_parameters ['Clay_top']= {
         'Compression': {
         'kappa' : 0.0868,   
         'lambda'  : 0.1302,
-        'mu'  : 0.0028229,
+        'mu'  : 0.001,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.5,
+        'OCR': 1.7,
         'c' : 15,
-        'phi' : 10
+        'phi' : 20
         },
         
         'Water_retention_curve':{
         'vG_WCS' : 0.53,
         'vG_WCR' : 0.00,
         'vG_alpha' : 0.023,
-        'vG_n' : 1.35,
-        'vG_m' : (1-1/1.35),
+        'vG_n' : 1.5,
+        'vG_m' : (1-1/1.5),
         'vG_a' : 2000,
         'vG_mod' : 1,
         'Ksatfit' : 87.4,
@@ -118,7 +118,7 @@ Soil_parameters ['Clay_top']= {
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.001,
+        'K_tot' : 0.01,
         'K_min' : 0.0001,
         'tau' : 0.5
         }
@@ -131,13 +131,13 @@ Soil_parameters ['Clay2']= {
         },
 
         'Compression': {
-        'kappa' : 0.0868,   
+        'kappa' : 0.10,   
         'lambda'  : 0.1302,
         'mu'  : 0.0028229,
         'Tau_ref': 1,
         'Pg': 400,
-        'OCR': 1.5,
-        'c' : 15,
+        'OCR': 2.0,
+        'c' : 30,
         'phi' : 10
         },
         
@@ -157,7 +157,7 @@ Soil_parameters ['Clay2']= {
         },
         
         'Permeability_curve_Perm':{
-        'K_tot' : 0.001,
+        'K_tot' : 0.05,
         'K_min' : 0.0001,
         'tau' : 0.5
         }

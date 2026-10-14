@@ -16,11 +16,13 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker 
 import matplotlib.colors as mcolors
+from matplotlib.colors import ListedColormap, BoundaryNorm
 import numpy as np
 import scipy as sci
 from scipy.integrate import solve_ivp
 from scipy.interpolate import CubicSpline
 
+from pathlib import Path
 import math as math
 import pandas as pd
 import time
@@ -61,7 +63,7 @@ Soil_dimension.Depth_top = 0.00                     # m size
 Soil_dimension.Depth_bottom = depths[-1]            # m size
 
 "Default soil column discretization is 0.1 m. Adjust this value according to the required model resolution."
-Soil_dimension.precision = 0.1                      # m node size
+Soil_dimension.precision = 0.01# m node size
 #------------------------------
 Soil_dimension.Depth_o_soils = depths                # bottom of soil layer      
 Soil_dimension.soils = types                                      # soil types used
@@ -123,6 +125,7 @@ if bc ==1:
     #Time derivatives of boundary condition
     dpsi_top_fun = psi_top_fun.derivative()
     dpsi_bottom_fun = psi_bottom_fun.derivative()
+
 
 #Check errors -----------------------------------------------------
 checkerror(Soil_dimension,Soil_parameters)
@@ -266,7 +269,7 @@ def equations(simulation_time, in_in, sigma_tracker):
 
     #Calculate permeability----------
     Soil_calc.K                     = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
-    K= Soil_calc.K/Soil_dimension.node_distance
+    K= Soil_calc.K#/Soil_dimension.node_distance
 
     #set differentials ------------------------
     #First set: pressure ----------
@@ -385,20 +388,11 @@ with open('../results/Pressure_bottom.dat', 'w') as dis:
     for i in range(len(date_list)):
         dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {Pressure_results[-1,i]:<15} \n")
 
-with open('../results/Se.dat', 'w') as dis:
-    dis.write(f"{'':<2}{'time[days]':<15} {'depth':<15} {'Se':<15}\n")
-    for i in range(len(date_list)):
-        dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {colum_node_height[1,i]+Soil_dimension.Depth_bottom:<15} {theta_results[1,i]*(1+e_results[1,i])/e_results[1,i]:<15}\n")
-
-with open('../results/theta.dat', 'w') as dis:
-    dis.write(f"{'':<2}{'time[days]':<15} {'depth':<15}  {'theta':<15}\n")
-    for i in range(len(date_list)):
-        dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {colum_node_height[1,i]+Soil_dimension.Depth_bottom:<15} {theta_results[1,i]:<15}\n")
-
 with open('../results/n.dat', 'w') as dis:
     dis.write(f"{'':<2}{'time[days]':<15}  {'depth':<15} {'n':<15}\n")
     for i in range(len(date_list)):
         dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {colum_node_height[1,i]+Soil_dimension.Depth_bottom:<15} {e_results[1,i]/(1+e_results[1,i]):<15}\n")
+
 
 #Plot results----------------------------------
 plt.figure()
@@ -426,40 +420,58 @@ plt.colorbar(cax=cax)
 plt.title("kPa")
 plt.savefig('../results/figure/pressure.png')
 #--------------
+# theta
 plt.figure()
-plt.pcolormesh(simulation_time,Soil_dimension.node_vector,theta_results, cmap='Blues', vmin=np.min(theta_results), vmax=np.max(theta_results))
-for i in range(len(Soil_dimension.Depth_o_soils)-1):
-    plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
-plt.title("theta")
-plt.subplots_adjust(left=0.2, bottom=0.2) 
-plt.xlabel("time [days]")
-plt.ylabel("depth [m]")
-plt.subplots_adjust(left=0.2, right=0.8, bottom=0.2)
-#plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+depth = Soil_dimension.node_vector
+theta_values = theta_results
+
+theta_min = theta_values.min()
+theta_max = theta_values.max()
+
+bounds = np.linspace(theta_min, theta_max, 31)
+if theta_min >= 1.0:
+    bounds = np.linspace(0.0, max(1.0, theta_max), 31)
+
+colors = plt.get_cmap("YlGnBu")(np.linspace(0, 1, 30))
+colors[0] = (1, 1, 1, 1)
+cmap = ListedColormap(colors)
+norm = BoundaryNorm(bounds, ncolors=cmap.N, clip=True)
+plt.pcolormesh(simulation_time,depth,theta_values, shading="nearest",cmap=cmap, norm=norm)
+plt.xlabel("time [day]")
+plt.ylabel("depth[m] ")
+plt.subplots_adjust(left=0.2, bottom=0.5) 
+plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
 cax = plt.axes((0.85,0.1,0.075,0.8))
-plt.colorbar(cax=cax)
-plt.title("[-]")
+cbar = plt.colorbar(cax=cax,boundaries=bounds)
+cbar.set_ticks(np.unique([theta_min, theta_max]))
+cbar.ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.2f"))
+plt.title(r"$\theta$[-]")
 plt.savefig('../results/figure/theta.png')
+
 
 #--------------
 plt.figure()
 vG_WCR = Water_retention_curve_vector.vG_WCR[:, np.newaxis]  
 vG_WCS = Water_retention_curve_vector.vG_WCS[:, np.newaxis]
-norm = mcolors.Normalize(vmin=np.min((theta_results-vG_WCR)/(vG_WCS-vG_WCR)), vmax=np.max((theta_results-vG_WCR)/(vG_WCS-vG_WCR)))
-#plt.pcolormesh(date_list,Soil_dimension.node_vector,(theta_results-vG_WCR)/(vG_WCS-vG_WCR), cmap='Blues', norm=norm)
-plt.pcolormesh(simulation_time,Soil_dimension.node_vector,(theta_results-vG_WCR)/(vG_WCS-vG_WCR), cmap='Blues', norm=norm)
+bounds = np.linspace(np.min((theta_results-vG_WCR)/(vG_WCS-vG_WCR)), 1.0, 21)
+colors = plt.get_cmap("Blues")(np.linspace(0, 1, 20))
+colors[0] = (1, 1, 1, 1)
+cmap = ListedColormap(colors)
+norm = BoundaryNorm(bounds, ncolors=cmap.N, clip=True)
+plt.pcolormesh(simulation_time,-Soil_dimension.node_vector,(theta_results-vG_WCR)/(vG_WCS-vG_WCR), shading="nearest",cmap=cmap, norm=norm)
 for i in range(len(Soil_dimension.Depth_o_soils)-1):
     plt.axhline(y=Soil_dimension.Depth_o_soils[i], color='k', linestyle='--')
-plt.title(r"Effective saturation $S_e$")
 plt.xlabel("time [day]")
-plt.ylabel("depth [m]")
-#plt.xticks(rotation=45)
+plt.ylabel("depth[-] ")
 plt.subplots_adjust(left=0.2, bottom=0.5) 
 plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
 cax = plt.axes((0.85,0.1,0.075,0.8))
-plt.colorbar(cax=cax)
+cbar = plt.colorbar(cax=cax,boundaries=bounds)
+cbar.set_ticks([np.min((theta_results-vG_WCR)/(vG_WCS-vG_WCR)), np.max((theta_results-vG_WCR)/(vG_WCS-vG_WCR))])
+cbar.ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.2f"))
 plt.title(r"$S_e$[-]")
 plt.savefig('../results/figure/Se_vG.png')
+
 
 #--------------
 plt.figure()
@@ -479,10 +491,30 @@ plt.title("[-]")
 plt.savefig('../results/figure/porosity.png',dpi=300,bbox_inches="tight")
 
 
+
+# Pressure------------------------------------
+time = np.asarray(simulation_time)
+depth = np.round(np.asarray(Soil_dimension.node_vector),4)
+effective_saturation = np.round(((theta_results - vG_WCR) / (vG_WCS - vG_WCR)),4)
+pressure = np.round(np.asarray(Pressure_results),4)
+theta = np.round(np.asarray(theta_results),4)
+
+time_grid, depth_grid = np.meshgrid(time, depth)
+# Pressure------------------------------------
+data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),pressure.ravel(),])
+np.savetxt("../results/Pressure.dat",data,delimiter="\t",header="time_days\tdepth_m\tpressure_kPa",fmt="%.8e",)
+# Se_vG--------------------------------------
+data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),np.asarray(effective_saturation).ravel()])
+np.savetxt(f"../results/Se_vG.dat",data,delimiter="\t",header="time\tdepth\teffective_saturation",fmt="%.4e")
+# Theta--------------------------------------
+data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),np.asarray(theta).ravel()])
+np.savetxt(f"../results/theta.dat",data,delimiter="\t",header="time\tdepth\ttheta",fmt="%.4e")
+
+
 #--------------------------------
 #Benchmarking
 #--------------------------------
-i = 5
+i = 1
 # --------------------------------------------------
 # Stress - strain
 sigma_total_node = 9.81 * (gamma_vector.s[:, None] * (1 / (e_results + 1))+ Se_results * gamma_vector.w[:, None] * (1 - (1 / (e_results + 1))))
@@ -502,40 +534,40 @@ Se_theta = ((theta_results[i] - vG_WCR[i])/ (vG_WCS[i] - vG_WCR[i]))
 #--------------------------------------------------
 #dat file 
 #--------------------------------------------------
-dat_dir = "../results"
 #Stress - strain------
-np.savetxt(f"{dat_dir}/stress_strain.dat",
-    np.column_stack((sigma_eff, -strain)),
-    header="sigma_eff_kPa strain",fmt="%.8e")
+np.savetxt(f"../results/stress_strain.dat",
+    np.column_stack((sigma_eff, -strain,e_results[i])),
+    header="sigma_eff_kPa strain void_ratio",fmt="%.8e")
 
 #Pressure - void ratio------
-np.savetxt(f"{dat_dir}/pressure_void_simulation.dat",
+np.savetxt(f"../results/pressure_void_simulation.dat",
     np.column_stack((Pressure_results[i],e_results[i])),
     header="pore_pressure_kPa void_ratio",fmt="%.8e")
 
 #Pressure - strain------------
-np.savetxt(f"{dat_dir}/pressure_strain_simulation.dat",
+np.savetxt(f"../results/pressure_strain_simulation.dat",
     np.column_stack((Pressure_results[i],-strain)),
     header="pore_pressure_kPa strain",fmt="%.8e")
 
 #Void ratio - time----------
-np.savetxt(f"{dat_dir}/void_time_simulation.dat",
+np.savetxt(f"../results/void_time_simulation.dat",
     np.column_stack((simulation_time,e_results[i])),
     header="time_day void_ratio",fmt="%.8e")
 
 # Pressure - time----------
-np.savetxt(f"{dat_dir}/pressure_time_simulation.dat",
+np.savetxt(f"../results/pressure_time_simulation.dat",
     np.column_stack((simulation_time,Pressure_results[i])),
     header="time_day pore_pressure_kPa",fmt="%.8e")
 
 # Soil shrinkage characteristic curve - Se from theta-------
-np.savetxt(f"{dat_dir}/sscc_vG.dat",
+np.savetxt(f"../results/sscc_vG.dat",
     np.column_stack((Se_theta,e_results[i])),
     header="Se void_ratio",fmt="%.8e")
 # Moisture ratio - void ratio -------
-np.savetxt(f"{dat_dir}/sscc_MR_simulation.dat",
+np.savetxt(f"../results/sscc_MR_simulation.dat",
     np.column_stack((MR[i],e_results[i])),
     header="moisture_ratio void_ratio",fmt="%.8e")
+
 
 #--------------------------------------------------
 #Plotting 
@@ -571,7 +603,7 @@ plt.savefig('../results/figure/pressure_void.png')
 
 plt.figure()
 plt.plot(Pressure_results[i], -strain,color="red")
-plt.title(f"Stress strain at i ={i}")
+#plt.title(f"Stress strain at i ={i}")
 plt.xlabel(rf"Pore pressure $\psi$[kPa]")
 plt.ylabel(rf"Strain $\varepsilon$[-]")
 #plt.xscale("log")
@@ -597,23 +629,23 @@ plt.savefig('../results/figure/pressure_time.png')
 #Soil shrinkage characteristic curve------
 plt.figure()
 plt.plot(MR[i],e_results[i],label="Simulation")
-plt.title(f"Soil shrinkage characteristic at i ={i}")
+#plt.title(f"Soil shrinkage characteristic at i ={i}")
 plt.xlabel(rf"Moisture ratio $\vartheta$")
 plt.ylabel(rf"Void ratio $e$")
 plt.grid(True, which="both", linestyle="--", alpha=0.5)
 plt.savefig('../results/figure/sscc_MR.png')
 
 #Groundwater level------
-gwl = []
-gwl_check = 0
-for i in range(Pressure_results.shape[1]):  # Loop over time
-    for j in range(Pressure_results.shape[0] - 1):  # Loop over depth
-        if Pressure_results[j, i] > 0:
-            gwl.append(colum_node_height[j, i] + Soil_dimension.Depth_bottom)
-            gwl_check = 1
-            break 
-
-if gwl_check == 1:
-    np.savetxt(f"{dat_dir}/gwl.dat",
-        np.column_stack((simulation_time,gwl)),
-        header="Time[day] Groundwater_level[m]",fmt="%.8e")
+#gwl = []
+#gwl_check = 0
+#for i in range(Pressure_results.shape[1]):  # Loop over time
+#    for j in range(Pressure_results.shape[0] - 1):  # Loop over depth
+#        if Pressure_results[j, i] > 0:
+#            gwl.append(colum_node_height[j, i] + Soil_dimension.Depth_bottom)
+#            gwl_check = 1
+#            break 
+#
+#if gwl_check == 1:
+#    np.savetxt(f"{dat_dir}/gwl.dat",
+#        np.column_stack((simulation_time,gwl)),
+#        header="Time[day] Groundwater_level[m]",fmt="%.8e")
