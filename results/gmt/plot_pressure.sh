@@ -53,5 +53,5 @@ gmt begin "pressure" png
         -F+f10p,Helvetica+jCM \
         -N
 
-gmt end show
+gmt end
 

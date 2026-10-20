@@ -49,11 +49,11 @@ gmt begin "theta" png
         -Baf
     
     # Add a centered title above the colorbar
-    printf '14.925 8.75 @~q@~ [-]\n' | gmt text \
+    printf '14.925 8.75 @~q@~ \n' | gmt text \
         -R0/14/0/9 \
         -JX14c/9.2c \
         -F+f12p,Helvetica+jCM \
         -N
 
-gmt end show
+gmt end
 

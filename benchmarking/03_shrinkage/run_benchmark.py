@@ -178,7 +178,7 @@ def plotting():
     #-----------------------------------
     #Effective stress - strain
     plt.figure()
-    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],marker="s",linestyle=":")
+    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],marker="s",linestyle=":",color="black")
     plt.title("Stress strain")
     plt.xlabel(r"Effective stress $\sigma'$ [kPa]")
     plt.ylabel(r"Strain $\varepsilon$ [-]")
@@ -237,8 +237,8 @@ def plotting():
     #-----------------------------------
     #Soil shrinkage characteristic curve
     plt.figure()
-    plt.plot(void_moist_tp["moist"],void_moist_tp["void"],".",markeredgewidth=0.1,color="black",label="Measurement")
-    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],marker="s",linestyle=":",label="Simulation by SubsApp")
+    plt.plot(void_moist_tp["moist"],void_moist_tp["void"],".",markeredgewidth=0.1,label="Measurement")
+    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],marker="s",linestyle=":",color="black",label="Simulation by SubsApp")
     x = void_moist_tp["void"]
     plt.plot(x,x,color="black", ls="--" ,label="Saturation")
     # Position the equation below the line

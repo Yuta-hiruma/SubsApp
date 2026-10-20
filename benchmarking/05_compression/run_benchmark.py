@@ -168,20 +168,21 @@ def plotting():
     void_lambda = np.full(len(stress_lambda), void_ratio[-1])
     strain_lambda = strain_p + Lambda/(1+void_lambda) * np.log(stress_lambda / sigma_eff_p)
 
+
     fig, ax = plt.subplots()
-    ax.plot(stress_strain["sigma_eff"],-stress_strain["strain"],".",color="black",label="Simulation",)
+    ax.plot(stress_strain["sigma_eff"],-stress_strain["strain"],ls="-",color="black",label="Simulation",linewidth=0.8,)
     ax.invert_yaxis()
     ax.axvline(x=sigma_eff_0,color="black",linestyle=":")
     ax.axvline(x=sigma_eff_p,color="black",linestyle=":")
-    ax.text(sigma_eff_0, 0.98,r"$\sigma'_{0}$",transform=ax.get_xaxis_transform(),ha="right", va="top", color="black",)
-    ax.text(sigma_eff_p, 0.98,r"$\sigma'_{p}$",transform=ax.get_xaxis_transform(),ha="left", va="top", color="black",)
+    ax.text(sigma_eff_0, 0.03,r"$\sigma'_{0}$",transform=ax.get_xaxis_transform(),ha="left", va="bottom", color="black",)
+    ax.text(sigma_eff_p, 0.03,r"$\sigma'_{p}$",transform=ax.get_xaxis_transform(),ha="left", va="bottom", color="black",)
     ax.plot(stress_kappa, strain_kappa, "--", color="blue", alpha=0.6)
     ax.plot(stress_lambda, strain_lambda, "--", color="orange", alpha=0.6)
     i = len(stress_kappa) // 2
     ax.annotate(r"$\kappa^*$",(stress_kappa[i], strain_kappa[i]),xytext=(0, 8), textcoords="offset points",color="blue", ha="center",)
     i = len(stress_lambda) // 2
     ax.annotate(r"$\lambda^*$",(stress_lambda[i], strain_lambda[i]),xytext=(0, 8), textcoords="offset points",color="orange", ha="center",)
-    ax.set_title("Stress–strain curve")
+    #ax.set_title("Stress–strain curve")
     ax.set_xlabel(r"Effective stress $\sigma'$ [kPa]")
     ax.set_ylabel(r"Strain $\varepsilon$ [-]")
     ax.set_xscale("log")

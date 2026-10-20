@@ -117,7 +117,6 @@ def plotting():
     sscc_MR = pd.read_csv(sscc_MR_file,sep=r"\s+",skiprows=1,names=["moisture_ratio", "void"])
     Se_vG = pd.read_csv(Se_vG_file,sep=r"\s+",skiprows=1,names=["time", "depth", "effective_saturation"],)
     Se_grid = Se_vG.pivot(index="depth",columns="time",values="effective_saturation",).sort_index().sort_index(axis=1)
-    
 
     # -----------------------------------
     # Se_vG
@@ -146,7 +145,7 @@ def plotting():
     #Effective stress - strain
     plt.figure()
     plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],".",color="black")
-    plt.title("Stress strain")
+    #plt.title("Stress strain")
     plt.xlabel(r"Effective stress $\sigma'$ [kPa]")
     plt.ylabel(r"Strain $\varepsilon$ [-]")
     plt.xscale("log")
@@ -173,7 +172,7 @@ def plotting():
     #-----------------------------------
     #Soil shrinkage characteristic curve
     plt.figure()
-    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],label="Simulation")
+    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],"." ,color = "black",label="Simulation" )
     plt.plot(sscc_MR["void"],sscc_MR["void"],linestyle="--",color="black",label="Saturated soil")
     #plt.title("Soil shrinkage characteristic curve")
     plt.xlabel(r"Moisture ratio $\vartheta [-]$")

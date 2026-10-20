@@ -41,7 +41,7 @@ gmt begin "Se_vG" png
         -R"${region}" \
         -JX14c/9c \
         -Baf+l"Time [day]" \
-        -Byaf+l"Depth [m]" \
+        -Byaf+l"Depth [-]" \
         #-BWSne+t"Effective saturation"
 
     #gmt plot "groundwater_level.dat" \
@@ -58,10 +58,10 @@ gmt begin "Se_vG" png
         -Baf
     
     # Add a centered title above the colorbar
-    printf '14.925 8.75 S@-e@- [-]\n' | gmt text \
+    printf '14.925 8.75 S@-e@- \n' | gmt text \
         -R0/14/0/9 \
         -JX14c/9.2c \
         -F+f12p,Helvetica+jCM \
         -N
 
-gmt end show
+gmt end 
