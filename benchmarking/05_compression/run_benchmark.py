@@ -103,17 +103,9 @@ def collect_results():
 
     displacement_file = RESULTS_DIR / "displacement.dat"
     displacement_fig = RESULTS_DIR /  "figure/displacement.png"
-    Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
-    Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
-    Pressure_fig = RESULTS_DIR /  "gmt/pressure.png"
-    theta_file = RESULTS_DIR / "theta.dat"
-    theta_fig = RESULTS_DIR /  "gmt/theta.png"
-    Se_vG_fig = RESULTS_DIR /  "gmt/Se_vG.png"
     #benchmarking---------------------
-    #stress_strain_fig = RESULTS_DIR /  "figure/stress_strain.png"
     pressure_void_fig = RESULTS_DIR /  "figure/pressure_void.png"
     pressure_time_fig = RESULTS_DIR /  "figure/pressure_time.png"
-    sscc_MR_fig = RESULTS_DIR /  "figure/sscc_MR.png"
 
     if not displacement_file.exists():
         raise FileNotFoundError(
@@ -122,17 +114,9 @@ def collect_results():
 
     shutil.copy2(displacement_file, BENCH_OUTPUT_DIR / "displacement.dat",)
     shutil.copy2(displacement_fig, BENCH_OUTPUT_DIR / "displacement.png",)
-    shutil.copy2(Pressure_top_file, BENCH_OUTPUT_DIR / "Pressure_top.dat",)
-    shutil.copy2(Pressure_bottom_file, BENCH_OUTPUT_DIR / "Pressure_bottom.dat",)
-    shutil.copy2(Pressure_fig, BENCH_OUTPUT_DIR / "pressure.png",)
-    shutil.copy2(theta_file, BENCH_OUTPUT_DIR / "theta.dat",)
-    shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
-    shutil.copy2(Se_vG_fig, BENCH_OUTPUT_DIR / "Se_vG.png",)
     #benchmarking---------------------
-    #shutil.copy2(stress_strain_fig, BENCH_OUTPUT_DIR / "stress_strain.png",)
     shutil.copy2(pressure_void_fig, BENCH_OUTPUT_DIR / "pressure_void.png",)
     shutil.copy2(pressure_time_fig, BENCH_OUTPUT_DIR / "pressure_time.png",)
-    shutil.copy2(sscc_MR_fig, BENCH_OUTPUT_DIR / "sscc_MR.png",)
 
 
 def plotting():
@@ -141,7 +125,7 @@ def plotting():
     displacement_file = RESULTS_DIR / "displacement.dat"
     sscc_MR_file = RESULTS_DIR / "sscc_MR_simulation.dat"
     
-    stress_strain = pd.read_csv(stress_strain_file,sep=r"\s+",skiprows=1,names=["sigma_eff", "strain", "void_ratio"])
+    stress_strain = pd.read_csv(stress_strain_file,sep=r"\s+",skiprows=1,names=["sigma_eff", "strain"])
     displacement = pd.read_csv(displacement_file,sep=r"\s+",skiprows=1,names=["time", "displacement"])
     sscc_MR = pd.read_csv(sscc_MR_file,sep=r"\s+",skiprows=1,names=["moisture_ratio", "void"])
 
@@ -149,7 +133,7 @@ def plotting():
     #Effective stress - strain
     sigma = stress_strain["sigma_eff"].to_numpy()
     strain = -stress_strain["strain"].to_numpy()
-    void_ratio = stress_strain["void_ratio"].to_numpy()
+    void = sscc_MR ["void"].to_numpy()
     order = np.argsort(sigma)
     sigma_sorted = sigma[order]
     strain_sorted = strain[order]
@@ -159,13 +143,13 @@ def plotting():
     
     # Swelling/recompression line
     stress_kappa = np.geomspace(sigma_sorted.min(), sigma_eff_p, 100)
-    void_kappa = np.full(len(stress_kappa), void_ratio[0])
+    void_kappa = np.full(len(stress_kappa), void[0])
     strain_kappa = Kappa/(1+void_kappa) * np.log(stress_kappa / sigma_eff_0)
     strain_p = np.max(strain_kappa)
     
     # Virgin compression line
     stress_lambda = np.geomspace(sigma_eff_p, sigma_sorted.max(), 100)
-    void_lambda = np.full(len(stress_lambda), void_ratio[-1])
+    void_lambda = np.full(len(stress_lambda), void[-1])
     strain_lambda = strain_p + Lambda/(1+void_lambda) * np.log(stress_lambda / sigma_eff_p)
 
 
@@ -174,8 +158,8 @@ def plotting():
     ax.invert_yaxis()
     ax.axvline(x=sigma_eff_0,color="black",linestyle=":")
     ax.axvline(x=sigma_eff_p,color="black",linestyle=":")
-    ax.text(sigma_eff_0, 0.03,r"$\sigma'_{0}$",transform=ax.get_xaxis_transform(),ha="left", va="bottom", color="black",)
-    ax.text(sigma_eff_p, 0.03,r"$\sigma'_{p}$",transform=ax.get_xaxis_transform(),ha="left", va="bottom", color="black",)
+    ax.annotate(r"$\sigma'_{0}$", (sigma_eff_0, 0.03),xycoords=ax.get_xaxis_transform(),xytext=(3, 0), textcoords="offset points",ha="left", va="bottom", color="black",)
+    ax.annotate(r"$\sigma'_{p}$", (sigma_eff_p, 0.03),xycoords=ax.get_xaxis_transform(),xytext=(3, 0), textcoords="offset points",ha="left", va="bottom", color="black",)
     ax.plot(stress_kappa, strain_kappa, "--", color="blue", alpha=0.6)
     ax.plot(stress_lambda, strain_lambda, "--", color="orange", alpha=0.6)
     i = len(stress_kappa) // 2
@@ -204,19 +188,6 @@ def plotting():
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(8))
     plt.tight_layout()
     plt.savefig(BENCH_OUTPUT_DIR / "displacement.png")#,dpi=300)
-    plt.close()
-    #-----------------------------------
-    #Soil shrinkage characteristic curve
-    plt.figure()
-    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],label="Simulation")
-    plt.plot(sscc_MR["void"],sscc_MR["void"],linestyle="--",color="black",label="Saturated soil")
-    plt.title("Soil shrinkage characteristic curve")
-    plt.xlabel(r"Moisture ratio $\vartheta$")
-    plt.ylabel(r"Void ratio $e$")
-    plt.legend()
-    plt.grid(True,which="both",linestyle="--",alpha=0.5)
-    plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "sscc_MR.png")
     plt.close()
 
 

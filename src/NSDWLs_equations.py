@@ -217,6 +217,18 @@ def d2f_dz2_non_uniform(Parameter,Bctop,Bcbottom,Soil_dimension):
         d2f_dz2[i] = (forward_diff - backward_diff) / (0.5 * (dz_forward + dz_backward))
     return (d2f_dz2)
 
+def harmonic_mean(a,b):
+    c = (2*a*b)/(a+b)
+    return c
+
+def logarithmic_mean(a,b):
+    if np.isclose(a, b):
+        c = a
+    else:
+        c = (b - a) / np.log(abs(b / a))
+    return c
+
+
 def diffusion(Parameter,Bctop,Bcbottom,dpsi_top_fun,dpsi_bottom_fun,bc,Soil_dimension,K,t):
     psi_loc = Parameter
     
@@ -235,9 +247,11 @@ def diffusion(Parameter,Bctop,Bcbottom,dpsi_top_fun,dpsi_bottom_fun,bc,Soil_dime
 
     for i in range(1, len(dpsi_dt) - 1):
         dz_forward = node_size_loc[i]
-        k_forward = (2*K[i-1]*K[i])/(K[i-1]+K[i])
+        #k_forward = harmonic_mean(K[i-1],K[i])
+        k_forward = logarithmic_mean(K[i-1],K[i])
         dz_backward = node_size_loc[i - 1]
-        k_backward = (2*K[i]*K[i+1])/(K[i]+K[i+1])
+        #k_backward = harmonic_mean(K[i],K[i+1])
+        k_backward = logarithmic_mean(K[i],K[i+1])
         dz = (dz_forward+dz_backward)/2
         dpsi_dt[i] = (k_forward*psi_loc[i - 1]-(k_forward+k_backward)*psi_loc[i]+k_backward*psi_loc[i+1]) / (dz**2)
     return (dpsi_dt)

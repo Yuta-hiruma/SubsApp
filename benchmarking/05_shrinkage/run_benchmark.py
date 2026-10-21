@@ -144,7 +144,7 @@ def plotting():
     #-----------------------------------
     #Effective stress - strain
     plt.figure()
-    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],".",color="black")
+    plt.plot(stress_strain["sigma_eff"],stress_strain["strain"],color="black")
     #plt.title("Stress strain")
     plt.xlabel(r"Effective stress $\sigma'$ [kPa]")
     plt.ylabel(r"Strain $\varepsilon$ [-]")
@@ -172,11 +172,11 @@ def plotting():
     #-----------------------------------
     #Soil shrinkage characteristic curve
     plt.figure()
-    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],"." ,color = "black",label="Simulation" )
+    plt.plot(sscc_MR["moisture_ratio"],sscc_MR["void"],color = "black",label="Simulation" )
     plt.plot(sscc_MR["void"],sscc_MR["void"],linestyle="--",color="black",label="Saturated soil")
     #plt.title("Soil shrinkage characteristic curve")
-    plt.xlabel(r"Moisture ratio $\vartheta [-]$")
-    plt.ylabel(r"Void ratio $e[-]$")
+    plt.xlabel(r"Soil moisture ratio $\vartheta$ [-]")
+    plt.ylabel(r"Void ratio $e$ [-]")
     plt.legend()
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()

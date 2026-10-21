@@ -380,17 +380,17 @@ with open("../results/node_heights.dat", "w") as f:
         f.write("\n")
 
 with open('../results/Pressure_top.dat', 'w') as dis:
-    dis.write(f"{'':<2}{'time[days]':<15} {'Pressure top':<15} \n")
+    dis.write(f"{'':<2}{'time [days]':<15} {'Pressure top':<15} \n")
     for i in range(len(date_list)):
         dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {Pressure_results[0,i]:<15} \n")
 
 with open('../results/Pressure_bottom.dat', 'w') as dis:
-    dis.write(f"{'':<2}{'time[days]':<15} {'Pressure top':<15} \n")
+    dis.write(f"{'':<2}{'time [days]':<15} {'Pressure top':<15} \n")
     for i in range(len(date_list)):
         dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {Pressure_results[-1,i]:<15} \n")
 
 with open('../results/n.dat', 'w') as dis:
-    dis.write(f"{'':<2}{'time[days]':<15}  {'depth':<15} {'n':<15}\n")
+    dis.write(f"{'':<2}{'time [days]':<15}  {'depth':<15} {'n':<15}\n")
     for i in range(len(date_list)):
         dis.write(f"{'':<2}{date_list[i].strftime('%Y-%m-%d'):<15} {colum_node_height[1,i]+Soil_dimension.Depth_bottom:<15} {e_results[1,i]/(1+e_results[1,i]):<15}\n")
 
@@ -527,8 +527,8 @@ plt.savefig('../results/figure/stress_strain.png')
 plt.figure()
 plt.plot(Pressure_results[i], e_results[i],color="red")
 plt.title(f"Stress strain at i ={i}")
-plt.xlabel(rf"Pore pressure $\psi$[kPa]")
-plt.ylabel(rf"Void ratio $e$[-]")
+plt.xlabel(rf"Pore pressure $\psi$ [kPa]")
+plt.ylabel(rf"Void ratio $e$ [-]")
 #plt.xscale("log")
 plt.grid(True, which="both", linestyle="--", alpha=0.5)
 plt.savefig('../results/figure/pressure_void.png')
@@ -536,8 +536,8 @@ plt.savefig('../results/figure/pressure_void.png')
 plt.figure()
 plt.plot(Pressure_results[i], -strain,color="red")
 #plt.title(f"Stress strain at i ={i}")
-plt.xlabel(rf"Pore pressure $\psi$[kPa]")
-plt.ylabel(rf"Strain $\varepsilon$[-]")
+plt.xlabel(rf"Pore pressure $\psi$ [kPa]")
+plt.ylabel(rf"Strain $\varepsilon$ [-]")
 #plt.xscale("log")
 plt.grid(True, which="both", linestyle="--", alpha=0.5)
 plt.savefig('../results/figure/pressure_strain.png')
