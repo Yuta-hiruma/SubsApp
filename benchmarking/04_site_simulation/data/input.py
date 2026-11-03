@@ -19,3 +19,12 @@ GL_to_NAP = -1.48	#[m]
 # -------------------------------------------
 depths = [-2.7, -5.0, -5.70,-6.0, -6.50]
 types = ["Clay_top", "Peat1", "Clay2", "Peat2" , "Sand"] 
+
+
+# -------------------------------------------
+# Pressure boundary condition type
+# -------------------------------------------
+#0 is Dirichlet boundary condition. (Pressure [kPa])
+#1 is Neumann boundary condition (flux [m/day])
+tp_bc = 0
+bt_bc = 0

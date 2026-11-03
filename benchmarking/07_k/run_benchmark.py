@@ -91,6 +91,8 @@ def collect_results():
     K_fig = RESULTS_DIR /  "gmt/K.png"
     Se_vG_file = RESULTS_DIR / "Se_vG.dat"
     K_file = RESULTS_DIR / "K.dat"
+    P_file = RESULTS_DIR / "Pressure.dat"
+    Delta_z_file = RESULTS_DIR / "delta_z.dat"
 
 
     if not displacement_file.exists():
@@ -110,6 +112,8 @@ def collect_results():
     shutil.copy2(Se_vG_file, BENCH_OUTPUT_DIR / "Se_vG.dat",)
     shutil.copy2(K_fig, BENCH_OUTPUT_DIR / "K.png",)
     shutil.copy2(K_file, BENCH_OUTPUT_DIR / "K.dat",)
+    shutil.copy2(P_file, BENCH_OUTPUT_DIR / "Pressure.dat",)
+    shutil.copy2(Delta_z_file, BENCH_OUTPUT_DIR / "delta_z.dat",)
 
 def plotting():
     # read simulation result-----

@@ -47,6 +47,13 @@ gmt begin "pressure" png
         -DJMR+w7c/0.25c+v+o0.8c/-0.3c \
         -Baf
 
+    gmt grdcontour "${finegrid}" \
+        -R"${region}" \
+        -JX14c/9c \
+        -C1 \
+        -W0.5p,black \
+        -A50+f8p,black
+
     printf '14.925 8.75 Pressure\n14.925 8.35 [kPa]\n' | gmt text \
         -R0/14/0/9 \
         -JX14c/9c \

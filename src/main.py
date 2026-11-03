@@ -47,12 +47,41 @@ from input import *
 sys.path.pop(0)
 os.chdir(current_dir)
 #Reading boundary condition files-----------------------------
-infile_tp = "input/top_pressure/top_pressure_swp.dat"
-infile_bp = "input/bottom_pressure/bottom_pressure_swp.dat"
+#Top boundary conditions
+Bctop = Bc_top()
+dpsi_top_fun=[]
+if tp_bc==0:
+    infile_tp = "input/top_bc/top_pressure_swp.dat"
+    df_tp = pd.read_csv(infile_tp, sep=r"\s+", skiprows=1, names=["date", "pressure"])
+    Bctop.time = df_tp["date"].tolist()
+    Bctop.pressure = df_tp["pressure"].tolist() 
+    if bc ==1:
+        psi_top_fun = CubicSpline(Bctop.time, Bctop.pressure)
+        dpsi_top_fun = psi_top_fun.derivative()
+else:
+    infile_tp = "input/top_bc/top_flux.dat"
+    df_tp = pd.read_csv(infile_tp, sep=r"\s+", skiprows=1, names=["date", "flux"])
+    Bctop.time = df_tp["date"].tolist()
+    Bctop.flux = df_tp["flux"].tolist() 
+
+Bctop.trans = np.ones(len(Bctop.time))
+
+#Bottom boundary conditions
+Bcbottom = Bc_bottom()
+dpsi_bottom_fun=[]
+infile_bp = "input/bottom_bc/bottom_pressure_swp.dat"
+df_bp = pd.read_csv(infile_bp, sep=r"\s+", skiprows=1, names=["date", "pressure"])
+Bcbottom.time = df_bp["date"].tolist()
+Bcbottom.pressure = df_bp["pressure"].tolist()     # kPa
+if bc ==1:
+    psi_bottom_fun = CubicSpline(Bcbottom.time, Bcbottom.pressure)
+    dpsi_bottom_fun = psi_bottom_fun.derivative()
+
+
+
+#Reading initial condition files-----------------------------
 infile_wc_ini = "input/wc_ini/wc_ini_swp.dat"
 infile_p_ini = "input/pressure_ini/pressure_ini_swp.dat"
-df_tp = pd.read_csv(infile_tp, sep=r"\s+", skiprows=1, names=["date", "pressure"])
-df_bp = pd.read_csv(infile_bp, sep=r"\s+", skiprows=1, names=["date", "pressure"])
 df_wc_ini = pd.read_csv(infile_wc_ini, sep=r"\s+", skiprows=1, names=["depth", "wcontent"])
 df_pressure_ini = pd.read_csv(infile_p_ini, sep=r"\s+", skiprows=1, names=["depth", "pressure"])
 #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
@@ -92,39 +121,6 @@ simssteps = (end_date - start_date).days
 date_list = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 simulation_time =  np.linspace (0,end_time,simssteps+1)
 
-#Set boundary conditions ------------------------------------------
-#Top boundary conditions ------------------------------
-Bctop = Bc_top()
-#Initial conditoin from SWAP----------
-Bctop.time = df_tp["date"].tolist()
-Bctop.pressure = df_tp["pressure"].tolist()   
-#-------------------------------------
-Bctop.trans = np.ones(len(Bctop.pressure))
-Bctop.load_increments = [0]
-Bctop.load = np.cumsum(Bctop.load_increments)
-Bctop.time_incr = [0]
-#Bottom boundary conditions ----------------------------
-Bctop.devaporation = np.zeros(len(Bctop.pressure))
-Bcbottom = Bc_bottom()
-#Bcbottom.time = [0]
-#Bcbottom.pressure = [49]
-Bcbottom.time = df_bp["date"].tolist()
-Bcbottom.pressure = df_bp["pressure"].tolist()     # kPa
-
-bc = 0 # if Boudary condition is given as time series bc = 1
-dpsi_top_fun=[]
-dpsi_bottom_fun=[]
-if len(Bcbottom.time) != 1:
-    bc = 1
-
-if bc ==1:
-    #Boundary-condition interpolation
-    psi_top_fun = CubicSpline(Bctop.time, Bctop.pressure)
-    psi_bottom_fun = CubicSpline(Bcbottom.time, Bcbottom.pressure)
-    
-    #Time derivatives of boundary condition
-    dpsi_top_fun = psi_top_fun.derivative()
-    dpsi_bottom_fun = psi_bottom_fun.derivative()
 
 
 #Check errors -----------------------------------------------------
@@ -223,27 +219,42 @@ def equations(simulation_time, in_in, sigma_tracker):
     S_e = np.clip(update_S_e(Water_retention_curve_node, theta), 0.0, 1.0)
     saturated = (S_e >= 1).astype(int)
     unsaturated = (S_e < 1).astype(int)  
-    #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/  
+    #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
     #Top pressure boundary condition------------
     t_interval = len(Bctop.time)-1
     for i in range(len(Bctop.time)):
         if simulation_time < Bctop.time[i]:
             t_interval = t_interval-1   
     Bctop_in = Bc_top()
-    Bctop_in.pressure =  Bctop.pressure[t_interval]
-    if t_interval == len(Bctop.time)-1 :
-        t_next = Bctop.time[t_interval]
-        P_next = Bctop.pressure[t_interval]
-        trans_next = Bctop.trans[t_interval]
-    else: 
-        t_next = Bctop.time[t_interval+1]
-        P_next = Bctop.pressure[t_interval+1]
-        trans_next = Bctop.trans[t_interval+1]
-        P_average = 0.5*(Bctop.pressure[t_interval] + P_next)
-        P_range = P_next - Bctop.pressure[t_interval]
-        Bctop_in.pressure = P_average+0.5*P_range*special.erf((simulation_time-t_next+trans_next)*(3/trans_next))
-    Bctop_in.devaporation = Bctop.devaporation[t_interval]
-    Bctop_in.trans = Bctop.trans[t_interval]
+    if tp_bc == 0:
+        Bctop_in.pressure =  Bctop.pressure[t_interval]
+        if t_interval == len(Bctop.time)-1 :
+            t_next = Bctop.time[t_interval]
+            P_next = Bctop.pressure[t_interval]
+            trans_next = Bctop.trans[t_interval]
+        else: 
+            t_next = Bctop.time[t_interval+1]
+            P_next = Bctop.pressure[t_interval+1]
+            trans_next = Bctop.trans[t_interval+1]
+            P_average = 0.5*(Bctop.pressure[t_interval] + P_next)
+            P_range = P_next - Bctop.pressure[t_interval]
+            Bctop_in.pressure = P_average+0.5*P_range*special.erf((simulation_time-t_next+trans_next)*(3/trans_next))
+        Bctop_in.trans = Bctop.trans[t_interval]
+    else:
+        Bctop_in.flux =  Bctop.flux[t_interval]
+        if t_interval == len(Bctop.time)-1 :
+            t_next = Bctop.time[t_interval]
+            P_next = Bctop.flux[t_interval]
+            trans_next = Bctop.trans[t_interval]
+        else: 
+            t_next = Bctop.time[t_interval+1]
+            F_next = Bctop.flux[t_interval+1]
+            trans_next = Bctop.trans[t_interval+1]
+            F_average = 0.5*(Bctop.flux[t_interval] + F_next)
+            F_range = F_next - Bctop.flux[t_interval]
+            Bctop_in.flux = F_average+0.5*F_range*special.erf((simulation_time-t_next+trans_next)*(3/trans_next))
+        Bctop_in.trans = Bctop.trans[t_interval]
+
     #Bottom pressure boundary condition------------
     t_interval = len(Bcbottom.time)-1
     for i in range(len(Bcbottom.time)):
@@ -251,7 +262,6 @@ def equations(simulation_time, in_in, sigma_tracker):
             t_interval = t_interval-1  
     Bcbottom_in = Bc_bottom()
     Bcbottom_in.pressure = Bcbottom.pressure[t_interval] 
-
  
     #Update soil_dimension------------
     Soil_dimension.node_vector = get_node_coordinates(Soil_dimension)
@@ -260,23 +270,19 @@ def equations(simulation_time, in_in, sigma_tracker):
  
     #Update_soil_stresses------------
     sigma_total = np.zeros(len(e))
-    sigma_total = update_sigma_total (Soil_dimension.node_distance,gamma_vector,Soil_states,Water_retention_curve_vector,Bctop_in)
+    sigma_total = update_sigma_total (Soil_dimension.node_distance,gamma_vector,Soil_states,Water_retention_curve_vector)
     sigma_eff = np.abs(sigma_total - Pressure*S_e)
     #compute_dsigma_eff_dt------------------------------------------------
     dsigma_eff_dt = sigma_tracker.compute_dsigma_eff_dt(sigma_eff, simulation_time) 
     #---------------------------------------------------------------------
     psi_m = np.where(Pressure <= 0, Pressure, 0)
 
-    #Calculate permeability----------
-    Soil_calc.K                     = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
+    #Calculate permeability--------------
+    Soil_calc.K  = update_K_Kmin (theta,e,S_e,Permeability_curve_Perm_vector,Water_retention_curve_node)
     K= Soil_calc.K
 
-    #set differentials ------------------------
-    #First set: pressure ----------
-    #d2psi_dz2 = d2f_dz2_non_uniform(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,Soil_dimension) #Pressure*0+np.sin(simulation_time)
-    #dpsi_dt = K*d2psi_dz2
-    #Diffusion equation
-    dpsi_dt = diffusion(Pressure,Bctop_in.pressure,Bcbottom_in.pressure,dpsi_top_fun,dpsi_bottom_fun,bc,Soil_dimension,K,simulation_time)
+    #Diffusion equation------------------
+    dpsi_dt = diffusion(Pressure,Bctop_in,Bcbottom_in,dpsi_top_fun,dpsi_bottom_fun,bc,tp_bc,Soil_dimension,K,simulation_time,S_e)
 
     dS_e_dpsi,dtheta_dpsi  = derrivative_van_genuchten_S_e(Water_retention_curve_node, theta,e, psi_m)
     # second set: theta ----------
@@ -415,6 +421,7 @@ depth = np.round(np.asarray(Soil_dimension.node_vector),8)
 effective_saturation = np.round(((theta_results - vG_WCR) / (vG_WCS - vG_WCR)),8)
 pressure = np.round(np.asarray(Pressure_results),8)
 theta = np.round(np.asarray(theta_results),8)
+delta_z = np.round(np.asarray(node_height),8)
 
 ##Hydraulic conductivity_/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ 
 e = np.round(np.asarray(e_results),8)
@@ -430,6 +437,9 @@ K_out = np.where(effective_saturation < 1,K_out,K_sat)
 
 
 time_grid, depth_grid = np.meshgrid(time, depth)
+# node height------------------------------------
+data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),delta_z.ravel(),])
+np.savetxt("../results/delta_z.dat",data,delimiter="\t",header="time_days\tdepth_m\tpressure_kPa",fmt="%.8e",)
 # Pressure------------------------------------
 data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),pressure.ravel(),])
 np.savetxt("../results/Pressure.dat",data,delimiter="\t",header="time_days\tdepth_m\tpressure_kPa",fmt="%.8e",)

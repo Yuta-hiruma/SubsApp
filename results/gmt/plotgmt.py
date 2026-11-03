@@ -337,7 +337,7 @@ Path("pressure_gridinfo.txt").write_text(
 #Hydraulic conducitivty
 #_/_/_/_/_/_/_/_/_/_/_/_/
 # Read and reshape the data
-K_file = "../K.dat"
+K_file = "../k.dat"
 K = pd.read_csv(
     K_file,
     sep=r"\s+",

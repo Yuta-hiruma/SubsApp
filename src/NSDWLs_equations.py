@@ -105,7 +105,7 @@ def untangle_parameters (in_in,nr_sets):
 
 
 
-def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve_vector,Bctop_in):
+def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve_vector):
     node_size = node_size
     
     gamma_s     = np.array(gamma_vector.s)
@@ -118,8 +118,7 @@ def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve
     theta = np.array(Soil_states.theta)
     e = np.array(Soil_states.e)
     n = e/(1+e)
-    water_top = Bctop_in.pressure
-    if water_top < 0 : 0
+
     
     S_sat = np.clip((theta - WCR) / (WCS - WCR), 0, 1)
     sigma_total_node = np.zeros(np.shape(gamma_s))
@@ -129,7 +128,7 @@ def update_sigma_total (node_size,gamma_vector,Soil_states,Water_retention_curve
     sigma_total_in = np.zeros(len(sigma_total_node)+1)
      
     for i in range(len(sigma_total_node)):
-        sigma_total_in[i+1] = sigma_total_node[i]*node_size[i]+sigma_total_in[i]#+water_top
+        sigma_total_in[i+1] = sigma_total_node[i]*node_size[i]+sigma_total_in[i]
         sigma_total[i] = 0.5*sigma_total_in[i]+0.5*sigma_total_in[i+1]
 
     return (sigma_total)
@@ -160,7 +159,6 @@ def update_S_e (Water_retention_curve_vector,theta):
     vG_WCR = Water_retention_curve_vector.vG_WCR
     vG_WCS = Water_retention_curve_vector.vG_WCS
     theta = theta
-    
     S_e = (theta - vG_WCR) / (vG_WCS - vG_WCR)
     return S_e
 
@@ -229,33 +227,39 @@ def logarithmic_mean(a,b):
     return c
 
 
-def diffusion(Parameter,Bctop,Bcbottom,dpsi_top_fun,dpsi_bottom_fun,bc,Soil_dimension,K,t):
-    psi_loc = Parameter
-    
-    psi_loc[0] = Bctop
-    psi_loc[-1] = Bcbottom
+def diffusion(Pressure,Bctop_in,Bcbottom_in,dpsi_top_fun,dpsi_bottom_fun,bc,tp_bc,Soil_dimension,K,t,S_e):
+    psi_loc = Pressure
     node_size_loc = 0*psi_loc
     dpsi_dt = 0*psi_loc
-
     node_size_loc = Soil_dimension.node_distance
+    #top boundary condition-------------
+    if tp_bc ==0: #Dirichlet 
+        psi_loc[0] = Bctop_in.pressure
+        if bc == 0:
+            dpsi_dt[0] = K[0]*(psi_loc[2] - 2 * psi_loc[1] + psi_loc[0]) / (node_size_loc[0]**2)
+        else:
+            dpsi_dt[0] = dpsi_top_fun(t)
+    else: #Neumann
+        k_top = logarithmic_mean(K[0],K[1])
+        psi_tp = (Bctop_in.flux*node_size_loc[0]) /k_top + psi_loc[1]
+        dpsi_dt[0] =(K[0]*(psi_tp-psi_loc[1]))/node_size_loc[0]
+
+    #bottom boundary condition-------------
+    psi_loc[-1] = Bcbottom_in.pressure
     if bc == 0:
-        dpsi_dt[0] = K[0]*(psi_loc[2] - 2 * psi_loc[1] + psi_loc[0]) / (node_size_loc[0]**2)
         dpsi_dt[-1] = K[-1]*(psi_loc[-1] - 2 * psi_loc[-2] + psi_loc[-3]) / (node_size_loc[-2]**2)
+        #xsdpsi_dt[-1] = K[-1]*(psi_loc[-1] -  psi_loc[-2] ) / (node_size_loc[-21]**2)
     else:
-        dpsi_dt[0] = dpsi_top_fun(t)
         dpsi_dt[-1] = dpsi_bottom_fun(t)        
 
     for i in range(1, len(dpsi_dt) - 1):
         dz_forward = node_size_loc[i]
-        #k_forward = harmonic_mean(K[i-1],K[i])
         k_forward = logarithmic_mean(K[i-1],K[i])
         dz_backward = node_size_loc[i - 1]
-        #k_backward = harmonic_mean(K[i],K[i+1])
         k_backward = logarithmic_mean(K[i],K[i+1])
         dz = (dz_forward+dz_backward)/2
         dpsi_dt[i] = (k_forward*psi_loc[i - 1]-(k_forward+k_backward)*psi_loc[i]+k_backward*psi_loc[i+1]) / (dz**2)
     return (dpsi_dt)
-
 
 
 def deSSc_dt(Compression_vector, Soil_states, S_e, sigma_eff,sigma_eff_p,dsigma_eff_dt, dpsi_dt,Water_retention_curve_vector):

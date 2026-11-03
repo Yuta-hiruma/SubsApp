@@ -37,6 +37,13 @@ gmt begin "Se_vG" png
         -nb \
         -E200
 
+    gmt grdcontour "${finegrid}" \
+        -R"${region}" \
+        -JX14c/9c \
+        -C0.1 \
+        -A0.2+f8p,Helvetica,black \
+        -W0.5p,black
+
     gmt basemap \
         -R"${region}" \
         -JX14c/9c \

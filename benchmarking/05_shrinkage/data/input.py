@@ -19,3 +19,14 @@ GL_to_NAP = -10.0	#[m]
 # -------------------------------------------
 depths = [-5.0]
 types = ['Clay']
+
+
+
+# -------------------------------------------
+# Boundary condition type at Top
+# -------------------------------------------
+#0 is Dirichlet boundary condition. (Pressure [kPa])
+#1 is Neumann boundary condition (flux [m/day])
+tp_bc = 0 #Top boundary condition type
+
+bc = 0 # if bottom boudary condition is given as time series bc = 1
