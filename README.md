@@ -1,93 +1,95 @@
 # SubsApp
-**SubsApp** is a one-dimensional hydro-mechanical model for simulating shallow subsurface. The model is based on the **Soft Soil Creep (SSC)** fomulation and includes matric suction in unsaturated zone. It is designed for shallow subsurface deformation analysis of soft soils such as peat and clay.
-The performance of SubsApp has been tested in several applications. Howeverm, future applications might reveal errors that were not detected in the test simulations. Users are requested to send notifcation of any errors found in this model documentation report. The user manual is in the directory **doc**. Refer to the user manual for model implementation.
+
+**SubsApp** is a one-dimensional hydro-mechanical model developed to simulate shallow land subsidence driven by pore-water pressure changes in saturated and unsaturated soils. The model incorporates the **Soft Soil Creep (SSC)** formulation to simulate time-dependent vertical soil deformation and accounts for matric suction in the unsaturated zone. SubsApp is designed for investigating shallow subsurface deformation in soft soils, particularly peat and clay.
+
+SubsApp has been tested through several validation and benchmarking applications. However, errors or limitations not identified during these tests may emerge in future applications. Users are encouraged to report any errors encountered in the model or its documentation.
+
+The **user manual**, available in the `doc/` directory, provides detailed information on the model formulation, numerical implementation, and usage.
 
 ## Features
 
-* One-dimensional hydro-mechanical coupling
-* Layered soil profile representation
-* Subsidence simulation using the Soft Soil Creep (SSC) model
-* Simulate pore pressure using defusion equation.
-* Hydraulic conductivity in unsaturated zone is updated by Mualem-van Genuchten formulation
-* Matric suction is calcurated
-* Pore pressure boundary conditions is to be derived from SWAP simulations
-* Surface displacement output
-
+- **One-dimensional hydro-mechanical coupling** between pore-water pressure and vertical soil deformation.
+- **Layered soil profiles** to represent different soil types and stratigraphic conditions.
+- **Time-dependent soil deformation** based on the Soft Soil Creep (SSC) model.
+- **Pore-water pressure simulation** using a one-dimensional diffusion equation, including matric suction in the unsaturated zone.
+- **Variable hydraulic conductivity** in unsaturated soils based on the Mualem–van Genuchten formulation.
+- **Flexible top boundary conditions**, allowing either prescribed pore-water pressure or water flux.
+- **Vertical displacement simulation** to estimate soil-column deformation and land subsidence.
 
 ## Project Structure
 
 ```text
 SubsApp/
-├── data/           # Input files and soil parameters
-├── doc/            # Documentation
-├── results/        # Simulation results
-├── src/           	# Script code
-├── benchmarking/   # model testing and its input data
+├── data/             # Input data and soil material parameters
+├── doc/              # User manual and documentation
+├── results/          # Simulation outputs
+├── src/              # Model source code
+│   └── input/        # Initial and boundary conditions
+├── benchmarking/     # Benchmarking tests and associated input data
 └── README.md
 ```
 
-## Tested Software version for the main
-python (version 3.11.5) https://www.python.org/ The following python packages are required:
-```
-geopandas                     0.14.4
-matplotlib                    3.7.2
-matplotlib-inline             0.1.6
-numba                         0.61.2
-numba_celltree                0.4.1
-numpy                         1.26.4
-numpydoc                      1.5.0
-pandas                        2.3.1
-scipy                         1.11.1
-```
-SWAP model version 4 
-gfortran (version gcc-7.2.0) https://gcc.gnu.org/fortran/
+## Software Requirements
 
+SubsApp has been tested using **Python 3.11.5**.
+
+Python can be downloaded from the [official Python website](https://www.python.org/).
+
+The following software and package versions were used in the tested environment:
+
+| Software / Package | Version |
+|---|---|
+| Python | 3.11.5 |
+| geopandas | 0.14.4 |
+| matplotlib | 3.7.2 |
+| matplotlib-inline | 0.1.6 |
+| numba | 0.61.2 |
+| numba_celltree | 0.4.1 |
+| numpy | 1.26.4 |
+| numpydoc | 1.5.0 |
+| pandas | 2.3.1 |
+| scipy | 1.11.1 |
+| GMT | 6.6.0 |
+
+**Note:** These versions represent the tested software environment. Compatibility with other versions has not been verified.
 
 ## Usage
 
 ### 1. Prepare Input Data
 
-Input files are located in the `data/` directory.
+The model input files are located in the `data/` directory.
 
 #### `input.py`
 
-Define:
+This file defines the simulation setup, including:
 
-* Site name
-* Simulation period
-* Initial groundwater level
-* Soil stratigraphy
-* Soil type assigned to each layer
+- Site name
+- Simulation period
+- Initial groundwater level
+- Soil stratigraphy
+- Soil type assigned to each layer
+- Boundary condition types
 
 #### `input_soil_material_parameters.py`
 
-Define the material properties for each soil type, including:
+This file defines the material properties for each soil type, including:
 
-* Compression parameters
-* Hydraulic parameters
-* Unit weights
+- Soil compression parameters
+- Hydraulic parameters
+- Soil unit weights
 
-### 2. Generate Boundary Conditions
+### 2. Prepare Initial and Boundary Conditions
 
-Top and bottom pore pressure boundary conditions can be generated using the SWAP model.
+The initial and boundary condition files are located in the `src/input/` directory.
 
-Run SWAP:
-
-```bash
-cd swap
-./swap420
+```text
+src/
+└── input/            # Initial and boundary condition files
 ```
 
-Process SWAP outputs:
+These files provide the initial and boundary conditions required for the simulation.
 
-```bash
-cd output_swap
-
-python3 pressure_bc.py
-python3 pressure_ini.py
-python3 water_content.py
-```
-This converts the swap output to SubsApp's boundary condition.
+For detailed instructions on preparing input data and implementing the model, refer to the user manual in the `doc/` directory.
 
 ### 3. Run the Subsidence Model
 
@@ -106,6 +108,15 @@ Simulation outputs are written to the `results/` directory and may include:
 
 ## References
 
+## Documentation
+
+Further details on the theoretical formulation, numerical implementation, model parameters, and validation tests are provided in the user manual.
+
+Users are encouraged to consult the documentation before applying SubsApp to new study areas or soil conditions.
+
+## Reporting Issues
+
+Although SubsApp has undergone validation and benchmarking, errors or limitations may remain. Users are encouraged to report bugs, unexpected model behaviour, or documentation errors through the GitHub repository's **Issues** section.
 
 
 ## Author
