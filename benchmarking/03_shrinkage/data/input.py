@@ -28,4 +28,4 @@ types = ['Clay']
 #1 is Neumann boundary condition (flux [m/day])
 tp_bc = 0 #Top boundary condition type
 
-bc = 0 # if bottom boudary condition is given as time series bc = 1
+bc = 1 # if bottom boudary condition is given as time series bc = 1
