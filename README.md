@@ -106,6 +106,36 @@ Simulation outputs are written to the `results/` directory and may include:
 * Pressure distribution
 * Effective saturation
 
+## Benchmarking Tests
+
+The benchmarking tests are provided in the `benchmarking/` directory. Each test has a dedicated directory containing the input data, initial and boundary conditions, and simulation results.
+
+### Directory Structure
+
+```text
+SubsApp/
+└── benchmarking/
+    ├── 01_consolidation/
+    │   ├── data/              # Input data and soil material parameters
+    │   ├── input/             # Initial and boundary conditions
+    │   ├── output/            # Simulation results
+    │   └── run_benchmark.py   # Script to execute the benchmark
+    └── 03_shrinkage/
+```
+
+### Running a Benchmarking Test
+
+Each benchmarking test can be executed using the corresponding `run_benchmark.py` script. This script runs SubsApp using the predefined input data and initial and boundary conditions for the selected benchmark.
+
+For example, to run the consolidation benchmark, navigate to its directory and execute:
+
+```bash
+cd benchmarking/01_consolidation
+python run_benchmark.py
+```
+
+The simulation results are stored in the corresponding `output/` directory.
+
 ## References
 
 ## Documentation
