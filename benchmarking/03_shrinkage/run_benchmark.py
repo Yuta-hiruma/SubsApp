@@ -96,29 +96,10 @@ def run_model():
 def collect_results():
     BENCH_OUTPUT_DIR.mkdir(exist_ok=True)
 
-    displacement_file = RESULTS_DIR / "displacement.dat"
-    displacement_fig = RESULTS_DIR /  "figure/displacement.png"
-    Pressure_top_file = RESULTS_DIR / "Pressure_top.dat"
-    Pressure_bottom_file = RESULTS_DIR / "Pressure_bottom.dat"
     Pressure_fig = RESULTS_DIR /  "gmt/pressure.png"
-    theta_file = RESULTS_DIR / "theta.dat"
-    theta_fig = RESULTS_DIR /  "gmt/theta.png"
     Se_vG_fig = RESULTS_DIR /  "gmt/Se_vG.png"
 
-
-
-    if not displacement_file.exists():
-        raise FileNotFoundError(
-            f"Expected output was not created: {displacement_file}"
-        )
-
-    shutil.copy2(displacement_file, BENCH_OUTPUT_DIR / "displacement.dat",)
-    shutil.copy2(displacement_fig, BENCH_OUTPUT_DIR / "displacement.png",)
-    shutil.copy2(Pressure_top_file, BENCH_OUTPUT_DIR / "Pressure_top.dat",)
-    shutil.copy2(Pressure_bottom_file, BENCH_OUTPUT_DIR / "Pressure_bottom.dat",)
     shutil.copy2(Pressure_fig, BENCH_OUTPUT_DIR / "pressure.png",)
-    shutil.copy2(theta_file, BENCH_OUTPUT_DIR / "theta.dat",)
-    shutil.copy2(theta_fig, BENCH_OUTPUT_DIR / "theta.png",)
     shutil.copy2(Se_vG_fig, BENCH_OUTPUT_DIR / "Se_vG.png",)
 
 
@@ -145,35 +126,6 @@ def plotting():
     #Se_vG = pd.read_csv(Se_vG_file,sep=r"\s+",skiprows=1,names=["time", "depth", "effective_saturation"],)
     #Se_grid = Se_vG.pivot(index="depth",columns="time",values="effective_saturation",).sort_index().sort_index(axis=1)
     
-    # -----------------------------------
-    # Se_vG
-    #simulation_time = Se_grid.columns.to_numpy(dtype=float)
-    #depth = Se_grid.index.to_numpy(dtype=float)
-    #Se_values = Se_grid.to_numpy(dtype=float)
- #
-    #Se_min = Se_values.min()
-    #Se_max = Se_values.max()
-    #
-    #bounds = np.linspace(Se_min, 1.0, 21)
-    #if Se_min >= 1.0:
-    #    bounds = np.linspace(0.0, max(1.0, Se_max), 21)
-    #
-    #colors = plt.get_cmap("Blues")(np.linspace(0, 1, 20))
-    #colors[0] = (1, 1, 1, 1)
-    #cmap = ListedColormap(colors)
-    #norm = BoundaryNorm(bounds, ncolors=cmap.N, clip=True)
-#
-    #plt.pcolormesh(simulation_time,-depth,Se_values, shading="nearest",cmap=cmap, norm=norm)
-    #plt.xlabel("time [day]")
-    #plt.ylabel("depth[-] ")
-    #plt.subplots_adjust(left=0.2, bottom=0.5) 
-    #plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
-    #cax = plt.axes((0.85,0.1,0.075,0.8))
-    #cbar = plt.colorbar(cax=cax,boundaries=bounds)
-    #cbar.set_ticks(np.unique([Se_min, Se_max]))
-    #cbar.ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.2f"))
-    #plt.title(r"$S_e$[-]")
-    #plt.savefig(BENCH_OUTPUT_DIR / "Se_vG.png")
 
     #-----------------------------------
     #Effective stress - strain
@@ -220,19 +172,6 @@ def plotting():
     plt.grid(True,which="both",linestyle="--",alpha=0.5)
     plt.tight_layout()
     plt.savefig(BENCH_OUTPUT_DIR / "void_time.png",dpi=300)
-    plt.close()
-    #-----------------------------------
-    #Pore pressure - time
-    plt.figure()
-    plt.plot(suction_time_bp["time"],suction_time_bp["suction"],".",color="black",label="Measurement")
-    plt.plot(pressure_time["time"],pressure_time["pressure"],marker="s",linestyle=":",label="Simulation")
-    plt.title("Pressure - time")
-    plt.xlabel("Time [day]")
-    plt.ylabel("Pore pressure [kPa]")
-    plt.legend()
-    plt.grid(True,which="both",linestyle="--",alpha=0.5)
-    plt.tight_layout()
-    plt.savefig(BENCH_OUTPUT_DIR / "pressure_time.png",dpi=300)
     plt.close()
     #-----------------------------------
     #Soil shrinkage characteristic curve

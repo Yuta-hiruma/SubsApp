@@ -435,28 +435,10 @@ K_out = np.where(effective_saturation < 1,K_out,K_sat)
 #_/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ _/_/ 
 
 
-
-time_grid, depth_grid = np.meshgrid(time, depth)
-# node height------------------------------------
-data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),delta_z.ravel(),])
-np.savetxt("../results/delta_z.dat",data,delimiter="\t",header="time_days\tdepth_m\tpressure_kPa",fmt="%.8e",)
-# Pressure------------------------------------
-data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),pressure.ravel(),])
-np.savetxt("../results/Pressure.dat",data,delimiter="\t",header="time_days\tdepth_m\tpressure_kPa",fmt="%.8e",)
-# Se_vG--------------------------------------
-data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),np.asarray(effective_saturation).ravel()])
-np.savetxt(f"../results/Se_vG.dat",data,delimiter="\t",header="time\tdepth\teffective_saturation",fmt="%.4e")
-# Theta--------------------------------------
-data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),np.asarray(theta).ravel()])
-np.savetxt(f"../results/theta.dat",data,delimiter="\t",header="time\tdepth\ttheta",fmt="%.4e")
-# Hydraulic conductivity----------------------
-data = np.column_stack([time_grid.ravel(),depth_grid.ravel(),np.asarray(K_out).ravel()])
-np.savetxt(f"../results/K.dat",data,delimiter="\t",header="time\tdepth\tK",fmt="%.4e")
-
 #--------------------------------
 #Benchmarking
 #--------------------------------
-i = 2
+i = 5
 # --------------------------------------------------
 # Stress - strain
 sigma_total_node = 9.81 * (gamma_vector.s[:, None] * (1 / (e_results + 1))+ Se_results * gamma_vector.w[:, None] * (1 - (1 / (e_results + 1))))
@@ -577,17 +559,4 @@ plt.ylabel(rf"Void ratio $e$")
 plt.grid(True, which="both", linestyle="--", alpha=0.5)
 plt.savefig('../results/figure/sscc_MR.png')
 
-#Groundwater level------
-#gwl = []
-#gwl_check = 0
-#for i in range(Pressure_results.shape[1]):  # Loop over time
-#    for j in range(Pressure_results.shape[0] - 1):  # Loop over depth
-#        if Pressure_results[j, i] > 0:
-#            gwl.append(colum_node_height[j, i] + Soil_dimension.Depth_bottom)
-#            gwl_check = 1
-#            break 
-#
-#if gwl_check == 1:
-#    np.savetxt(f"{dat_dir}/gwl.dat",
-#        np.column_stack((simulation_time,gwl)),
-#        header="Time[day] Groundwater_level[m]",fmt="%.8e")
+
